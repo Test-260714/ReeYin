@@ -6,16 +6,9 @@
 
 适用于 `Hardware/` 及其全部子目录中的设备抽象、厂商适配、驱动/SDK 互操作、连接与状态管理、运动/IO/采集能力、配置页面、测试和文档。更深层 `AGENTS.md` 可以继续收紧本文件。
 
-## 修改前必须阅读
+## 修改前调查与阅读
 
-- [开发规范索引](../docs/development/README.md)
-- [架构与依赖边界](../docs/development/architecture.md)
-- [编码标准](../docs/development/coding-standards.md)
-- [测试与验证](../docs/development/testing-and-verification.md)
-- [安全与信息安全](../docs/development/safety-and-security.md)
-- [评审与交付](../docs/development/review-and-delivery.md)
-- AI 参与时还必须阅读 [AI 开发规范](../docs/development/ai-development.md)
-- 硬件能力接入节点 Model/ViewModel 时还必须阅读 [模块开发与生命周期](../docs/development/module-development.md)
+先按 [变更影响地图](../docs/development/change-impact-map.md) 定位设备抽象、实现和消费者，再从 [构建与测试地图](../docs/development/build-and-test-map.md) 选择模拟/构建入口。硬件命令或安全语义通常至少 R3，必须完整读取 [安全与信息安全](../docs/development/safety-and-security.md)、[测试与验证](../docs/development/testing-and-verification.md) 和 [评审与交付](../docs/development/review-and-delivery.md)；仅纯内部、无设备语义变化的候选 Lite 才按索引裁剪无关专题。
 
 ## 受控操作与模拟隔离
 

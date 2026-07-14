@@ -11,9 +11,10 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);**/obj-*/**</DefaultItemExcludes>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="halcondotnet">
+  <ItemGroup Condition="'$(ReeYinUseHalconDotNet)' == 'true'">
+    <Reference Include="halcondotnetxl">
       <HintPath>$(ReeYinRepositoryRoot)packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 </Project>

@@ -111,6 +111,8 @@
 
 ## 生成文件与第三方代码
 
+目录级保护规则见 [`thirdparty/AGENTS.md`](../../thirdparty/AGENTS.md)、[`packages/AGENTS.md`](../../packages/AGENTS.md)、[`OutputExe/AGENTS.md`](../../OutputExe/AGENTS.md) 和 [`Resource/AGENTS.md`](../../Resource/AGENTS.md)。这些规则不授权手工修补生成物或依赖缓存。
+
 - 识别设计器、代码生成器、资源编译器、数据库工具或构建产生的文件。默认修改生成源或模板，然后用受控命令再生成；禁止手工改生成物来制造短期一致。
 - 只有任务明确包含生成物且评审/验证覆盖来源、工具版本和差异时才提交生成结果。不得顺带刷新无关生成文件或 `OutputExe` 产物。
 - `thirdparty`/`packages` 中的源码和二进制不是本项目风格修正目标；修改、替换或升级必须单独审查来源、许可证、安全、ABI/API、架构和发布复制。

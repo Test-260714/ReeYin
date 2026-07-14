@@ -6,15 +6,9 @@
 
 适用于 `Algorithm/` 及其全部子目录中的 Native/托管算法、导出 ABI、互操作边界、数值实现、模型与依赖配置、性能优化、测试数据和文档。更深层 `AGENTS.md` 可以继续收紧本文件。
 
-## 修改前必须阅读
+## 修改前调查与阅读
 
-- [开发规范索引](../docs/development/README.md)
-- [架构与依赖边界](../docs/development/architecture.md)
-- [编码标准](../docs/development/coding-standards.md)
-- [测试与验证](../docs/development/testing-and-verification.md)
-- [安全与信息安全](../docs/development/safety-and-security.md)
-- [评审与交付](../docs/development/review-and-delivery.md)
-- AI 参与时还必须阅读 [AI 开发规范](../docs/development/ai-development.md)
+先按 [变更影响地图](../docs/development/change-impact-map.md) 定位 ABI、互操作和消费者，再从 [构建与测试地图](../docs/development/build-and-test-map.md) 选择项目、精度和性能入口。阅读范围按 [开发规范索引](../docs/development/README.md#which-document-to-read按变更选择文档) 和实际风险确定；Native ABI、精度、内存所有权、依赖或安全决策输入不得使用 R1-Lite。
 
 ## 输入输出与数值契约
 

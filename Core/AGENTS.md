@@ -6,16 +6,9 @@
 
 适用于 `Core/` 及其全部子目录中的源码、项目文件、配置、数据库/缓存基础设施、`Core/ReeYin_V.UI` 共享 UI、测试、文档和生成规则。更深层 `AGENTS.md` 可以继续收紧本文件。
 
-## 修改前必须阅读
+## 修改前调查与阅读
 
-- [开发规范索引](../docs/development/README.md)
-- [架构与依赖边界](../docs/development/architecture.md)
-- [编码标准](../docs/development/coding-standards.md)
-- [测试与验证](../docs/development/testing-and-verification.md)
-- [评审与交付](../docs/development/review-and-delivery.md)
-- AI 参与时还必须阅读 [AI 开发规范](../docs/development/ai-development.md)
-- 涉及 `ModelParamBase`、Recipe、Output、节点缓存或动态页面时还必须阅读 [模块开发与生命周期](../docs/development/module-development.md)
-- 涉及设备、生产数据、网络、外部进程或依赖时还必须阅读 [安全与信息安全](../docs/development/safety-and-security.md)
+先按 [变更影响地图](../docs/development/change-impact-map.md) 定位 Core 消费者，再从 [构建与测试地图](../docs/development/build-and-test-map.md) 选择验证入口。阅读范围按 [开发规范索引](../docs/development/README.md#which-document-to-read按变更选择文档) 和实际风险确定；Lite 只可排除无关专题，不能省略公共契约、数据、线程或生命周期调查。涉及架构/公共契约、实现、验证、评审、AI、模块生命周期或安全时，分别读取对应专题。
 
 ## 公共契约与依赖方向
 

@@ -4,6 +4,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ReeYinUseHalconDotNet>true</ReeYinUseHalconDotNet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="halcondotnet">
-      <HintPath>..\..\packages\halcondotnet.dll</HintPath>
-    </Reference>
     <Reference Include="HslCommunication">
       <HintPath>..\..\packages\HslCommunication.dll</HintPath>
     </Reference>

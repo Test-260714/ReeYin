@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <BaseOutputPath>..\OutputExe</BaseOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ReeYinUseHalconDotNet>true</ReeYinUseHalconDotNet>
   </PropertyGroup>
 
   <ItemGroup>

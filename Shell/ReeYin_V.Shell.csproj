@@ -12,6 +12,7 @@
     <ApplicationIcon>reech_icon.ico</ApplicationIcon>
     <PackageId>$(AssemblyName)</PackageId>
     <AssemblyName>ReeYin</AssemblyName>
+    <ReeYinUseHalconDotNet>true</ReeYinUseHalconDotNet>
   </PropertyGroup>
 
   <ItemGroup>

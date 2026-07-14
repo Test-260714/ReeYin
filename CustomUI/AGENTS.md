@@ -6,16 +6,9 @@
 
 适用于 `CustomUI/` 及其全部子目录中的项目、业务或客户组合 UI、页面、ViewModel、局部行为/转换器、Prism 导航、基于共享资源的扩展、测试和文档。当前全局共享控件、主题、样式和资源字典的权威所有者是 `Core/ReeYin_V.UI`；更深层 `AGENTS.md` 可以继续收紧本文件。
 
-## 修改前必须阅读
+## 修改前调查与阅读
 
-- [开发规范索引](../docs/development/README.md)
-- [架构与依赖边界](../docs/development/architecture.md)
-- [编码标准](../docs/development/coding-standards.md)
-- [测试与验证](../docs/development/testing-and-verification.md)
-- [评审与交付](../docs/development/review-and-delivery.md)
-- AI 参与时还必须阅读 [AI 开发规范](../docs/development/ai-development.md)
-- 页面承载节点 Model/ViewModel、Recipe、Output 或 DynamicView 时还必须阅读 [模块开发与生命周期](../docs/development/module-development.md)
-- 页面可能触发设备、生产数据、网络或外部进程时还必须阅读 [安全与信息安全](../docs/development/safety-and-security.md)
+先按 [变更影响地图](../docs/development/change-impact-map.md) 定位页面、导航、资源和 ViewModel 消费者，再从 [构建与测试地图](../docs/development/build-and-test-map.md) 选择构建/UI 场景。阅读范围按 [开发规范索引](../docs/development/README.md#which-document-to-read按变更选择文档) 和实际风险确定；共享资源、导航身份、节点生命周期、设备/数据能力变化不得使用 R1-Lite。
 
 ## Prism 导航、Binding 与线程
 

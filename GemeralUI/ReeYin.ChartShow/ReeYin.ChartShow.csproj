@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ReeYinUseHalconDotNet>true</ReeYinUseHalconDotNet>
   </PropertyGroup>
 
   <ItemGroup>

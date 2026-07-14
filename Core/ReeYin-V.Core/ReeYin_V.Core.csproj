@@ -5,6 +5,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <BaseOutputPath>..\OutputExe</BaseOutputPath>
+    <ReeYinUseHalconDotNet>true</ReeYinUseHalconDotNet>
   </PropertyGroup>
 
   <ItemGroup>

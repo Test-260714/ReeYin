@@ -6,16 +6,9 @@
 
 适用于 `Tools/` 及其全部子目录中的节点工具、执行模块、Model/ViewModel、参数页面、Recipe/Output、DynamicView、节点缓存、硬件/算法组合、测试和文档。更深层 `AGENTS.md` 可以继续收紧本文件。
 
-## 修改前必须阅读
+## 修改前调查与阅读
 
-- [开发规范索引](../docs/development/README.md)
-- [模块开发与生命周期](../docs/development/module-development.md)
-- [架构与依赖边界](../docs/development/architecture.md)
-- [编码标准](../docs/development/coding-standards.md)
-- [测试与验证](../docs/development/testing-and-verification.md)
-- [评审与交付](../docs/development/review-and-delivery.md)
-- AI 参与时还必须阅读 [AI 开发规范](../docs/development/ai-development.md)
-- 调用硬件、处理生产数据、网络/外部进程或第三方依赖时还必须阅读 [安全与信息安全](../docs/development/safety-and-security.md)
+先按 [变更影响地图](../docs/development/change-impact-map.md) 定位节点、方案和下游消费者，再从 [构建与测试地图](../docs/development/build-and-test-map.md) 选择项目与测试。涉及 Model/ViewModel、Recipe、Output、缓存、执行或 DynamicView 时完整读取 [模块开发与生命周期](../docs/development/module-development.md)；硬件/生产数据/外部进程读取安全规范。仅不触及这些契约且满足全部准入条件的私有局部修改可使用 R1-Lite。
 
 ## Model、ViewModel 与持久化契约
 
