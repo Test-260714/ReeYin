@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ResolvedSolutionDir>$(SolutionDir)</ResolvedSolutionDir>
+    <ResolvedSolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</ResolvedSolutionDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ACS.SPiiPlusNET8">
+      <HintPath>..\..\..\packages\A_ThirdParty\HardAPI\ACS\ACS.SPiiPlusNET8.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Hardware.ControlCard\ReeYin_V.Hardware.ControlCard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\packages\A_ThirdParty\HardAPI\ACS\ACS.SPiiPlusNET8.dll">
+      <Link>ACS.SPiiPlusNET8.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="Build">
+    <ItemGroup>
+      <ModuleFiles Include="$(TargetPath)" />
+      <ModuleFiles Include="$(MSBuildProjectDirectory)\..\..\..\packages\A_ThirdParty\HardAPI\ACS\ACS.SPiiPlusNET8.dll" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(ModuleFiles)"
+      DestinationFolder="$(ResolvedSolutionDir)OutputExe\$(Configuration)\$(TargetFramework)\Modules\"
+      SkipUnchangedFiles="true"
+      Retries="2"
+      RetryDelayMilliseconds="500" />
+  </Target>
+
+</Project>
+

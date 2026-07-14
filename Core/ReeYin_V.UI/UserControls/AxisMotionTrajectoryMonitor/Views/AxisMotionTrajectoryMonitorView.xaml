@@ -1,0 +1,361 @@
+<UserControl x:Class="ReeYin_V.UI.UserControls.AxisMotionTrajectoryMonitor.AxisMotionTrajectoryMonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:lcusb="http://schemas.arction.com/ChartingMVVM/ultimate/"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded"
+             ClipToBounds="True"
+             d:DesignWidth="1240"
+             d:DesignHeight="720">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="ChromeBrush" Color="#00FFFFFF" />
+        <SolidColorBrush x:Key="FloatingPanelBrush" Color="#EAF8FBFF" />
+        <SolidColorBrush x:Key="FloatingPanelBorderBrush" Color="#A9B6C8D8" />
+        <SolidColorBrush x:Key="PanelHeaderBrush" Color="#D943596D" />
+        <SolidColorBrush x:Key="PanelHeaderTextBrush" Color="#FFF5F9FC" />
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FF243547" />
+        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#FF586D81" />
+        <SolidColorBrush x:Key="HintTextBrush" Color="#FF6F8191" />
+
+        <Style x:Key="MetricTitleStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style x:Key="MetricValueStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="CompactMetricValueStyle" TargetType="TextBlock" BasedOn="{StaticResource MetricValueStyle}">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+
+        <Style x:Key="MetricHintStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource HintTextBrush}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="SettingSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="SettingLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+
+        <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#B6BCC9D5" />
+            <Setter Property="Background" Value="#F9FFFFFF" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource ChromeBrush}"
+          DataContext="{Binding ViewModel, RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <Border Margin="6"
+                Background="Transparent"
+                BorderBrush="#8A4B6176"
+                BorderThickness="0"
+                CornerRadius="18">
+            <Grid ClipToBounds="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0"
+                      Margin="12,8,12,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock VerticalAlignment="Center"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Text="{Binding MonitorTitle}" />
+
+                    <Button x:Name="DisplaySettingsButton"
+                            Grid.Column="1"
+                            Style="{StaticResource ToolbarButtonStyle}"
+                            Content="&#xE713;"
+                            ToolTip="显示设置"
+                            Click="DisplaySettingsButton_Click" />
+                </Grid>
+
+                <Popup x:Name="DisplaySettingsPopup"
+                       Grid.Row="0"
+                       AllowsTransparency="True"
+                       HorizontalOffset="-326"
+                       Placement="Bottom"
+                       PlacementTarget="{Binding ElementName=DisplaySettingsButton}"
+                       PopupAnimation="Fade"
+                       StaysOpen="False"
+                       VerticalOffset="6">
+                    <Border Width="360"
+                            MaxHeight="560"
+                            Background="{StaticResource FloatingPanelBrush}"
+                            BorderBrush="{StaticResource FloatingPanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Background="{StaticResource PanelHeaderBrush}"
+                                  Margin="0"
+                                  MinHeight="36">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Margin="12,0"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource PanelHeaderTextBrush}"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Text="显示设置" />
+
+                                <Button Grid.Column="1"
+                                        Margin="0,5,8,5"
+                                        MinWidth="54"
+                                        Padding="8,0"
+                                        Background="#00FFFFFF"
+                                        BorderThickness="0"
+                                        Foreground="{StaticResource PanelHeaderTextBrush}"
+                                        Content="关闭"
+                                        Click="CloseFloatingSettingsButton_Click" />
+                            </Grid>
+
+                            <ScrollViewer Grid.Row="1"
+                                          MaxHeight="520"
+                                          Background="White"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="14">
+                                    <TextBlock Style="{StaticResource SettingSectionTitleStyle}"
+                                               Text="坐标范围" />
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,10,0,0">
+                                        <StackPanel Margin="0,0,10,10">
+                                            <TextBlock Style="{StaticResource SettingLabelStyle}" Text="X 最小值" />
+                                            <TextBox x:Name="XMinimumEditor"
+                                                     Style="{StaticResource SettingTextBoxStyle}" />
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,0,10">
+                                            <TextBlock Style="{StaticResource SettingLabelStyle}" Text="X 最大值" />
+                                            <TextBox x:Name="XMaximumEditor"
+                                                     Style="{StaticResource SettingTextBoxStyle}" />
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,10,0">
+                                            <TextBlock Style="{StaticResource SettingLabelStyle}" Text="Y 最小值" />
+                                            <TextBox x:Name="YMinimumEditor"
+                                                     Style="{StaticResource SettingTextBoxStyle}" />
+                                        </StackPanel>
+
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingLabelStyle}" Text="Y 最大值" />
+                                            <TextBox x:Name="YMaximumEditor"
+                                                     Style="{StaticResource SettingTextBoxStyle}" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <TextBlock Margin="0,14,0,0"
+                                               Style="{StaticResource SettingSectionTitleStyle}"
+                                               Text="显示选项" />
+                                    <CheckBox Margin="0,10,0,0"
+                                              Foreground="{StaticResource PrimaryTextBrush}"
+                                              Content="显示移动轨迹"
+                                              IsChecked="{Binding ShowTrajectoryLines, Mode=TwoWay}" />
+
+                                    <TextBlock Margin="0,14,0,0"
+                                               Style="{StaticResource SettingSectionTitleStyle}"
+                                               Text="轨迹颜色" />
+
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource SettingLabelStyle}" Text="待执行轨迹" />
+                                        <TextBox x:Name="PendingTrajectoryColorEditor"
+                                                 Style="{StaticResource SettingTextBoxStyle}" />
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource SettingLabelStyle}" Text="执行中轨迹" />
+                                        <TextBox x:Name="RunningTrajectoryColorEditor"
+                                                 Style="{StaticResource SettingTextBoxStyle}" />
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource SettingLabelStyle}" Text="已完成轨迹" />
+                                        <TextBox x:Name="CompletedTrajectoryColorEditor"
+                                                 Style="{StaticResource SettingTextBoxStyle}" />
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource SettingLabelStyle}" Text="移动轨迹" />
+                                        <TextBox x:Name="MotionTraceColorEditor"
+                                                 Style="{StaticResource SettingTextBoxStyle}" />
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource SettingLabelStyle}" Text="当前位置点" />
+                                        <TextBox x:Name="CurrentMarkerColorEditor"
+                                                 Style="{StaticResource SettingTextBoxStyle}" />
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource SettingLabelStyle}" Text="目标位置点" />
+                                        <TextBox x:Name="TargetMarkerColorEditor"
+                                                 Style="{StaticResource SettingTextBoxStyle}" />
+                                    </StackPanel>
+
+                                    <TextBlock Margin="0,8,0,0"
+                                               Style="{StaticResource MetricHintStyle}"
+                                               Text="颜色支持 #RRGGBB 或 #AARRGGBB，例如 #3B82F6。" />
+
+                                    <TextBlock x:Name="SettingsMessageTextBlock"
+                                               Margin="0,12,0,0"
+                                               Style="{StaticResource MetricHintStyle}" />
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,14,0,0">
+                                        <Button Margin="0,0,8,0"
+                                                Padding="10,7"
+                                                Background="#FF2E5573"
+                                                Foreground="White"
+                                                BorderThickness="0"
+                                                Content="应用设置"
+                                                Click="ApplyFloatingSettingsButton_Click" />
+
+                                        <Button Margin="8,0,0,0"
+                                                Padding="10,7"
+                                                Background="#FFF2F6F9"
+                                                Foreground="{StaticResource PrimaryTextBrush}"
+                                                BorderBrush="#FFB8C6D1"
+                                                BorderThickness="1"
+                                                Content="恢复默认"
+                                                Click="ResetFloatingSettingsButton_Click" />
+                                    </UniformGrid>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Popup>
+
+                <Grid Grid.Row="1"
+                      ClipToBounds="True"
+                      Margin="8,0,8,0"
+                      Background="#FFF7FAFD">
+                    <lcusb:LightningChart x:Name="PART_Chart"
+                                          Margin="0"
+                                          ActiveView="ViewXY"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch">
+                        <lcusb:LightningChart.ViewXY>
+                            <lcusb:ViewXY XAxes="{Binding ChartXAxes}"
+                                          YAxes="{Binding ChartYAxes}"
+                                          FreeformPointLineSeries="{Binding ChartSeries}"
+                                          Margins="10" />
+                        </lcusb:LightningChart.ViewXY>
+                        <lcusb:LightningChart.ChartBackground>
+                            <lcusb:Fill Color="#FFF7FAFD"
+                                        GradientColor="#FFF7FAFD"
+                                        GradientDirection="-45"
+                                        GradientFill="Solid" />
+                        </lcusb:LightningChart.ChartBackground>
+                    </lcusb:LightningChart>
+                </Grid>
+
+                <Border Grid.Row="2"
+                        Margin="12,6,12,10"
+                        Padding="12,8"
+                        Background="#F4FFFFFF"
+                        BorderBrush="#CCD8E4EF"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <Grid MinHeight="46">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.35*" />
+                            <ColumnDefinition Width="1.35*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1.6*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,14,0">
+                            <TextBlock Style="{StaticResource MetricTitleStyle}" Text="当前位置" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Style="{StaticResource CompactMetricValueStyle}"
+                                       Text="{Binding CurrentPositionText}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="0,0,14,0">
+                            <TextBlock Style="{StaticResource MetricTitleStyle}" Text="目标位置" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Style="{StaticResource CompactMetricValueStyle}"
+                                       Text="{Binding TargetPositionText}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Margin="0,0,14,0">
+                            <TextBlock Style="{StaticResource MetricTitleStyle}" Text="已执行路径" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Style="{StaticResource CompactMetricValueStyle}"
+                                       Text="{Binding ExecutedDistanceText}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="3" Margin="0,0,14,0">
+                            <TextBlock Style="{StaticResource MetricTitleStyle}" Text="规划路径长度" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Style="{StaticResource CompactMetricValueStyle}"
+                                       Text="{Binding PlannedPathLengthText}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Style="{StaticResource MetricTitleStyle}" Text="坐标范围" />
+                            <TextBlock Margin="0,5,0,0"
+                                       Style="{StaticResource MetricHintStyle}"
+                                       Text="{Binding AxisRangeText}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

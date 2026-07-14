@@ -1,0 +1,130 @@
+﻿<UserControl x:Class="HardWareTool.PLC.Views.ReadSingleAddrView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:plcModels="clr-namespace:ReeYin_V.Hardware.PLC.Models;assembly=ReeYin_V.Hardware.PLC"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="500" d:DesignWidth="850">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 信息卡片（显示当前读取值） -->
+        <Border Grid.Row="0" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="20 12" Margin="0 0 0 15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="操作：" FontWeight="SemiBold" Foreground="#555555" VerticalAlignment="Center"/>
+                    <TextBlock Text="读单地址" Foreground="#222222" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="当前读取值：" FontWeight="SemiBold" Foreground="#555555" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ModelParam.SltPLCOrder.Value}" Foreground="#2196F3"
+                               VerticalAlignment="Center" Margin="5 0 0 0" FontWeight="Bold" FontSize="14"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 两列设置卡片 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 地址设置卡片 -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{DynamicResource PrimaryBrush}" CornerRadius="6 6 0 0" Padding="12 8">
+                        <TextBlock Text="地址设置" Foreground="White" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <TextBlock Text="目标地址" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <TextBox Style="{StaticResource TextBoxExtend}" Margin="0 0 0 15"
+                                 Text="{Binding ModelParam.SltPLCOrder.Addr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Text="数据类型" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <ComboBox Style="{StaticResource ComboBoxExtend}" BorderThickness="0,0,0,1" Margin="0 0 0 20"
+                                  helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                  helper:ItemsControlHelper.EnumType="{x:Type plcModels:EnumParaInfoModelParaType}"
+                                  SelectedItem="{Binding ModelParam.SltPLCOrder.ParamType}"/>
+
+                        <CheckBox Content="启用推送（订阅参数将收到此值）" FontSize="13"
+                                  IsChecked="{Binding ModelParam.SltPLCOrder.IsUsingPublish, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 等待判定卡片 -->
+            <Border Grid.Column="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{DynamicResource PrimaryBrush}" CornerRadius="6 6 0 0" Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="等待判定" Foreground="White" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right" Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding ModelParam.SltPLCOrder.IsUsingJedge, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <TextBlock Text="等待值" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <TextBox Style="{StaticResource TextBoxExtend}" Margin="0 0 0 15"
+                                 Text="{Binding ModelParam.SltPLCOrder.JudgeValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Text="等待时间（最大 60 S）" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <hc:NumericUpDown Style="{StaticResource NumericUpDownExtendGlobal}" Increment="1" Maximum="60"
+                                          Value="{Binding ModelParam.SltPLCOrder.Delay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 15 0 0">
+                            <StackPanel>
+                                <TextBlock Text="判断结果" Foreground="#888888" FontSize="11" Margin="0 0 0 4"/>
+                                <TextBlock Foreground="#555555" FontSize="12">
+                                    <Run Text="读取值 ="/>
+                                    <Run Text="{Binding ModelParam.SltPLCOrder.Value, Mode=OneWay}" Foreground="#2196F3" FontWeight="Bold"/>
+                                    <Run Text="  等待值 ="/>
+                                    <Run Text="{Binding ModelParam.SltPLCOrder.JudgeValue, Mode=OneWay}" Foreground="#FF9800" FontWeight="Bold"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部操作区 -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 15 0 0">
+            <Button Cursor="Hand" Style="{StaticResource GeneralButtonStyle}"
+                    Height="36" Width="110" FontSize="12"
+                    Background="#4CAF50" BorderBrush="#4CAF50" Foreground="White"
+                    Command="{Binding ExecuteCommand}" Content="执行操作"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
+

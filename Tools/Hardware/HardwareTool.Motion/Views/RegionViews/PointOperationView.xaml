@@ -1,0 +1,96 @@
+<UserControl x:Class="HardwareTool.Motion.Views.PointOperationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="360"
+             d:DesignWidth="850">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#F8F9FA"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="20 12"
+                Margin="0 0 0 15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="点位动作"
+                           FontWeight="SemiBold"
+                           Foreground="#555555"
+                           VerticalAlignment="Center"
+                           FontSize="14"/>
+                <TextBlock Text=" - 选择目标点位后执行当前轨迹。"
+                           Foreground="#888888"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Margin="5 0 0 0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="{DynamicResource PrimaryBrush}"
+                        CornerRadius="6 6 0 0"
+                        Padding="12 8">
+                    <TextBlock Text="目标位置"
+                               Foreground="White"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Row="1"
+                            Margin="20">
+                    <TextBlock Text="点位描述"
+                               Foreground="#555555"
+                               FontWeight="Medium"
+                               Margin="0 0 0 8"/>
+                    <WxLink:WxLink Width="420"
+                                   Order="OpenPosParam"
+                                   OutputParam="{Binding ModelParam.SltMovementLocus.AssignPosInfo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Text="{Binding ModelParam.SltMovementLocus.AssignPosInfo.Describe, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="提示：点位从缓存坐标中读取，适合快速切换到标准工位。"
+                               Foreground="#888888"
+                               Margin="0 16 0 0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    Margin="0 15 0 0">
+            <Button Cursor="Hand"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Height="36"
+                    Width="150"
+                    FontSize="12"
+                    Background="#4CAF50"
+                    BorderBrush="#4CAF50"
+                    Foreground="White"
+                    Command="{Binding ExecuteCommand}"
+                    Content="执行当前点位"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

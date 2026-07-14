@@ -1,0 +1,69 @@
+<Window x:Class="PointCloud.ToolViewer.Dialogs.SetScalarFieldDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="&#35774;&#32622;&#26631;&#37327;&#22330;"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        MinWidth="460">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Margin="0,0,18,0"
+                   VerticalAlignment="Center"
+                   Text="&#22352;&#26631;&#36724;" />
+
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1"
+                    Orientation="Horizontal">
+            <RadioButton x:Name="AxisNoneRadio"
+                         GroupName="ScalarAxis"
+                         Margin="0,0,24,0"
+                         Content="&#19981;&#20351;&#29992;" />
+            <RadioButton x:Name="AxisXRadio"
+                         GroupName="ScalarAxis"
+                         Margin="0,0,24,0"
+                         Content="X" />
+            <RadioButton x:Name="AxisYRadio"
+                         GroupName="ScalarAxis"
+                         Margin="0,0,24,0"
+                         Content="Y" />
+            <RadioButton x:Name="AxisZRadio"
+                         GroupName="ScalarAxis"
+                         Content="Z" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="0,12,0,16"
+                   Foreground="#C46A00"
+                   FontStyle="Italic"
+                   Text="&#26631;&#37327;&#22330;&#39068;&#33394;&#20250;&#21472;&#21152;&#22312;&#24403;&#21069;&#28857;&#20113;&#23618;&#19978;&#65292;EDL &#20173;&#21482;&#20316;&#29992;&#20110;&#28857;&#20113;&#28210;&#26579;&#23618;&#12290;" />
+
+        <StackPanel Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Width="84"
+                    Margin="0,0,8,0"
+                    IsDefault="True"
+                    Content="&#30830;&#23450;"
+                    Click="OkButton_Click" />
+            <Button Width="84"
+                    IsCancel="True"
+                    Content="&#21462;&#28040;" />
+        </StackPanel>
+    </Grid>
+</Window>

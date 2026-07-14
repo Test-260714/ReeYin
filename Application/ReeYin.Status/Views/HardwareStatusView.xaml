@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="ReeYin.Status.Views.HardwareStatusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:ReeYin.Status.Views"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" FontSize="12"
+             d:DesignHeight="450" d:DesignWidth="300">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UnLoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        
+        <WxGroupBox:WxGroupBox Header="硬件状态显示">
+            <ScrollViewer  VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <DataGrid AutoGenerateColumns="False" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                      EnableColumnVirtualization="True" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"
+                      EnableRowVirtualization="True"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      ItemsSource="{Binding AllStatus,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                      SelectedItem="{Binding CurrentOutputParam}"
+                      FontSize="12" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      Height="160"
+                      RowHeaderWidth="20"
+                      SelectionUnit="FullRow"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="None"
+                      IsReadOnly="False" CanUserAddRows="False" >
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <!-- 行样式（可选） -->
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </DataGrid.RowStyle>
+
+                        <!-- 单元格无边框 -->
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <!-- 去掉所有边框 -->
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <!-- 可选：背景透明 -->
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="名称" IsReadOnly="True" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent" IsReadOnly="True"
+                                              Text="{Binding Name,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Name,UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="连接状态" IsReadOnly="False" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <WxLED:WxLED Width="10" Height="10" BreathingDuration="1" HorizontalContentAlignment="Center"
+                                 IsActive="{Binding IsConnect,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="工作状态" IsReadOnly="True" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox HorizontalContentAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"
+                                             Text="{Binding Status,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Value,UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="备注" IsReadOnly="False" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent"
+                                             Text="{Binding Describe,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Describe}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+
+            </ScrollViewer>
+        </WxGroupBox:WxGroupBox>
+    </Grid>
+</UserControl>

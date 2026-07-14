@@ -1,0 +1,79 @@
+<UserControl x:Class="HardwareTool.Motion.Views.CustomMotionOperationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="280"
+             d:DesignWidth="850">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#F8F9FA"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="20 12"
+                Margin="0 0 0 15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="自定义动作"
+                           FontWeight="SemiBold"
+                           Foreground="#555555"
+                           VerticalAlignment="Center"
+                           FontSize="14"/>
+                <TextBlock Text=" - 预留扩展区域，可记录个性化动作说明。"
+                           Foreground="#888888"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Margin="5 0 0 0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="{DynamicResource PrimaryBrush}"
+                        CornerRadius="6 6 0 0"
+                        Padding="12 8">
+                    <TextBlock Text="扩展说明"
+                               Foreground="White"
+                               FontWeight="SemiBold"
+                               FontSize="13"/>
+                </Border>
+
+                <StackPanel Grid.Row="1"
+                            Margin="20">
+                    <TextBlock Text="备注"
+                               Foreground="#555555"
+                               FontWeight="Medium"
+                               Margin="0 0 0 5"/>
+                    <TextBox Height="120"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             Style="{StaticResource TextBoxExtend}"
+                             Text="{Binding ModelParam.SltMovementLocus.Describe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="提示：如果后续需要加入脚本化动作或特殊联动，这个页面可以继续扩展。"
+                               Foreground="#888888"
+                               Margin="0 15 0 0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

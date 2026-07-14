@@ -1,0 +1,154 @@
+﻿<UserControl x:Class="ReeYin_V.UI.UserControls.PolarLineSeries.LineSeriesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ReeYin_V.UI.UserControls.PolarLineSeries"
+             xmlns:lcusb="http://schemas.arction.com/ChartingMVVM/ultimate/"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="Page.Styles.Button.Base" TargetType="{x:Type ButtonBase}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style
+			x:Key="Page.Styles.Button.Color"
+			BasedOn="{StaticResource Page.Styles.Button.Base}"
+			TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <StackPanel>
+                                <Border
+									Width="24"
+									Height="24"
+									Padding="1"
+									Background="Transparent"
+									BorderBrush="Transparent"
+									BorderThickness="1"
+									CornerRadius="2">
+                                    <Rectangle
+										Fill="{TemplateBinding Foreground}"
+										RadiusX="2"
+										RadiusY="2" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.9" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style BasedOn="{StaticResource ButtonPrimary}" TargetType="{x:Type Button}" />
+        <Style
+			x:Key="toolButtonStyle"
+			BasedOn="{StaticResource ButtonPrimary}"
+			TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <!--<Setter Property="FontFamily" Value="{StaticResource IconFont}" />-->
+            <Setter Property="FontSize" Value="22" />
+        </Style>
+        <Style BasedOn="{StaticResource RadioButtonIconBaseStyle}" TargetType="RadioButton">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Content" Value="&#xe637;" />
+            <!--<Setter Property="FontFamily" Value="{StaticResource IconFont}" />-->
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Foreground" Value="{DynamicResource MainPrimaryTextBrush}" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <lcusb:LightningChart
+            ActiveView="ViewPolar"
+            ChartName="{Binding ChartName}">
+            <lcusb:LightningChart.ViewPolar>
+                <lcusb:ViewPolar>
+                    <lcusb:ViewPolar.ZoomPanOptions>
+                        <lcusb:ZoomPanOptionsPolar ZoomPadding="10,30,10,10"/>
+                    </lcusb:ViewPolar.ZoomPanOptions>
+                    <lcusb:ViewPolar.Axes>
+                        <lcusb:AxisPolar
+                            InnerCircleRadiusPercentage="{Binding InnerCircleRadiusPercentage}"
+                            MajorDivCount="{Binding MajorDivCount}"
+                            MaxAmplitude="{Binding MaxAmplitude}"
+                            MinAmplitude="{Binding MinAmplitude}"
+                            AllowScaling="True"
+                            AllowScrolling="True"
+                            Reversed="False"
+                            TickMarkLocation="Outside"
+                            Visible="True">
+                            <lcusb:AxisPolar.MajorGrid>
+                                <lcusb:GridOptionsRound Visible="True" Color="#3FFFFFFF" Pattern="Dot" PatternScale="3"/>
+                            </lcusb:AxisPolar.MajorGrid>
+                            <lcusb:AxisPolar.MinorGrid>
+                                <lcusb:GridOptionsRound Visible="True" Color="#26FFFFFF" Pattern="Dot"/>
+                            </lcusb:AxisPolar.MinorGrid>
+                            <lcusb:AxisPolar.Units>
+                                <lcusb:RoundAxisTitle RadialOffsetPercentage="100"/>
+                            </lcusb:AxisPolar.Units>
+                        </lcusb:AxisPolar>
+                    </lcusb:ViewPolar.Axes>
+                    <lcusb:ViewPolar.PointLineSeries>
+                        <lcusb:PointLineSeriesPolar
+                            Points="{Binding SeriesPoint}"
+                            PointsVisible="{Binding PointsVisible}">
+                            <lcusb:PointLineSeriesPolar.PointStyle>
+                                <lcusb:PointShapeStyle
+                                    Height="{Binding PointSize}"
+                                    Width="{Binding PointSize}"/>
+                            </lcusb:PointLineSeriesPolar.PointStyle>
+                        </lcusb:PointLineSeriesPolar>
+                    </lcusb:ViewPolar.PointLineSeries>
+                    <lcusb:ViewPolar.Sectors>
+                        <lcusb:Sector
+                            BeginAngle="{Binding SectorBeginAngle}"
+                            Behind="True"
+                            EndAngle="{Binding SectorEndAngle}"
+                            MinAmplitude="{Binding SectorMinAmplitude}"
+                            MaxAmplitude="{Binding SectorMaxAmplitude}">
+                            <lcusb:Sector.BorderlineStyle>
+                                <lcusb:LineStyle Color="Cyan" Width="2"/>
+                            </lcusb:Sector.BorderlineStyle>
+                        </lcusb:Sector>
+                    </lcusb:ViewPolar.Sectors>
+                </lcusb:ViewPolar>
+            </lcusb:LightningChart.ViewPolar>
+        </lcusb:LightningChart>
+
+        <!--操作-->
+        <Expander Header="点击此处显示或隐藏" Background="Gray" BorderThickness="0" HorizontalContentAlignment="Center"
+                  IsExpanded="True" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <Border MaxWidth="325" MaxHeight="200" CornerRadius="3">
+                <Border.Background>
+                    <SolidColorBrush Color="Gray" Opacity="0.7" />
+                </Border.Background>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" Height="100" Width="300" >
+                    <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Expander>
+    </Grid>
+</UserControl>

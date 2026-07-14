@@ -1,0 +1,310 @@
+﻿<UserControl x:Class="ReeYin.Hardware.Sensor.JingCe.CustomUI.Views.JingCeSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin.Hardware.Sensor.JingCe.CustomUI.Views"
+             mc:Ignorable="d" 
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:Chart="clr-namespace:ReeYin_V.UI.UserControls.GrayAndHeightChart;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             Height="880" Width="1480"
+             d:DesignHeight="800" d:DesignWidth="1280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="3"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Width="auto" >
+                <Border CornerRadius="0" Padding="5">
+                    <TabControl Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{DynamicResource TabControlStyle}" IsEnabled="{Binding ModelParam.IsCurSltCardIsNotNull,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+
+                        <TabItem Header="CMOS配置" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="光量相关" Margin="0">
+                                    <Grid HorizontalAlignment="Left">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition Width="40"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="占空比[%]" Width="300" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               Value="{Binding ModelParam.JingCeSensor.CmosConfig.DutyRatio,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" >
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="占空比"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+
+                                        
+                                        <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Left">
+                                            <TextBlock Text="PWM[μs]: "  Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding ModelParam.JingCeSensor.CmosConfig.ILedDuration}"  Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="光源频率[Hz]" Width="300" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               Value="{Binding ModelParam.JingCeSensor.CmosConfig.Frequency,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="1">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="光源频率"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+
+
+                                        <ComboBox Width="300" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="数据点格式"  hc:InfoElement.TitleWidth="140" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               SelectedItem="{Binding ModelParam.JingCeSensor.CmosConfig.PointDataForm}" Grid.Row="2">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="数据点格式"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <!--<hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="帧率" Width="300" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               Value="{Binding ModelParam.HypersenSensor.CmosConfig.Intensity,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" Grid.Row="3">
+                                        </hc:NumericUpDown>-->
+                                    </Grid>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="测量范围" Margin="0">
+                                    <Grid HorizontalAlignment="Left">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition Width="40"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="Z范围[um]" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.ZWidthRange,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="Z范围"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="3" hc:InfoElement.Title="无效值" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.ProfileInvalidValue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="3">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="无效值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <ComboBox Width="300" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="桢速度模式" hc:InfoElement.TitleWidth="140" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                 SelectedItem="{Binding ModelParam.JingCeSensor.CmosConfig.Binning}" Grid.Column="0" Grid.Row="2">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="桢速度模式"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="开窗范围" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.ZPixelRangeMin,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="1">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="开窗范围最小值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <TextBlock Text="一" Grid.Column="1" Grid.Row="1"  Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <hc:NumericUpDown HorizontalAlignment="Left"  DecimalPlaces="1"  Width="150" Style="{StaticResource NumericUpDownExtend}"  BorderThickness="0 0 0 1" Foreground="Black" Margin="10,5,5,5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.ZPixelRangeMax,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="2">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="开窗范围最大值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="曝光" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.ExposureTime,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="4">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="曝光"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="本底阈值" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.Bias,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="5">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="本底阈值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="最低灰度阈值" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.LeastGray,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="6">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="最低灰度阈值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="最低数量阈值" Width="300" hc:InfoElement.TitleWidth="140" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 Value="{Binding ModelParam.JingCeSensor.CmosConfig.LeastNumber,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Grid.Row="7">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="最低数量阈值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                    </Grid>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="触发设定" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="触发控制">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <ComboBox Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="外触发类型" hc:InfoElement.TitleWidth="160" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 SelectedItem="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.OutTriggerType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="外触发类型"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <ComboBox Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="外触发高电平抑制信号" hc:InfoElement.TitleWidth="160" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 SelectedItem="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.OuterTriggerHighlevelSwitch,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="外触发高电平抑制信号"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发间隔" Width="320" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="160" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               Value="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.OuterTriggerFilter,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" >
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="触发间隔"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+
+
+                                        <!--<ComboBox Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="外触发开关" hc:InfoElement.TitleWidth="160" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                 SelectedItem="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.ExternalTriggerSwitch,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="外触发开关"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>-->
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发步进[um]" Width="320" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="160" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               Value="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.YAxisResolution,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                        </hc:NumericUpDown>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发次数" Width="320" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="160" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                               Value="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.CapturedFrames,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                        </hc:NumericUpDown>
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Button Margin="0,0,15,0" FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="开始采集"
+                            Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="开始采集"/>
+                                <Button FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="停止采集"
+                            Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="停止采集"/>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </TabItem>
+
+                    </TabControl>
+                </Border>
+            </StackPanel>
+
+            <GridSplitter Grid.Column="1" Height="730" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch"/>
+
+            <Grid Grid.Column="2" Margin="5,0,5,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <TextBlock Text="显示层：" Foreground="Black" VerticalAlignment="Center"/>
+                        <hc:NumericUpDown Width="100" Minimum="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5,0,15,0" HorizontalContentAlignment="Center"
+                                              Value="{Binding SelectedLayerIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="{Binding LayerCountText}" Foreground="Black" VerticalAlignment="Center"/>
+                        <TextBlock Text="返回层数：" Foreground="Black" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                        <hc:NumericUpDown Width="100" Minimum="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5,0,5,0" HorizontalContentAlignment="Center"
+                                              Value="{Binding ModelParam.JingCeSensor.ReceiveLayerCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="0=全部" Foreground="Black" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <TabControl Grid.Row="1" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{DynamicResource TabControlStyle}">
+                        <TabItem Header="灰度图"  FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <Controls:ImageEditView Image="{Binding GrayImage}"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Stretch"
+                                                        Background="Transparent"
+                                                        MinHeight="300"
+                                                        MinWidth="300"/>
+                        </TabItem>
+                        <TabItem Header="高度图" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <Chart:GrayAndHeightChartView DisplayResult="{Binding HeightDisplayResult}"
+                                                             HorizontalAlignment="Stretch"
+                                                             VerticalAlignment="Stretch"
+                                                             MinHeight="300"
+                                                             MinWidth="300"/>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </Grid>
+        </Grid>
+        <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal"
+                                         WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Margin="0,0,15,0" FontSize="18" MinHeight="30"
+                                             Command="{Binding GeneralCommand}" CommandParameter="取消"
+                                             Width="80"
+                                             Style="{StaticResource GeneralButtonStyle}"
+                                             Content="取消"
+                                             Cursor="Hand"/>
+            <Button Margin="0,0,15,0" FontSize="18"
+                                             Command="{Binding GeneralCommand}" CommandParameter="确认"
+                                             Style="{StaticResource GeneralButtonStyle}"
+                                             Height="auto" Width="80"
+                                             Content="确认"
+                                             Cursor="Hand"/>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

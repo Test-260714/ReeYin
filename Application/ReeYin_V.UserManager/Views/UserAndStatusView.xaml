@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="ReeYin_V.UserManager.Views.UserAndStatusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.UserManager.Views"
+             mc:Ignorable="d" FontSize="24"
+             d:DesignHeight="100" d:DesignWidth="300">
+    <Grid>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin=" 10,0,0,0">
+                    <Run Text="当前用户："/>
+                    <Run Text="{Binding CurUser.UserName,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
+                </TextBlock>
+                
+                <Button Content="切换" Margin="10 0" Height="auto" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" HorizontalAlignment="Right"
+                                       Command="{Binding ButtonOperateCommand}" CommandParameter="切换用户" />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin=" 10,0,0,0">
+                    <Run Text="当前状态："/>
+                    <Run Text="{Binding CurStatus,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
+                </TextBlock>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

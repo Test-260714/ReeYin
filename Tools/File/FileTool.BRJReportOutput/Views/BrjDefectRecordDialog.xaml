@@ -1,0 +1,70 @@
+﻿<Window x:Class="FileTool.BRJReportOutput.Views.BrjDefectRecordDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding WindowTitle}"
+        Width="1480"
+        Height="820"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F6F8">
+    <Window.Resources>
+        <SolidColorBrush x:Key="DialogAccentBrush" Color="#C39200"/>
+        <SolidColorBrush x:Key="DialogBorderBrush" Color="#D8D8D8"/>
+        <Style x:Key="DialogButtonStyle" TargetType="Button" BasedOn="{StaticResource GeneralButtonStyle}">
+            <Setter Property="Width" Value="96"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="{StaticResource DialogAccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource DialogBorderBrush}" BorderThickness="1" Padding="12" Margin="0,0,0,8">
+            <DockPanel LastChildFill="True">
+                <TextBlock Text="{Binding BatchTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding CountText}" FontSize="14" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource DialogBorderBrush}" BorderThickness="1">
+            <DataGrid ItemsSource="{Binding Defects}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      EnableRowVirtualization="True"
+                      EnableColumnVirtualization="True"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="All"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70"/>
+                    <DataGridTextColumn Header="SN" Binding="{Binding SN}" Width="160"/>
+                    <DataGridTextColumn Header="缺陷索引" Binding="{Binding DefectIndex}" Width="90"/>
+                    <DataGridTextColumn Header="相机" Binding="{Binding CameraDisplayName}" Width="90"/>
+                    <DataGridTextColumn Header="分段号" Binding="{Binding SegmentIndex}" Width="90"/>
+                    <DataGridTextColumn Header="分切号" Binding="{Binding SlitIndex}" Width="90"/>
+                    <DataGridTextColumn Header="类型" Binding="{Binding DefectType}" Width="120"/>
+                    <DataGridTextColumn Header="面积/mm^2" Binding="{Binding AreaMm2}" Width="110"/>
+                    <DataGridTextColumn Header="直径/mm" Binding="{Binding DiameterMm}" Width="100"/>
+                    <DataGridTextColumn Header="横位置/mm" Binding="{Binding PositionXMm}" Width="110"/>
+                    <DataGridTextColumn Header="纵位置/m" Binding="{Binding PositionYM}" Width="110"/>
+                    <DataGridTextColumn Header="缺陷图路径" Binding="{Binding DefectImagePath}" Width="280"/>
+                    <DataGridTextColumn Header="创建时间" Binding="{Binding CreateTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="160"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="关闭" IsCancel="True" Style="{StaticResource DialogButtonStyle}"/>
+        </StackPanel>
+    </Grid>
+</Window>

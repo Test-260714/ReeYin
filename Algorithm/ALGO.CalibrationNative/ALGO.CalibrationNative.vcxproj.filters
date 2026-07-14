@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8eb1004a-28d5-4bf1-af60-50c3f34dac70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\charuco">
+      <UniqueIdentifier>{cdbc0edf-eb19-4a28-bb7a-b325b58aa651}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\boards">
+      <UniqueIdentifier>{b3b69b45-1f8b-4546-aee4-91a693a70d5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\multicam">
+      <UniqueIdentifier>{57cf3831-2d0a-4dbe-b381-45f052e6e8bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\chessboard">
+      <UniqueIdentifier>{8b2fb998-ea4d-47f0-a06c-d739b9b41703}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\import_lib.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\interface.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\charuco\charuco_calib.cpp">
+      <Filter>src\charuco</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boards\calibration_board_calib_factory.cpp">
+      <Filter>src\boards</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chessboard\chessboard_calib.cpp">
+      <Filter>src\chessboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\observation_graph.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\bundle_adjuster.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\common_plane_projector.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\fused_plane_grid_model.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\multi_camera_calib.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\multi_camera_stitcher.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multicam\reference_camera_canvas.cpp">
+      <Filter>src\multicam</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\framework.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interface.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\charuco\charuco_calib.h">
+      <Filter>src\charuco</Filter>
+    </ClInclude>
+    <ClInclude Include="src\boards\calibration_board_calib.h">
+      <Filter>src\boards</Filter>
+    </ClInclude>
+    <ClInclude Include="src\boards\calibration_board_calib_factory.h">
+      <Filter>src\boards</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chessboard\chessboard_calib.h">
+      <Filter>src\chessboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\multi_camera_types.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\observation_graph.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\bundle_adjuster.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\common_plane_projector.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\fused_plane_grid_model.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\multi_camera_calib.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\multi_camera_stitcher.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multicam\reference_camera_canvas.h">
+      <Filter>src\multicam</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

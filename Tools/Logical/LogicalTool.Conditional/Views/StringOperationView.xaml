@@ -1,0 +1,356 @@
+<UserControl x:Class="LogicalTool.Conditional.Views.StringOperationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:LogicalTool.Conditional.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             FontSize="12"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="500"
+             d:DesignWidth="800">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 变量信息卡片 -->
+        <Border Grid.Row="0"
+                Background="#F8F9FA"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="20 12"
+                Margin="0 0 0 15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="名称："
+                               FontWeight="SemiBold"
+                               Foreground="#555555"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.Name}"
+                               Foreground="#222222"
+                               VerticalAlignment="Center"
+                               Margin="5 0 0 0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="类型："
+                               FontWeight="SemiBold"
+                               Foreground="#555555"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.Type}"
+                               Foreground="#222222"
+                               VerticalAlignment="Center"
+                               Margin="5 0 0 0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="当前值："
+                               FontWeight="SemiBold"
+                               Foreground="#555555"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.Value}"
+                               Foreground="#2196F3"
+                               VerticalAlignment="Center"
+                               Margin="5 0 0 0"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="150"
+                               ToolTip="{Binding CurCodition.Variable.Value}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <TextBlock Text="长度："
+                               FontWeight="SemiBold"
+                               Foreground="#555555"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StringLength}"
+                               Foreground="#888888"
+                               VerticalAlignment="Center"
+                               Margin="5 0 0 0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 字符串操作区域 - 三列横向布局 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 字符串分割 -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource PrimaryBrush}"
+                            CornerRadius="6 6 0 0"
+                            Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="字符串分割"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right"
+                                          Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding CurCodition.StringSplitEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <TextBlock Text="分隔符"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <TextBox Text="{Binding CurCodition.SplitDelimiter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="30"
+                                 VerticalContentAlignment="Center"
+                                 Padding="8 0"
+                                 BorderBrush="#CCCCCC"
+                                 BorderThickness="1"
+                                 Margin="0 0 0 10"/>
+
+                        <TextBlock Text="最大分割数"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <hc:NumericUpDown DecimalPlaces="0"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Value="{Binding CurCodition.MaxSplitCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0 0 0 10"/>
+
+                        <CheckBox Content="移除空白项"
+                                  Margin="0 3"
+                                  IsChecked="{Binding CurCodition.RemoveEmptyEntries, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <CheckBox Content="去除首尾空格"
+                                  Margin="0 3 0 10"
+                                  IsChecked="{Binding CurCodition.TrimEntries, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- 结果预览 -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 5 0 0">
+                            <StackPanel>
+                                <TextBlock Text="分割结果"
+                                           Foreground="#888888"
+                                           FontSize="11"
+                                           Margin="0 0 0 5"/>
+                                <TextBlock Text="{Binding SplitResultText}"
+                                           FontWeight="Bold"
+                                           FontSize="14"
+                                           Foreground="{Binding SplitResultColor}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 字符判断 -->
+            <Border Grid.Column="2"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource PrimaryBrush}"
+                            CornerRadius="6 6 0 0"
+                            Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="字符判断"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right"
+                                          Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding CurCodition.StringCheckEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <TextBlock Text="判断类型"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <ComboBox SelectedItem="{Binding CurCodition.StringCheckType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  Margin="0 0 0 10"/>
+
+                        <TextBlock Text="目标字符"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <TextBox Text="{Binding CurCodition.TargetString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="30"
+                                 VerticalContentAlignment="Center"
+                                 Padding="8 0"
+                                 BorderBrush="#CCCCCC"
+                                 BorderThickness="1"
+                                 Margin="0 0 0 10"/>
+
+                        <CheckBox Content="忽略大小写"
+                                  Margin="0 3 0 10"
+                                  IsChecked="{Binding CurCodition.IgnoreCase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- 结果预览 -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 5 0 0">
+                            <StackPanel>
+                                <TextBlock Text="判断结果"
+                                           Foreground="#888888"
+                                           FontSize="11"
+                                           Margin="0 0 0 5"/>
+                                <TextBlock Text="{Binding CheckResultText}"
+                                           FontWeight="Bold"
+                                           FontSize="14"
+                                           Foreground="{Binding CheckResultColor}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 子字符串提取 -->
+            <Border Grid.Column="4"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource PrimaryBrush}"
+                            CornerRadius="6 6 0 0"
+                            Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="子字符串提取"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right"
+                                          Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding CurCodition.SubstringEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <TextBlock Text="起始位置"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <hc:NumericUpDown DecimalPlaces="0"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Value="{Binding CurCodition.SubstringStartIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0 0 0 15"/>
+
+                        <TextBlock Text="提取长度"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <hc:NumericUpDown DecimalPlaces="0"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Value="{Binding CurCodition.SubstringLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0 0 0 15"/>
+
+                        <!-- 结果预览 -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 5 0 0">
+                            <StackPanel>
+                                <TextBlock Text="提取结果"
+                                           Foreground="#888888"
+                                           FontSize="11"
+                                           Margin="0 0 0 5"/>
+                                <TextBlock Text="{Binding SubstringResultText}"
+                                           FontWeight="Bold"
+                                           FontSize="14"
+                                           Foreground="#2196F3"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部操作栏 -->
+        <Border Grid.Row="2" Margin="0 15 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="提示：启用对应功能后，点击「追加至输出」将结果添加到输出参数列表。"
+                           Foreground="#888888"
+                           FontSize="11"
+                           VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding GeneralCommand}"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="36"
+                            Width="90"
+                            Content="测试操作"
+                            CommandParameter="测试操作"
+                            Cursor="Hand"
+                            FontSize="12"
+                            Margin="0 0 10 0"/>
+                    <Button Command="{Binding GeneralCommand}"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="36"
+                            Width="110"
+                            Content="追加至输出"
+                            CommandParameter="追加至输出"
+                            Cursor="Hand"
+                            FontSize="12"
+                            Background="#2196F3"
+                            BorderBrush="#2196F3"
+                            Foreground="White"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\core\application\common\anomalyDetection\common_anomaly_detection.cpp" />
+    <ClCompile Include="src\core\application\common\classification\common_classification.cpp" />
+    <ClCompile Include="src\core\application\common\detectionBbox\common_detectionBbox.cpp" />
+    <ClCompile Include="src\core\application\common\detectionKpt\common_detectionKpt.cpp" />
+    <ClCompile Include="src\core\application\common\detectionObbox\common_detectionObbox.cpp" />
+    <ClCompile Include="src\core\application\common\detectionSeg\common_detectionSeg.cpp" />
+    <ClCompile Include="src\core\application\common\segmentation\common_segmentation.cpp" />
+    <ClCompile Include="src\core\application\common\utils.cpp" />
+    <ClCompile Include="src\core\application\openvino\anomalyDetection\ov_app_anomaly_detection.cpp" />
+    <ClCompile Include="src\core\application\openvino\anomalyDetection\ov_anomaly_detection.cpp" />
+    <ClCompile Include="src\core\application\openvino\classification\ov_app_classification.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\classification\ov_classification.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionBbox\ov_app_detectionBbox.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionBbox\ov_detectionBbox.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionKpt\ov_app_detectionKpt.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionKpt\ov_detectionKpt.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionObbox\ov_app_detectionObbox.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionObbox\ov_detectionObbox.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionSeg\ov_app_detectionSeg.cpp" />
+    <ClCompile Include="src\core\application\openvino\detectionSeg\ov_detectionSeg.cpp" />
+    <ClCompile Include="src\core\application\openvino\segmentation\ov_app_segmentation.cpp" />
+    <ClCompile Include="src\core\application\openvino\segmentation\ov_segmentation.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\anomalyDetection\trt_app_anomaly_detection.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\anomalyDetection\trt_anomaly_detection.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\classification\trt_app_classification.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\classification\trt_classification.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionBbox\trt_app_detectionBbox.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionBbox\trt_detectionBbox.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionKpt\trt_app_detectionKpt.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionKpt\trt_detectionKpt.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionObbox\trt_app_detectionObbox.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionObbox\trt_detectionObbox.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionSeg\trt_app_detectionSeg.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\detectionSeg\trt_detectionSeg.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\segmentation\trt_app_segmentation.cpp" />
+    <ClCompile Include="src\core\application\tensorrt\segmentation\trt_segmentation.cpp" />
+    <ClCompile Include="src\core\engine\openvino\common\ov_model_loader.cpp" />
+    <ClCompile Include="src\core\engine\openvino\common\ov_preprocess.cpp" />
+    <ClCompile Include="src\core\engine\tensorrt\builder\trt_builder.cpp" />
+    <ClCompile Include="src\core\engine\tensorrt\common\cuda_tools.cpp" />
+    <ClCompile Include="src\core\engine\tensorrt\common\trt_tensor.cpp" />
+    <ClCompile Include="src\core\engine\tensorrt\infer\trt_infer.cpp" />
+    <ClCompile Include="src\core\engine\tensorrt\onnxplugin\onnxplugin.cpp" />
+    <ClCompile Include="src\core\engine\tensorrt\onnxplugin\plugin_binary_io.cpp" />
+    <ClCompile Include="src\core\model_factory.cpp" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\import_lib.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\interface\interface.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\utils\ilogger.cpp" />
+    <ClCompile Include="src\utils\json.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\core\application\common\anomalyDetection\common_anomaly_detection.h" />
+    <ClInclude Include="src\core\application\common\classification\common_classification.h" />
+    <ClInclude Include="src\core\application\common\detectionBbox\common_detectionBbox.h" />
+    <ClInclude Include="src\core\application\common\detectionKpt\common_detectionKpt.h" />
+    <ClInclude Include="src\core\application\common\detectionObbox\common_detectionObbox.h" />
+    <ClInclude Include="src\core\application\common\detectionSeg\common_detectionSeg.h" />
+    <ClInclude Include="src\core\application\common\segmentation\common_segmentation.h" />
+    <ClInclude Include="src\core\application\common\utils.h" />
+    <ClInclude Include="src\core\application\openvino\anomalyDetection\ov_app_anomaly_detection.h" />
+    <ClInclude Include="src\core\application\openvino\anomalyDetection\ov_anomaly_detection.h" />
+    <ClInclude Include="src\core\application\openvino\classification\ov_app_classification.h" />
+    <ClInclude Include="src\core\application\openvino\classification\ov_classification.h" />
+    <ClInclude Include="src\core\application\openvino\detectionBbox\ov_app_detectionBbox.h" />
+    <ClInclude Include="src\core\application\openvino\detectionBbox\ov_detectionBbox.h" />
+    <ClInclude Include="src\core\application\openvino\detectionKpt\ov_app_detectionKpt.h" />
+    <ClInclude Include="src\core\application\openvino\detectionKpt\ov_detectionKpt.h" />
+    <ClInclude Include="src\core\application\openvino\detectionObbox\ov_app_detectionObbox.h" />
+    <ClInclude Include="src\core\application\openvino\detectionObbox\ov_detectionObbox.h" />
+    <ClInclude Include="src\core\application\openvino\detectionSeg\ov_app_detectionSeg.h" />
+    <ClInclude Include="src\core\application\openvino\detectionSeg\ov_detectionSeg.h" />
+    <ClInclude Include="src\core\application\openvino\segmentation\ov_app_segmentation.h" />
+    <ClInclude Include="src\core\application\openvino\segmentation\ov_segmentation.h" />
+    <ClInclude Include="src\core\application\tensorrt\anomalyDetection\trt_app_anomaly_detection.h" />
+    <ClInclude Include="src\core\application\tensorrt\anomalyDetection\trt_anomaly_detection.h" />
+    <ClInclude Include="src\core\application\tensorrt\classification\trt_app_classification.h" />
+    <ClInclude Include="src\core\application\tensorrt\classification\trt_classification.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionBbox\trt_app_detectionBbox.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionBbox\trt_detectionBbox.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionKpt\trt_app_detectionKpt.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionKpt\trt_detectionKpt.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionObbox\trt_app_detectionObbox.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionObbox\trt_detectionObbox.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionSeg\trt_app_detectionSeg.h" />
+    <ClInclude Include="src\core\application\tensorrt\detectionSeg\trt_detectionSeg.h" />
+    <ClInclude Include="src\core\application\tensorrt\segmentation\trt_app_segmentation.h" />
+    <ClInclude Include="src\core\application\tensorrt\segmentation\trt_segmentation.h" />
+    <ClInclude Include="src\core\engine\monopoly_allocator.hpp" />
+    <ClInclude Include="src\core\engine\openvino\common\ov_infer_controller.hpp" />
+    <ClInclude Include="src\core\engine\openvino\common\ov_model_loader.h" />
+    <ClInclude Include="src\core\engine\openvino\common\ov_preprocess.h" />
+    <ClInclude Include="src\core\engine\tensorrt\builder\trt_builder.hpp" />
+    <ClInclude Include="src\core\engine\tensorrt\common\cuda_tools.hpp" />
+    <ClInclude Include="src\core\engine\tensorrt\common\preprocess_kernel.cuh" />
+    <ClInclude Include="src\core\engine\tensorrt\common\trt_infer_controller.hpp" />
+    <ClInclude Include="src\core\engine\tensorrt\common\trt_tensor.hpp" />
+    <ClInclude Include="src\core\engine\tensorrt\infer\trt_infer.hpp" />
+    <ClInclude Include="src\core\engine\tensorrt\onnxplugin\onnxplugin.hpp" />
+    <ClInclude Include="src\core\engine\tensorrt\onnxplugin\plugin_binary_io.hpp" />
+    <ClInclude Include="src\core\model_base.h" />
+    <ClInclude Include="src\core\model_factory.h" />
+    <ClInclude Include="src\framework.h" />
+    <ClInclude Include="src\interface\interface.h" />
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\utils\ilogger.hpp" />
+    <ClInclude Include="src\utils\json.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\core\application\tensorrt\detectionBbox\trt_detectionBbox.cu" />
+    <CudaCompile Include="src\core\application\tensorrt\detectionKpt\trt_detectionKpt.cu" />
+    <CudaCompile Include="src\core\application\tensorrt\detectionObbox\trt_detectionObbox.cu" />
+    <CudaCompile Include="src\core\application\tensorrt\detectionSeg\trt_detectionSeg.cu" />
+    <CudaCompile Include="src\core\application\tensorrt\segmentation\trt_segmentation.cu" />
+    <CudaCompile Include="src\core\engine\tensorrt\common\preprocess_kernel.cu" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{d4aea2d3-172a-4aa5-af11-52336d61e2fd}</ProjectGuid>
+    <RootNamespace>ALGODeepLearningNative</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\extras\visual_studio_integration\MSBuildExtensions\CUDA 13.2.props" />
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\include;$(SolutionDir)thirdparty\opencv481\include;$(SolutionDir)thirdparty\TensorRT-10.16.1.11\include;$(SolutionDir)thirdparty\openvino_toolkit_windows_2025_3\runtime\include;$(SolutionDir)thirdparty\Eigen\Eigen3\include\eigen3\Eigen;$(ProjectDir)src;$(ProjectDir)src\utils;$(ProjectDir)src\core;$(ProjectDir)src\core\engine;$(ProjectDir)src\core\application;$(SolutionDir)Algorithm\ALGO.EncryptionNative\src;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\lib\x64;$(SolutionDir)thirdparty\opencv481\staticlib;$(SolutionDir)thirdparty\TensorRT-10.16.1.11\lib;$(SolutionDir)thirdparty\openvino_toolkit_windows_2025_3\runtime\lib\intel64\Debug;$(SolutionDir)OutputExe\$(Configuration)\net8.0-windows\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)OutputExe\$(Configuration)\net8.0-windows\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\include;$(SolutionDir)thirdparty\opencv481\include;$(SolutionDir)thirdparty\TensorRT-10.16.1.11\include;$(SolutionDir)thirdparty\openvino_toolkit_windows_2025_3\runtime\include;$(SolutionDir)thirdparty\Eigen\Eigen3\include\eigen3\Eigen;$(ProjectDir)src;$(ProjectDir)src\utils;$(ProjectDir)src\core;$(ProjectDir)src\core\engine;$(ProjectDir)src\core\application;$(SolutionDir)Algorithm\ALGO.EncryptionNative\src;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\lib\x64;$(SolutionDir)thirdparty\opencv481\staticlib;$(SolutionDir)thirdparty\TensorRT-10.16.1.11\lib;$(SolutionDir)thirdparty\openvino_toolkit_windows_2025_3\runtime\lib\intel64\Release;$(SolutionDir)OutputExe\$(Configuration)\net8.0-windows\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)OutputExe\$(Configuration)\net8.0-windows\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;ALGODEEPLEARNINGNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;ALGODEEPLEARNINGNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;DEEP_LEARNING_SDK_EXPORTS;_WINDOWS;_USRDLL;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <OutputFile>$(SolutionDir)OutputExe\$(Configuration)\net8.0-windows\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CudaCompile>
+      <AdditionalOptions>--allow-unsupported-compiler %(AdditionalOptions)</AdditionalOptions>
+      <Include>$(ProjectDir)..\..\thirdparty\opencv481\include;$(ProjectDir)..\..\thirdparty\TensorRT-10.16.1.11\include;$(ProjectDir)..\..\thirdparty\openvino_toolkit_windows_2025_3\runtime\include;$(ProjectDir)..\..\thirdparty\Eigen\Eigen3\include\eigen3\Eigen;$(ProjectDir)src;$(ProjectDir)src\utils;$(ProjectDir)src\core;$(ProjectDir)src\core\engine;$(ProjectDir)src\core\application;$(ProjectDir)..\..\Algorithm\ALGO.EncryptionNative\src;%(Include)</Include>
+      <CodeGeneration>compute_75,sm_75;compute_86,sm_86;compute_89,sm_89;compute_120,sm_120;compute_120,compute_120</CodeGeneration>
+      <Defines>_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH</Defines>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;DEEP_LEARNING_SDK_EXPORTS;_WINDOWS;_USRDLL;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <OutputFile>$(SolutionDir)OutputExe\$(Configuration)\net8.0-windows\$(TargetName)$(TargetExt)</OutputFile>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <CudaCompile>
+      <AdditionalOptions>--allow-unsupported-compiler %(AdditionalOptions)</AdditionalOptions>
+      <Include>$(ProjectDir)..\..\thirdparty\opencv481\include;$(ProjectDir)..\..\thirdparty\TensorRT-10.16.1.11\include;$(ProjectDir)..\..\thirdparty\openvino_toolkit_windows_2025_3\runtime\include;$(ProjectDir)..\..\thirdparty\Eigen\Eigen3\include\eigen3\Eigen;$(ProjectDir)src;$(ProjectDir)src\utils;$(ProjectDir)src\core;$(ProjectDir)src\core\engine;$(ProjectDir)src\core\application;$(ProjectDir)..\..\Algorithm\ALGO.EncryptionNative\src;%(Include)</Include>
+      <CodeGeneration>compute_75,sm_75;compute_86,sm_86;compute_89,sm_89;compute_120,sm_120;compute_120,compute_120</CodeGeneration>
+      <Defines>_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH</Defines>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\extras\visual_studio_integration\MSBuildExtensions\CUDA 13.2.targets" />
+  </ImportGroup>
+</Project>

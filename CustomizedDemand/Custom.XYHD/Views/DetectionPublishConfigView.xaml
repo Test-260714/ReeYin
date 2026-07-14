@@ -1,0 +1,264 @@
+<UserControl x:Class="Custom.XYHD.Views.DetectionPublishConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="920"
+             d:DesignHeight="560"
+             d:DesignWidth="920">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="TransmitParamComboTemplate">
+            <TextBlock TextTrimming="CharacterEllipsis">
+                <Run Text="{Binding Serial, StringFormat={}{0:000}}"/>
+                <Run Text="  "/>
+                <Run Text="{Binding Name}"/>
+                <Run Text=" / "/>
+                <Run Text="{Binding ParamName}"/>
+            </TextBlock>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Padding="12"
+                Background="#FFF7F3D6"
+                BorderBrush="#FFE3C55B"
+                BorderThickness="1"
+                CornerRadius="6">
+            <DockPanel LastChildFill="True">
+                <Button DockPanel.Dock="Right"
+                        Width="120"
+                        Margin="12,0,0,0"
+                        Padding="10,4"
+                        Content="刷新输入"
+                        Command="{Binding RefreshInputParamsCommand}"/>
+                <TextBlock Foreground="#7C5A00"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Text="用途：这是 XYHD 节点的参数配置页。这里只配置原图、左右路 ResultsByImage、方向映射和保存选项；在线检测主界面请从动态页面打开。缺陷墙刷新由 XYHD_Detection 事件自动推送，不需要手动点缺陷总览发布。"/>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1"
+                      Margin="0,12,0,0"
+                      VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.35*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <GroupBox Header="输入绑定" Padding="8">
+                    <StackPanel>
+                        <TextBlock Margin="6,0,6,8"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Text="XYHD 推荐接 DefectPostProcess 的 ResultsByImage。缺陷墙底图会优先使用结果源 DefectPostProcess.InputImage，下面的左右路图像主要作为兜底和显示来源。"/>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="整帧原图"/>
+                            <ComboBox Grid.Row="0"
+                                      Grid.Column="1"
+                                      Margin="6"
+                                      ItemTemplate="{StaticResource TransmitParamComboTemplate}"
+                                      ItemsSource="{Binding ImageCandidates}"
+                                      SelectedItem="{Binding Model.InputOriginalImage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="6"
+                                    Padding="10,4"
+                                    Command="{Binding ClearSelectedInputCommand}"
+                                    CommandParameter="OriginalImage"
+                                    Content="清空"/>
+
+                            <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="左路图像"/>
+                            <ComboBox Grid.Row="1"
+                                      Grid.Column="1"
+                                      Margin="6"
+                                      ItemTemplate="{StaticResource TransmitParamComboTemplate}"
+                                      ItemsSource="{Binding ImageCandidates}"
+                                      SelectedItem="{Binding Model.LeftInputImage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="6"
+                                    Padding="10,4"
+                                    Command="{Binding ClearSelectedInputCommand}"
+                                    CommandParameter="LeftImage"
+                                    Content="清空"/>
+
+                            <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="左路结果"/>
+                            <ComboBox Grid.Row="2"
+                                      Grid.Column="1"
+                                      Margin="6"
+                                      ItemTemplate="{StaticResource TransmitParamComboTemplate}"
+                                      ItemsSource="{Binding ResultCandidates}"
+                                      SelectedItem="{Binding Model.LeftInputResults, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Row="2"
+                                    Grid.Column="2"
+                                    Margin="6"
+                                    Padding="10,4"
+                                    Command="{Binding ClearSelectedInputCommand}"
+                                    CommandParameter="LeftResults"
+                                    Content="清空"/>
+
+                            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="右路图像"/>
+                            <ComboBox Grid.Row="3"
+                                      Grid.Column="1"
+                                      Margin="6"
+                                      ItemTemplate="{StaticResource TransmitParamComboTemplate}"
+                                      ItemsSource="{Binding ImageCandidates}"
+                                      SelectedItem="{Binding Model.RightInputImage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Row="3"
+                                    Grid.Column="2"
+                                    Margin="6"
+                                    Padding="10,4"
+                                    Command="{Binding ClearSelectedInputCommand}"
+                                    CommandParameter="RightImage"
+                                    Content="清空"/>
+
+                            <TextBlock Grid.Row="4" VerticalAlignment="Center" Text="右路结果"/>
+                            <ComboBox Grid.Row="4"
+                                      Grid.Column="1"
+                                      Margin="6"
+                                      ItemTemplate="{StaticResource TransmitParamComboTemplate}"
+                                      ItemsSource="{Binding ResultCandidates}"
+                                      SelectedItem="{Binding Model.RightInputResults, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Row="4"
+                                    Grid.Column="2"
+                                    Margin="6"
+                                    Padding="10,4"
+                                    Command="{Binding ClearSelectedInputCommand}"
+                                    CommandParameter="RightResults"
+                                    Content="清空"/>
+                        </Grid>
+
+                        <Border Margin="6,10,6,0"
+                                Padding="8,6"
+                                Background="#F3F6FA"
+                                BorderBrush="#D8E1EA"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                            <TextBlock Text="{Binding InputPortSummary}"
+                                       TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Foreground="#334155"/>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Grid.Column="2" Header="基础配置" Padding="8">
+                    <StackPanel>
+                        <TextBlock Margin="6,0,6,8"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Text="节点执行时会发布 XYHD_Detection；缺陷墙动态页会自动接收刷新。这里不用配置缺陷总览发布节点。"/>
+
+                        <GroupBox Header="现场方向" Padding="8" Margin="0,0,0,10">
+                            <StackPanel>
+                                <CheckBox Content="左右路交换"
+                                          IsChecked="{Binding Model.SwapLeftRightPaths, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0,0,0,8"/>
+                                <CheckBox Content="左路 X 镜像"
+                                          IsChecked="{Binding Model.LeftPathXMirror, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0,0,0,8"/>
+                                <CheckBox Content="右路 X 镜像"
+                                          IsChecked="{Binding Model.RightPathXMirror, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Border Margin="0,10,0,0"
+                                        Padding="8,6"
+                                        Background="#F3F6FA"
+                                        BorderBrush="#D8E1EA"
+                                        BorderThickness="1"
+                                        CornerRadius="4">
+                                    <TextBlock Text="{Binding FieldOrientationSummary}"
+                                               TextWrapping="Wrap"
+                                               FontSize="12"
+                                               Foreground="#334155"/>
+                                </Border>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="图像存储" Padding="8">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Height="30"
+                                             VerticalContentAlignment="Center"
+                                             Text="{Binding Model.SavePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Button Grid.Column="1"
+                                            Margin="6,0,0,0"
+                                            Padding="12,4"
+                                            Content="..."
+                                            Command="{Binding SelectSavePathCommand}"/>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <CheckBox Content="保存 OK 图"
+                                              IsChecked="{Binding Model.SaveOKImages, Mode=TwoWay}"
+                                              Margin="0,0,16,0"/>
+                                    <CheckBox Content="保存 NG 图"
+                                              IsChecked="{Binding Model.SaveNGImages, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+
+        <Border Grid.Row="2"
+                Margin="0,12,0,0"
+                Padding="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center"
+                           Foreground="#666666"
+                           Text="{Binding OutputPortSummary}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Width="88"
+                            Margin="6,0,0,0"
+                            Padding="10,4"
+                            Content="执行"
+                            Command="{Binding ExecuteCommand}"/>
+                    <Button Width="88"
+                            Margin="6,0,0,0"
+                            Padding="10,4"
+                            Content="取消"
+                            Command="{Binding CancelCommand}"/>
+                    <Button Width="88"
+                            Margin="6,0,0,0"
+                            Padding="10,4"
+                            Content="确认"
+                            Command="{Binding ConfirmCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

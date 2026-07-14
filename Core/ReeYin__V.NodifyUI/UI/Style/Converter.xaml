@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converter="clr-namespace:ReeYin_V.NodifyManager">
+    <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converter:ColorToSolidColorBrushConverter x:Key="ColorToSolidColorBrushConverter"/>
+    <converter:DebugConverter x:Key="DebugConverter"/>
+    <converter:EnumValuesConverter x:Key="EnumValuesConverter"/>
+    <converter:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    <converter:MultiValueEqualityConverter x:Key="MultiValueEqualityConverter"/>
+    <converter:RandomBrushConverter x:Key="RandomBrushConverter"/>
+    <converter:ResizeDirectionToVisiblityConverter x:Key="ResizeDirectionToVisiblityConverter"/>
+    <converter:ToStringConverter x:Key="ToStringConverter"/>
+    <converter:FlowToDirectionConverter x:Key="FlowToDirectionConverter"/>
+    <converter:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+
+</ResourceDictionary>

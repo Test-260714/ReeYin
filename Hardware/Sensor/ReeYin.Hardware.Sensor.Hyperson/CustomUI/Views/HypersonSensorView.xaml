@@ -1,0 +1,423 @@
+﻿<UserControl x:Class="ReeYin.Hardware.Sensor.Hyperson.CustomUI.Views.HypersonSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin.Hardware.Sensor.Hyperson.CustomUI.Views"
+             mc:Ignorable="d" 
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             FontSize="14"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Height="880" Width="1480"
+             d:DesignHeight="800" d:DesignWidth="1280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="3"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Width="auto" >
+                <Border CornerRadius="0" Padding="5">
+                    <TabControl Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{DynamicResource TabControlStyle}" IsEnabled="{Binding ModelParam.IsCurSltCardIsNotNull,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+
+                        <TabItem Header="CMOS配置" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="光量相关" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="曝光时间：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  Value="{Binding ModelParam.HypersenSensor.CmosConfig.ExposureTime,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="曝光时间"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="光强设定：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  Value="{Binding ModelParam.HypersenSensor.CmosConfig.Intensity,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="ValueChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="光强设定"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </hc:NumericUpDown>
+                                            <TextBlock Text="%" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <ComboBox Width="300" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="增益:"  hc:InfoElement.TitleWidth="140" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  SelectedItem="{Binding ModelParam.HypersenSensor.CmosConfig.GainIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="增益"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <ComboBox Width="300" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="HDR模式:"  hc:InfoElement.TitleWidth="140" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  SelectedItem="{Binding ModelParam.HypersenSensor.CmosConfig.HdrModelIndex}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="HDR模式"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="HDR裁剪：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrSatRemoveLen,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="HDR裁剪"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+                                        
+                                        <!--HDR光强-->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="HDR光强:" FontSize="16" VerticalAlignment="Center" Foreground="Black" Margin="5 0 10 5"/>
+
+                                            <UniformGrid Columns="4" Margin="0,0,0,8" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                                <hc:NumericUpDown Width="100"  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                  IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity1,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity1,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="ValueChanged">
+                                                            <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="HDR裁剪"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </hc:NumericUpDown>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity2,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity2,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity3,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity3,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity4,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity4,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity5,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity5,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity6,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity6,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity7,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity7,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                                <hc:NumericUpDown  BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                                   IsEnabled="{Binding ModelParam.HypersenSensor.CmosConfig.IsHdrIntensity8,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.HdrIntensity8,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                            </UniformGrid>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="合适光强:" FontSize="16" VerticalAlignment="Center" Foreground="Black" Margin="5 0 10 0"/>
+
+                                            <CheckBox  Grid.Row="4" FontSize="16" Content="引入HDR模式" IsChecked="{Binding ModelParam.HypersenSensor.CmosConfig.IsInputeHdrModel}" HorizontalAlignment="Left">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Checked">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="引入HDR模式"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </CheckBox>
+
+                                            <Button Margin="10,0,0,0" FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="25" Width="80" Content="查找"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="查找好的亮度"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="测量范围" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <UniformGrid Columns="2" Margin="0,0,0,8" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                            <ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="X量程:" hc:InfoElement.TitleWidth="100" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                    SelectedItem="{Binding ModelParam.HypersenSensor.CmosConfig.XRangeIndex}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="SelectionChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="X量程"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </ComboBox>
+                                            <ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Binning:" hc:InfoElement.TitleWidth="100" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                    SelectedItem="{Binding ModelParam.HypersenSensor.CmosConfig.BinningIndex}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="SelectionChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="Binning"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </ComboBox>
+                                            <ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="X降采样:" hc:InfoElement.TitleWidth="100" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                    SelectedItem="{Binding ModelParam.HypersenSensor.CmosConfig.XSubsampleIndex}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="SelectionChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="X降采样"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </ComboBox>
+                                            <ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z降采样:" hc:InfoElement.TitleWidth="100" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                    SelectedItem="{Binding ModelParam.HypersenSensor.CmosConfig.ZSubsampleIndex}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="SelectionChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="Z降采样"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </ComboBox>
+
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" DecimalPlaces="1" hc:InfoElement.Title="X点间隔(um)：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.XInterval,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="ValueChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="X点间隔"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </hc:NumericUpDown>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z量程：" DecimalPlaces="1" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.ZAxisRange,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="X偏置：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.XPos,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z偏置：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.ZPos,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="X大小：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.XDim,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z大小：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.ZDim,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="远端(um)：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.FarRange,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding FarRangeMaximum}" Minimum="{Binding FarRangeMinimum}"/>
+                                            <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="近端(um)：" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    Value="{Binding ModelParam.HypersenSensor.CmosConfig.NearRange,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding NearRangeMaximum}" Minimum="{Binding NearRangeMinimum}"/>
+                                        </UniformGrid>
+
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="触发设定" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="触发控制" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发模式:" hc:InfoElement.TitleWidth="100" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                    SelectedItem="{Binding ModelParam.HypersenSensor.TriggerConfig.TriggerModelIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="触发模式"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Margin="0,0,15,0" FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="清除触发计数"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="清除触发计数"/>
+
+                                            <Button Margin="0,0,15,0" FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="auto" Width="120" Content="检测"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="检测"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="连续触发设定" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <CheckBox  Grid.Row="4" FontSize="16" Content="帧率控制" IsChecked="{Binding ModelParam.HypersenSensor.TriggerConfig.IsFrameRateControl}" HorizontalAlignment="Left">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="帧率控制"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </CheckBox>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="测量帧率：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  Value="{Binding ModelParam.HypersenSensor.TriggerConfig.DetectFrameRate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <ComboBox Width="300" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="自适应ROI模式:" hc:InfoElement.TitleWidth="150" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                SelectedItem="{Binding ModelParam.HypersenSensor.TriggerConfig.AdjustRoiForFpsIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="SelectionChanged">
+                                                        <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="自适应ROI模式"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </ComboBox>
+
+                                            <Button Margin="0,0,15,0" FontSize="16" CommandParameter="设定" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="设定"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" />
+                                        </StackPanel>
+
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="编码器扫描控制" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <ComboBox Width="300" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="输入模式:" hc:InfoElement.TitleWidth="150" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                SelectedItem="{Binding ModelParam.HypersenSensor.TriggerConfig.InputModelIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="输入模式"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="1个脉冲间隔(um)：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="150" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                  Value="{Binding ModelParam.HypersenSensor.Config.YInterval,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="1个脉冲间隔(um)"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="固定预分频值：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center"
+                                                  Value="{Binding ModelParam.HypersenSensor.TriggerConfig.NUDEncoderDivision,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="固定预分频值"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </hc:NumericUpDown>
+
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="扫描设定" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="连续触发设定" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <GroupBox Header="扫描开始前" MinWidth="250">
+                                            <StackPanel>
+                                                <Button Margin="0,0,0,10" FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="清除缓存数据"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="清除缓存数据"/>
+
+                                                <Button Margin="0,0,0,0" FontSize="16" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="生成图像"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="生成图像" />
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="扫描结束后" MinWidth="250">
+
+                                            <Button Margin="0,0,15,0" FontSize="16" CommandParameter="保存图片" Style="{StaticResource GeneralButtonStyle}" Height="30" Width="120" Content="保存图片"
+                                                Cursor="Hand" Command="{Binding SensorCtrlCommand}" />
+                                        </GroupBox>
+
+
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="其他" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="采集模式：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  Value="{Binding ModelParam.HypersenSensor.GetDataMode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                </hc:NumericUpDown>
+                                
+                                <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="高度数据层数：" Width="300" Style="{StaticResource NumericUpDownExtendGlobal}" hc:InfoElement.TitleWidth="140" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                  Value="{Binding ModelParam.HypersenSensor.HightLayer,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                </hc:NumericUpDown>
+
+                            </StackPanel>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+            </StackPanel>
+
+            <GridSplitter Grid.Column="1" Height="730" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch"/>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                
+                <Grid Grid.Row="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="5"
+                                Margin="20,0,5,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" Text="信号控制">
+
+                        </TextBlock>
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="" Width="250" Style="{StaticResource NumericUpDownExtendGlobal}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Height="25"
+                                                    Value="{Binding ModelParam.HypersenSensor.ContourConfig.NUDSignalControl,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="轮廓显示"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </hc:NumericUpDown>
+                    </StackPanel>
+                </Grid>
+                
+                <ContentControl Grid.Row="1" Content="{Binding SinglePointChartGrid}" />
+
+                <Grid Grid.Row="2">
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox Width="200" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="层索引:" hc:InfoElement.TitleWidth="80" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Height="25" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                SelectedItem="{Binding ModelParam.HypersenSensor.ContourConfig.LayerIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="层索引"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ComboBox>
+
+                        <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="5"
+                                Margin="20,0,5,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                            <Run Text="单点数据:" Foreground="Black"/>
+                            <Run Text="{Binding OutlinesX}" Foreground="Black"/>
+                            <Run Text="{Binding OutlinesL1}" Foreground="Blue"/>
+                            <Run Text="," />
+                            <Run Text="{Binding OutlinesL2}" Foreground="Yellow"/>
+                            <Run Text="," />
+                            <Run Text="{Binding OutlinesL3}" Foreground="Purple"/>
+                            <Run Text="," />
+                            <Run Text="{Binding OutlinesL4}" Foreground="Green"/>
+                            <Run Text="," />
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+                
+                <ContentControl Grid.Row="3" Content="{Binding OutlineChartGrid}" />
+                
+            </Grid>
+        </Grid>
+        <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal"
+                                            WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Margin="0,0,15,0" FontSize="18" MinHeight="30"
+                                                Command="{Binding GeneralCommand}" CommandParameter="取消"
+                                                Width="80"
+                                                Style="{StaticResource GeneralButtonStyle}"
+                                                Content="取消"
+                                                Cursor="Hand"/>
+            <Button Margin="0,0,15,0" FontSize="18"
+                                                Command="{Binding GeneralCommand}" CommandParameter="确认"
+                                                Style="{StaticResource GeneralButtonStyle}"
+                                                Height="auto" Width="80"
+                                                Content="确认"
+                                                Cursor="Hand"/>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

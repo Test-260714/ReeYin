@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ReeYin_V.Shell": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

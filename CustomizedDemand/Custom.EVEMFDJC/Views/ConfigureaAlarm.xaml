@@ -1,0 +1,151 @@
+﻿<UserControl x:Class="Custom.EVEMFDJC.Views.ConfigureaAlarm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Custom.EVEMFDJC.Views"
+             mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Width="1000"  Height="700">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Border BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1">
+        <hc:DrawerContainer Margin="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="0.15*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <DataGrid  AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}" EnableColumnVirtualization="True" EnableRowVirtualization="False"
+                     VirtualizingPanel.IsVirtualizing="True" ItemsSource="{Binding ModelParam.ConfigureaAlarm}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible"  FontSize="12"  RowHeaderWidth="20"
+                     SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="All" IsReadOnly="False" CanUserAddRows="False"   Height="600" 
+                     SelectedItem="{Binding ModelParam.SltConfigureaAlarm,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" LoadingRow="DataGrid_LoadingRow" Margin="10">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu IsEnabled="True">
+                            <MenuItem Header="添加新项" Command="{Binding GeneralCommand}" CommandParameter="添加新项" />
+                            <MenuItem Header="删除选中项" Command="{Binding GeneralCommand}" CommandParameter="删除选中项" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDoubleClick">
+                            <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="编辑参数"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <DataGrid.Columns>
+                        <!-- 序号列 -->
+                        <DataGridTemplateColumn Header="序号" Width="0.5*" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Header}"
+                                         HorizontalAlignment="Center" 
+                                         VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="数据类型" IsReadOnly="True" Width="0.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding ParamType,Mode=TwoWay}" ToolTip="{Binding OperationType}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="地址" IsReadOnly="True" Width="0.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Addr,Mode=TwoWay}" ToolTip="{Binding Addr}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="触发值" IsReadOnly="False" Width="0.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding JudgeValue,Mode=TwoWay}" ToolTip="{Binding Value}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="报警信息" IsReadOnly="False" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding AlarmContent,Mode=TwoWay}" ToolTip="{Binding AlarmContent}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="启用" IsReadOnly="true" Width="0.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalAlignment="Center"
+                                                               IsChecked="{Binding IsUsing,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!--打开参数页面-->
+                <hc:Drawer MaskCanClose="True" IsOpen="{Binding EditCustomParam,Mode=TwoWay}" Margin="10 10 10 10 ">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Closed">
+                            <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="参数关闭"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Opened">
+                            <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="参数打开"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Border   Width="350" Padding="15" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecundaryBlueColor}">
+                        <StackPanel>
+                            <!-- 标题 -->
+                            <TextBlock Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Center" Margin="0,0,0,20">
+                                          <Run Text="报警参数配置"/>
+                            </TextBlock>
+
+                            <!-- 数据类型 -->
+                            <ComboBox hc:InfoElement.Title="数据类型" 
+                                 hc:InfoElement.TitlePlacement="Top" Style="{StaticResource ComboBoxExtend}"
+                                 SelectedItem="{Binding ModelParam.SltConfigureaAlarm.ParamType, Mode=TwoWay}"
+                                 helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                 Margin="0,0,0,40" Height="60" MaxDropDownHeight="200" FontSize="15">
+
+                            </ComboBox>
+
+                            <!-- PLC地址 -->
+                            <TextBox hc:InfoElement.Title="地址" 
+                             hc:InfoElement.TitlePlacement="Top"
+                             Style="{StaticResource TextBoxExtend}"
+                             Text="{Binding ModelParam.SltConfigureaAlarm.Addr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,40" Height="60"  FontSize="15"/>
+
+                            <!-- 触发值 -->
+                            <TextBox hc:InfoElement.Title="触发值" 
+                             hc:InfoElement.TitlePlacement="Top"
+                             Style="{StaticResource TextBoxExtend}"
+                             Text="{Binding ModelParam.SltConfigureaAlarm.JudgeValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,40" Height="60" FontSize="15"/>
+
+                            <!-- 报警信息 -->
+                            <TextBox hc:InfoElement.Title="报警信息" 
+                             hc:InfoElement.TitlePlacement="Top"
+                             Style="{StaticResource TextBoxExtend}"
+                             Text="{Binding ModelParam.SltConfigureaAlarm.AlarmContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,40" Height="60" FontSize="15"/>
+
+                        </StackPanel>
+                    </Border>
+                </hc:Drawer>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal"  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,15,0">
+                    <Button Content="取消" Style="{StaticResource GeneralButtonStyle}" Width="80" Height="35" Command="{Binding GeneralCommand}" CommandParameter="取消"
+                       Margin="0,0,10,0"/>
+                    <Button Content="确认" Style="{StaticResource GeneralButtonStyle}" Width="80" Height="35"  Command="{Binding GeneralCommand}" CommandParameter="确认"/>
+                </StackPanel>
+            </Grid>
+        </hc:DrawerContainer>
+    </Border>
+</UserControl>

@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <BitmapImage x:Key="Icon_Login" UriSource="/ReeYin_V.UI;Component/Icon/login_logo.png"/>
+    <BitmapImage x:Key="Icon_Login_BG" UriSource="/ReeYin_V.UI;Component/Icon/login_bg.png"/>
+    <BitmapImage x:Key="Icon_Login_Card" UriSource="/ReeYin_V.UI;Component/Icon/login_card.png"/>
+    <BitmapImage x:Key="Icon_MainLogo" UriSource="/ReeYin_V.UI;Component/Icon/main_logo_light.png"/>
+</ResourceDictionary>

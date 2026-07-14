@@ -1,0 +1,1241 @@
+﻿using Dm;
+using DryIoc;
+using HalconDotNet;
+using ImageTool.Halcon;
+using ImageTool.Halcon.Config;
+using ImageTool.Halcon.Model;
+using Microsoft.Win32;
+using NetTaste;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NLog;
+using Prism.Mvvm;
+using ReeYin_V.Core.Enums;
+using ReeYin_V.Core.Extension;
+using ReeYin_V.Core.Helper;
+using ReeYin_V.Core.Interfaces;
+using ReeYin_V.Core.IOC;
+using ReeYin_V.Core.Models;
+using ReeYin_V.Core.Services.Module;
+using ReeYin_V.Core.Services.Project;
+using ReeYin_V.Share;
+using ReeYin_V.UI;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Forms;
+using System.Windows.Media;
+using System.Windows.Shapes;
+
+namespace ALGO.MeasureCircle
+{
+    [Serializable]
+    public class MeasureCircleModel : ModelParamBase
+    {
+        #region Fields
+        [JsonIgnore]
+        public override VMHWindowControl mWindowH { set; get; } = new VMHWindowControl();
+
+        [JsonIgnore]
+        public bool IsDebug { get; set; } = false;
+
+        //public HImage DisposeImage { get; set; }
+        #endregion
+
+        #region Properties
+        [JsonIgnore]
+        private TransmitParam _inputImage = new TransmitParam();
+        /// <summary>
+        /// 输入图像参数
+        /// </summary>
+        public TransmitParam InputImage
+        {
+            get 
+            {
+                try
+                {
+                    if (_inputImage != null && _inputImage.Value != null)
+                    {
+                        var DisposeImage = new HImage((HObject)_inputImage.Value);
+
+                        if (mWindowH != null)
+                        {
+                            mWindowH.HobjectToHimage(DisposeImage);
+                            InitImg();
+                        }
+                    }
+
+                    return _inputImage;
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+            }
+            set
+            {
+                _inputImage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        public override Func<ExecuteModuleOutput> TriggerModuleRun { get; set; }
+
+        [JsonIgnore]
+        private bool _disenableAffine2d = false;
+        /// <summary>
+        /// DisenableAffine2d
+        /// </summary>
+        public bool DisenableAffine2d
+        {
+            get { return _disenableAffine2d; }
+            set { _disenableAffine2d = value; RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private bool _initCircleChanged_Flag = false;
+        /// <summary>
+        /// InitCircleChanged_Flag
+        /// </summary>
+        public bool InitCircleChanged_Flag
+        {
+            get { return _initCircleChanged_Flag; }
+            set { _initCircleChanged_Flag = value; 
+                  RaisePropertyChanged(); }
+        }
+
+        private bool _showResultPoint = true;
+        /// <summary>显示结果点</summary>
+        [JsonIgnore]
+        public bool ShowResultPoint
+        {
+            get { return _showResultPoint; }
+            set { SetProperty(ref _showResultPoint, value); }
+        }
+        
+        private bool _showMeasContour = true;
+        /// <summary>显示测量轮廓 </summary>
+        [JsonIgnore]
+        public bool ShowMeasContour
+        {
+            get { return _showMeasContour; }
+            set { SetProperty(ref _showMeasContour, value); }
+        }
+        
+        private bool _showResultCircle = true;
+        /// <summary>显示结果圆 </summary>
+        [JsonIgnore]
+        public bool ShowResultCircle
+        {
+            get { return _showResultCircle; }
+            set { SetProperty(ref _showResultCircle, value); }
+        }
+
+
+        /// <summary> 区域列表 </summary>
+        [JsonIgnore]
+        public Dictionary<string, ROI> RoiList = new Dictionary<string, ROI>();
+
+        [JsonIgnore]
+        private ROICircle _outCircle = new ROICircle();
+        /// <summary>
+        /// 输出圆信息
+        /// </summary>
+        public ROICircle OutCircle
+        {
+            get { return _outCircle; }
+            set { SetProperty(ref _outCircle, value); }
+        }
+
+        [JsonIgnore]
+        private HObject _outCircleRegion = new HObject();
+        [JsonIgnore]
+        [OutputParam("OutCircleRegion", "圆轮廓对象")]
+        /// <summary>
+        /// 检测到的圆轮廓对象
+        /// </summary>
+        public HObject OutCircleRegion
+        {
+            get { return _outCircleRegion; }
+            set { SetProperty(ref _outCircleRegion, value); }
+        }
+
+        [JsonIgnore]
+        private double _outCircleCenterX = -1;
+        [JsonIgnore]
+        [OutputParam("OutCircleCenterX", "圆心X")]
+        /// <summary>
+        /// 检测到的圆心坐标X
+        /// </summary>
+        public double OutCircleCenterX
+        {
+            get { return _outCircleCenterX; }
+            set { SetProperty(ref _outCircleCenterX, value); }
+        }
+
+        [JsonIgnore]
+        private double _outCircleCenterY = -1;
+        [JsonIgnore]
+        [OutputParam("OutCircleCenterY", "圆心Y")]
+        /// <summary>
+        /// 检测到的圆心坐标Y
+        /// </summary>
+        public double OutCircleCenterY
+        {
+            get { return _outCircleCenterY; }
+            set { SetProperty(ref _outCircleCenterY, value); }
+        }
+
+        [JsonIgnore]
+        private double _outCircleRadius = -1;
+        [JsonIgnore]
+        [OutputParam("OutCircleRadius", "半径")]
+        /// <summary>
+        /// 检测到的圆半径
+        /// </summary>
+        public double OutCircleRadius
+        {
+            get { return _outCircleRadius; }
+            set { SetProperty(ref _outCircleRadius, value); }
+        }
+
+
+
+        [JsonIgnore]
+        private double _initCircleCenterX = 50.0;
+        /// <summary>
+        /// 变换前-圆信息
+        /// </summary>
+        public double InitCircleCenterX
+        {
+            get { return _initCircleCenterX; }
+            set { _initCircleCenterX = value; RaisePropertyChanged(); InitCircleChanged(); }
+        }
+
+        [JsonIgnore]
+        private double _initCircleCenterY = 50.0;
+        /// <summary>
+        /// 变换前-圆信息
+        /// </summary>
+        public double InitCircleCenterY
+        {
+            get { return _initCircleCenterY; }
+            //set { _initCircleCenterY = value; RaisePropertyChanged(); InitCircleChanged(); }
+            set { _initCircleCenterY = value; RaisePropertyChanged(); InitCircleChanged(); }
+        }
+
+        [JsonIgnore]
+        private double _initCircleRadius = 40.0;
+        /// <summary>
+        /// 变换前-圆信息
+        /// </summary>
+        public double InitCircleRadius
+        {
+            get { return _initCircleRadius; }
+            set { _initCircleRadius = value; RaisePropertyChanged(); InitCircleChanged(); }
+        }
+
+        /// <summary>
+        /// 变换矩阵
+        /// </summary>
+        [JsonIgnore]
+        public HTuple HomMat2D { get; set; } = new HTuple();
+
+        /// <summary>
+        /// 逆变换矩阵
+        /// </summary>
+        [JsonIgnore]
+        public HTuple HomMat2D_Inverse { get; set; } = new HTuple();
+
+
+        /// <summary>
+        /// 变换前-圆信息
+        /// </summary>
+        [JsonIgnore]
+        public ROICircle InitCircle { get; set; } = new ROICircle();
+
+        /// <summary>
+        /// 圆信息
+        /// </summary>
+        [JsonIgnore]
+        public ROICircle TempCircle { get; set; } = new ROICircle();
+
+        /// <summary>
+        /// 变换后-圆信息
+        /// </summary>
+        [JsonIgnore]
+        public ROICircle TranCircle { get; set; } = new ROICircle();
+
+        /// <summary>
+        /// 圆卡尺ROI信息
+        /// </summary>
+        [JsonIgnore]
+        public ROICircle roiCircle { get; set; } = new ROICircle();
+
+        /// <summary>
+        /// 显示的ROI
+        /// </summary>
+        [JsonIgnore]
+        public List<HRoi> mHRoi { get; set; } = new List<HRoi>();
+
+        [JsonIgnore]
+        private double _length1 = 40;
+        /// <summary>
+        /// 长/2
+        /// </summary>
+        public double Length1
+        {
+            get { return _length1; }
+            set { SetProperty(ref _length1, value); }
+        }
+
+        [JsonIgnore]
+        private double _length2 = 10;
+        /// <summary>
+        /// 宽/2
+        /// </summary>
+        public double Length2
+        {
+            get { return _length2; }
+            set { SetProperty(ref _length2, value); }
+        }
+
+        [JsonIgnore]
+        private double _threshold = 30;
+        /// <summary>
+        /// 阈值
+        /// </summary>
+        public double Threshold
+        {
+            get { return _threshold; }
+            set { SetProperty(ref _threshold, value); }
+        }
+
+        [JsonIgnore]
+        private double _measDis = 10;
+        /// <summary>
+        /// 间隔
+        /// </summary>
+        public double MeasDis
+        {
+            get { return _measDis; }
+            set { SetProperty(ref _measDis, value); }
+        }
+
+        [JsonIgnore]
+        private HTuple _paramName;
+        /// <summary>
+        /// 参数名
+        /// </summary>
+        public HTuple ParamName
+        {
+            get { return _paramName; }
+            set { SetProperty(ref _paramName, value); }
+        }
+
+        [JsonIgnore]
+        private HTuple _paramValue;
+        /// <summary>
+        /// 参数值
+        /// </summary>
+        public HTuple ParamValue
+        {
+            get { return _paramValue; }
+            set { SetProperty(ref _paramValue, value); }
+        }
+
+        private int _PointsOrder;
+        /// <summary>
+        /// 点顺序 0位默认,1顺时针,2逆时针
+        /// </summary>
+        public int PointsOrder
+        {
+            get { return _PointsOrder; }
+            set { SetProperty(ref _PointsOrder, value); }
+        }
+
+        [JsonIgnore]
+        private eMeasMode _measMode = eMeasMode.由白到黑;
+        /// <summary>
+        /// 测量模式
+        /// </summary>
+        public eMeasMode MeasMode
+        {
+            get { return _measMode; }
+            set
+            {
+                SetProperty(ref _measMode, value,
+                    new Action(() =>
+                    {
+                        ParamValue = new HTuple();
+                        ParamValue.Append(REnum.EnumToStr(_measMode));
+                        ParamValue.Append(REnum.EnumToStr(_measSelect));
+                        ParamValue.Append(_measDis);
+                    }));
+            }
+        }
+
+        [JsonIgnore]
+        private eMeasSelect _measSelect = eMeasSelect.第一点;
+        /// <summary>
+        /// 测量点筛选
+        /// </summary>
+        public eMeasSelect MeasSelect
+        {
+            get { return _measSelect; }
+            set
+            {
+                SetProperty(ref _measSelect, value,
+                    new Action(() =>
+                    {
+                        ParamValue = new HTuple();
+                        ParamValue.Append(REnum.EnumToStr(_measMode));
+                        ParamValue.Append(REnum.EnumToStr(_measSelect));
+                        ParamValue.Append(_measDis);
+                    }));
+            }
+        }
+        #endregion
+
+        #region Constructor
+        public MeasureCircleModel()
+        {
+            ParamName = new HTuple();
+            ParamName.Append("measure_transition");
+            ParamName.Append("measure_select");
+            ParamName.Append("measure_distance");
+
+            ParamValue = new HTuple();
+            ParamValue.Append(REnum.EnumToStr(_measMode));
+            ParamValue.Append(REnum.EnumToStr(_measSelect));
+            ParamValue.Append(_measDis);
+
+            TriggerModuleRun += () =>
+            {
+                return ExecuteModule().Result;
+            };
+        }
+        #endregion
+
+        #region Override
+        /// <summary>
+        /// 加载关键参数
+        /// </summary>
+        /// <returns></returns>
+        public override bool LoadKeyParam()
+        {
+            try
+            {
+                base.LoadKeyParam();
+                ModuleName = Serial.ToString("D3");
+                if (!PrismProvider.ProjectManager.SltCurSolutionItem.ImgControlPair.ContainsKey(ModuleName))
+                {
+                    PrismProvider.ProjectManager.SltCurSolutionItem.ImgControlPair.Add(ModuleName, mWindowH);
+                }
+                else
+                {
+                    mWindowH = PrismProvider.ProjectManager.SltCurSolutionItem.ImgControlPair[ModuleName] as VMHWindowControl;
+                }
+
+                if (_inputImage.Value != null)
+                    (_inputImage.Value as HObject).Dispose();
+                var temp = GetTransmitParam(InputParams, _inputImage);
+                if(temp!=null)
+                _inputImage.Value = new HImage((HObject)temp);
+                var DisposeImage = ((HImage)_inputImage.Value)?.Clone();
+                if(DisposeImage !=null && DisposeImage.IsInitialized())
+                {
+                    mWindowH.HobjectToHimage(DisposeImage);
+                    InitImg();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"加载参数异常{ex.StackTrace}");
+                return false;
+            }
+        }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// 模块执行
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ExecuteModuleOutput> ExecuteModule()
+        {
+            var (result, time) = SetTimeHelper.SetTimer(() =>
+            {
+                #region 检测参数（对链接参数重新赋值）
+                Console.WriteLine($"开始加载参数：{DateTime.Now.ToString($"HH:mm:ss.fff")}");
+                if (!IsDebug)
+                    LoadKeyParam();
+                Console.WriteLine($"结束加载参数：{DateTime.Now.ToString($"HH:mm:ss.fff")}");
+                #endregion
+                try
+                {
+
+
+                    if (_inputImage.Value == null)
+                        return NodeStatus.None;
+                    var tempImage = new HImage((HObject)_inputImage.Value).Clone();
+                    mHRoi.Clear();
+                    if (tempImage == null && !tempImage.IsInitialized())
+                        return NodeStatus.Error;
+
+                    //执行的方法
+                    if (DisenableAffine2d && HomMat2D_Inverse != null && HomMat2D_Inverse.Length > 0)
+                    {
+                        DisenableAffine2d = false;
+                        Affine2d(HomMat2D_Inverse, TempCircle, InitCircle);
+                        if (InitCircleChanged_Flag)
+                        {
+                            InitCircleCenterX = InitCircle.CenterX;
+                            InitCircleCenterY = InitCircle.CenterY;
+                            InitCircleRadius = InitCircle.Radius;
+                        }
+                    }
+                    if (HomMat2D != null && HomMat2D.Length > 0)
+                    {
+                        InitCircle.CenterX = InitCircleCenterX;
+                        InitCircle.CenterY = InitCircleCenterY;
+                        InitCircle.Radius = InitCircleRadius;
+                        Affine2d(HomMat2D, InitCircle, TranCircle);
+                    }
+                    else
+                    {
+                        InitCircle.CenterX = TranCircle.CenterX = TempCircle.CenterX;
+                        InitCircle.CenterY = TranCircle.CenterY = TempCircle.CenterY;
+                        InitCircle.Radius = TranCircle.Radius = TempCircle.Radius;
+                    }
+
+                    bool status = MeasCircle(tempImage, TranCircle, OutCircle, out HTuple RowList, out HTuple ColList, out HXLDCont m_MeasXLD, null);
+                    GenCircle(out HObject m_ResultXLD, OutCircle.CenterX, OutCircle.CenterY, OutCircle.Radius);
+
+                    if (ShowResultPoint && RowList.ToDArr().Length > 0) //显示结果点
+                    {
+                        GenCross(out HObject m_MeasCross, RowList, ColList, Length2/2, new HTuple(45).TupleRad());
+                        ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测点, "red", new HObject(m_MeasCross)));
+                    }
+                    if (ShowResultCircle && RowList.ToDArr().Length > 0 && status) //显示结果线
+                    {
+                        ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测结果, "green", new HObject(m_ResultXLD)));
+                    }
+                    if (ShowMeasContour) //显示检测范围
+                    {
+                        if (m_MeasXLD != null && m_MeasXLD.IsInitialized())
+                        {
+                            //HObject hObject = m_MeasXLD.GenRegionContourXld("margin").Union1().ShapeTrans("rectangle2");
+                            //ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测范围, "blue", hObject));
+                            ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测范围, "blue", new HObject(m_MeasXLD)));
+                        }
+                    }
+                    
+                    ShowHRoi();
+
+                    if(status)
+                    {
+                        OutCircleCenterX = OutCircle.CenterX.DeepCopy();
+                        OutCircleCenterY = OutCircle.CenterY.DeepCopy();
+                        OutCircleRadius = OutCircle.Radius.DeepCopy();
+                        OutCircleRegion = m_ResultXLD.Clone();
+                        Console.WriteLine($"找圆测量结果：{JsonHelper.Serialize(OutCircleCenterX)}");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    return NodeStatus.Error;
+                }
+                var result = Run();
+                //执行后对输出参数重新赋值
+                foreach (var item in OutputParams)
+                {
+                    item.Value = OutputParamCollector.GetDataPointValues(this)[item.ParamName];
+                }
+
+                return result;
+            });
+
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}：找圆模块执行时间：{time} 毫秒");
+            return Output = new ExecuteModuleOutput()
+            {
+                RunStatus = result,
+                RunTime = time,
+            };
+        }
+
+        public NodeStatus Run()
+        {
+            try
+            {
+                if (_inputImage.Value == null)
+                    return NodeStatus.None;
+                var tempImage = new HImage((HObject)_inputImage.Value).Clone();
+                mHRoi.Clear();
+                if (tempImage == null && !tempImage.IsInitialized())
+                    return NodeStatus.Error;
+
+                //执行的方法
+                if (DisenableAffine2d && HomMat2D_Inverse != null && HomMat2D_Inverse.Length > 0)
+                {
+                    DisenableAffine2d = false;
+                    Affine2d(HomMat2D_Inverse, TempCircle, InitCircle);
+                    if (InitCircleChanged_Flag)
+                    {
+                        InitCircleCenterX = InitCircle.CenterX;
+                        InitCircleCenterY = InitCircle.CenterY;
+                        InitCircleRadius = InitCircle.Radius;
+                    }
+                }
+                if (HomMat2D != null && HomMat2D.Length > 0)
+                {
+                    InitCircle.CenterX = InitCircleCenterX;
+                    InitCircle.CenterY = InitCircleCenterY;
+                    InitCircle.Radius = InitCircleRadius;
+                    Affine2d(HomMat2D, InitCircle, TranCircle);
+                }
+                else
+                {
+                    InitCircle.CenterX = TranCircle.CenterX = TempCircle.CenterX;
+                    InitCircle.CenterY = TranCircle.CenterY = TempCircle.CenterY;
+                    InitCircle.Radius = TranCircle.Radius = TempCircle.Radius;
+                }
+
+                bool status = MeasCircle(tempImage, TranCircle, OutCircle, out HTuple RowList, out HTuple ColList, out HXLDCont m_MeasXLD, null);
+                GenCircle(out HObject m_ResultXLD, OutCircle.CenterX, OutCircle.CenterY, OutCircle.Radius);
+
+                if (ShowResultPoint && RowList.ToDArr().Length > 0) //显示结果点
+                {
+                    GenCross(out HObject m_MeasCross, RowList, ColList, Length2 / 2, new HTuple(45).TupleRad());
+                    ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测点, "red", new HObject(m_MeasCross)));
+                }
+                if (ShowResultCircle && RowList.ToDArr().Length > 0 && status) //显示结果线
+                {
+                    ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测结果, "green", new HObject(m_ResultXLD)));
+                }
+                if (ShowMeasContour) //显示检测范围
+                {
+                    if (m_MeasXLD != null && m_MeasXLD.IsInitialized())
+                    {
+                        //HObject hObject = m_MeasXLD.GenRegionContourXld("margin").Union1().ShapeTrans("rectangle2");
+                        //ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测范围, "blue", hObject));
+                        ShowHRoi(new HRoi(Serial, ModuleName, "", HRoiType.检测范围, "blue", new HObject(m_MeasXLD)));
+                    }
+                }
+
+                ShowHRoi();
+
+                if (status)
+                {
+                    OutCircleCenterX = OutCircle.CenterX.DeepCopy();
+                    OutCircleCenterY = OutCircle.CenterY.DeepCopy();
+                    OutCircleRadius = OutCircle.Radius.DeepCopy();
+                    OutCircleRegion = m_ResultXLD.Clone();
+                    Console.WriteLine($"找圆测量结果：{JsonHelper.Serialize(OutCircleCenterX)}");
+                }
+                return NodeStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                return NodeStatus.Error;
+            }
+        }
+
+        public void InitImg()
+        {
+            if ((new HImage((HObject)_inputImage.Value)) == null)
+                return;
+            mWindowH.hControl.MouseUp += HControl_MouseUp;
+
+            ShowHRoi();
+            InitCircleMethod();
+        }
+
+
+        private void HControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                ROI roi = mWindowH.WindowH.smallestActiveROI(out string info, out string index);
+                if (index.Length > 0)
+                {
+                    roiCircle = roi as ROICircle;
+                    if (roiCircle != null)
+                    {
+                        TempCircle.CenterX = Math.Round(roiCircle.CenterX, 3);
+                        TempCircle.CenterY = Math.Round(roiCircle.CenterY, 3);
+                        TempCircle.Radius = Math.Round(roiCircle.Radius, 3);
+                        DisenableAffine2d = true;
+                        InitCircleChanged_Flag = true;
+                        Run();
+                        InitCircleMethod();
+                        InitCircleChanged_Flag = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        /// <summary>
+        /// 对点应用任意加法 2D 变换 圆
+        /// </summary>
+        public static void Affine2d(HTuple HomMat2D, ROICircle intCircle, ROICircle tranCircle)
+        {
+            HHomMat2D TempHomMat2D = new HHomMat2D(HomMat2D);
+            HTuple X0 = new HTuple();
+            HTuple X1 = new HTuple();
+            tranCircle.CenterY = TempHomMat2D.AffineTransPoint2d(
+                intCircle.CenterY,
+                intCircle.CenterX,
+                out X0
+            );
+            tranCircle.CenterX = X0;
+            tranCircle.Radius = intCircle.Radius;
+        }
+
+
+        public void InitCircleMethod()
+        {
+            if (TranCircle.FlagLineStyle != null)
+            {
+                mWindowH.WindowH.genCircle(Serial.ToString(), TranCircle.CenterX, TranCircle.CenterY, TranCircle.Radius, ref RoiList);
+            }
+            else if (!RoiList.ContainsKey(Serial.ToString()))
+            {
+                if ((_inputImage.Value) == null) return;
+                var tempImage = new HImage((HObject)_inputImage.Value).Clone();
+                if (tempImage != null && tempImage.IsInitialized())
+                {
+                    //所有参数都为默认值时按图片尺寸绘制直线
+                    if (InitCircleCenterY == 50.0 && InitCircleCenterX == 50.0 && InitCircleRadius == 40.0)
+                    {
+                        tempImage.GetImageSize(out int imageWidth, out int imageHeight);
+                        mWindowH.WindowH.genCircle(Serial.ToString(), imageHeight / 2, imageWidth / 2, imageWidth / 8, ref RoiList);
+                        InitCircleCenterY = TranCircle.CenterY = imageHeight / 2;
+                        InitCircleCenterX = TranCircle.CenterX = imageWidth / 2;
+                        InitCircleRadius = TranCircle.Radius = imageWidth / 8;
+                    }
+                    else
+                    {
+                        mWindowH.WindowH.genCircle(Serial.ToString(), InitCircleCenterY, InitCircleCenterX, InitCircleRadius, ref RoiList);
+                    }
+                }
+                else
+                {
+                    mWindowH.WindowH.genCircle(Serial.ToString(), InitCircleCenterY, InitCircleCenterX, InitCircleRadius, ref RoiList);
+                    InitCircle.CenterX = TranCircle.CenterX = InitCircleCenterX;
+                    InitCircle.CenterY = TranCircle.CenterY = InitCircleCenterY;
+                    InitCircle.Radius = TranCircle.Radius = InitCircleRadius;
+                }
+                    
+            }
+            else if (RoiList.ContainsKey(Serial.ToString()))
+            {
+                if (HomMat2D_Inverse != null && HomMat2D_Inverse.Length > 0)
+                {
+                    mWindowH.WindowH.genCircle(Serial.ToString(), TranCircle.CenterY, TranCircle.CenterX, TranCircle.Radius, ref RoiList);
+                    Affine2d(HomMat2D_Inverse, TranCircle, InitCircle);
+                    InitCircle.CenterX = Math.Round(InitCircle.CenterX, 3);
+                    InitCircle.CenterY = Math.Round(InitCircle.CenterY, 3);
+                    InitCircle.Radius = Math.Round(InitCircle.Radius, 3);
+                    if (InitCircleChanged_Flag)
+                    {
+                        InitCircleCenterX = InitCircle.CenterX;
+                        InitCircleCenterY = InitCircle.CenterY;
+                        InitCircleRadius = InitCircle.Radius;
+                    }
+                }
+                else
+                {
+                    mWindowH.WindowH.genCircle(Serial.ToString(), InitCircle.CenterY, InitCircle.CenterX, InitCircle.Radius, ref RoiList);
+                    if (InitCircleChanged_Flag)
+                    {
+                        InitCircleCenterX = InitCircle.CenterX;
+                        InitCircleCenterY = InitCircle.CenterY;
+                        InitCircleRadius = InitCircle.Radius;
+                    }
+                }
+            }
+        }
+
+
+        private void InitCircleChanged()
+        {
+            if (InitCircleChanged_Flag == true)
+                return;
+
+            InitCircle.CenterX = InitCircleCenterX;
+            InitCircle.CenterY = InitCircleCenterY;
+            InitCircle.Radius = InitCircleRadius;
+            DisenableAffine2d = true;
+            if (roiCircle != null)
+            {
+                if (DisenableAffine2d && HomMat2D != null && HomMat2D.Length > 0)
+                {
+                    Affine2d(HomMat2D, InitCircle, TempCircle);
+                    if (InitCircleChanged_Flag)
+                    {
+                        roiCircle.CenterX = TempCircle.CenterX;
+                        roiCircle.CenterY = TempCircle.CenterY;
+                        roiCircle.Radius = TempCircle.Radius;
+                    }
+                }
+                else
+                {
+                    roiCircle.CenterX = InitCircle.CenterX;
+                    roiCircle.CenterY = InitCircle.CenterY;
+                    roiCircle.Radius = InitCircle.Radius;
+                    TempCircle.CenterX = InitCircle.CenterX;
+                    TempCircle.CenterY = InitCircle.CenterY;
+                    TempCircle.Radius = InitCircle.Radius;
+                }
+                Run();
+                InitCircleMethod();
+            }
+        }
+
+        /// <summary>
+        /// 检测圆
+        /// </summary>
+        /// <param name="image">输入图像</param>
+        /// <param name="circel">输入圆</param>
+        /// <param name="meas">输入形态学</param>
+        /// <param name="outCircle">输出圆</param>
+        /// <param name="outR">输出行坐标</param>
+        /// <param name="outC">输出列坐标</param>
+        /// <param name="outXld">输出检测轮廓</param>
+        public bool MeasCircle(
+            HImage image,
+            ROICircle circel,
+            ROICircle outCircle,
+            out HTuple outR,
+            out HTuple outC,
+            out HXLDCont outXld,
+            HRegion? disableRegion = null
+        )
+        {
+            HMetrologyModel MetroModel = new HMetrologyModel();
+            try
+            {
+                bool status = true;
+
+                HTuple CircleResult = new HTuple();
+                HTuple Circle_Info = new HTuple(new double[] { circel.CenterY, circel.CenterX, circel.Radius });
+
+                MetroModel.AddMetrologyObjectGeneric(
+                new HTuple("circle"),
+                Circle_Info,
+                    new HTuple(Length1),
+                    new HTuple(Length2),
+                    new HTuple(PointsOrder + 1),
+                    new HTuple(Threshold),
+                    ParamName,
+                    ParamValue
+                );
+                MetroModel.ApplyMetrologyModel(image);
+                outXld = MetroModel.GetMetrologyObjectMeasures("all", "all", out outR, out outC);
+                if (
+                    disableRegion != null
+                    && disableRegion.IsInitialized()
+                    && disableRegion.Area > 0
+                    && outR.Length > 0
+                )
+                {
+                    List<double> tempOutR = new List<double>(),
+                        tempOutC = new List<double>();
+                    for (int i = 0; i < outR.DArr.Length - 1; i++)
+                    {
+                        //0 表示没有包含
+                        if (disableRegion.TestRegionPoint(outR[i].D, outC[i].D) == 0)
+                        {
+                            tempOutR.Add(outR[i].D);
+                            tempOutC.Add(outC[i].D);
+                        }
+                    }
+                    outR = new HTuple(tempOutR.ToArray());
+                    outC = new HTuple(tempOutC.ToArray());
+                    status = FitCircle(outR.ToDArr(), outC.ToDArr(), out outCircle);
+                }
+                else
+                {
+                    CircleResult = MetroModel.GetMetrologyObjectResult(
+                        new HTuple("all"),
+                        new HTuple("all"),
+                        new HTuple("result_type"),
+                        new HTuple("all_param")
+                    );
+                    if (CircleResult.TupleLength() >= 3)
+                    {
+                        outCircle.CenterY = Math.Round(CircleResult[0].D, 4);
+                        outCircle.CenterX = Math.Round(CircleResult[1].D, 4);
+                        outCircle.Radius = Math.Round(CircleResult[2].D, 4);
+                    }
+                    else
+                    {
+                        status = FitCircle(outR.ToDArr(), outC.ToDArr(), out outCircle);
+                    }
+                }
+                MetroModel.Dispose();
+
+                return status;
+            }
+            catch (Exception ex)
+            {
+                outCircle = circel;
+                outR = new HTuple();
+                outC = new HTuple();
+                outXld = new HXLDCont();
+                MetroModel.Dispose();
+                Debug.Write(ex.Message);
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 最小二乘法圆拟合
+        /// </summary>
+        /// <param name="rows">点云 行坐标</param>
+        /// <param name="cols">点云 列坐标</param>
+        /// <param name="circle">返回圆</param>
+        /// <returns>是否拟合成功</returns>
+        public static bool FitCircle(double[] rows, double[] cols, out ROICircle circle)
+        {
+            circle = new ROICircle();
+            if (cols.Length < 3)
+            {
+                return false;
+            }
+            //本地代码验证通过------20180827 yoga
+            ////原始托管代码
+            double sum_x = 0.0f,
+                sum_y = 0.0f;
+            double sum_x2 = 0.0f,
+                sum_y2 = 0.0f;
+            double sum_x3 = 0.0f,
+                sum_y3 = 0.0f;
+            double sum_xy = 0.0f,
+                sum_x1y2 = 0.0f,
+                sum_x2y1 = 0.0f;
+            int N = cols.Length;
+            for (int i = 0; i < N; i++)
+            {
+                double x = rows[i];
+                double y = cols[i];
+                double x2 = x * x;
+                double y2 = y * y;
+                sum_x += x;
+                sum_y += y;
+                sum_x2 += x2;
+                sum_y2 += y2;
+                sum_x3 += x2 * x;
+                sum_y3 += y2 * y;
+                sum_xy += x * y;
+                sum_x1y2 += x * y2;
+                sum_x2y1 += x2 * y;
+            }
+            double C,
+                D,
+                E,
+                G,
+                H;
+            double a,
+                b,
+                c;
+            C = N * sum_x2 - sum_x * sum_x;
+            D = N * sum_xy - sum_x * sum_y;
+            E = N * sum_x3 + N * sum_x1y2 - (sum_x2 + sum_y2) * sum_x;
+            G = N * sum_y2 - sum_y * sum_y;
+            H = N * sum_x2y1 + N * sum_y3 - (sum_x2 + sum_y2) * sum_y;
+            a = (H * D - E * G) / (C * G - D * D);
+            b = (H * C - E * D) / (D * D - G * C);
+            c = -(a * sum_x + b * sum_y + sum_x2 + sum_y2) / N;
+            circle.CenterY = Math.Round(a / (-2), 4);
+            circle.CenterX = Math.Round(b / (-2), 4);
+            circle.Radius = Math.Round(Math.Sqrt(a * a + b * b - 4 * c) / 2, 4);
+            return true;
+        }
+
+        /// <summary>
+        /// 最小二乘法圆拟合
+        /// </summary>
+        /// <param name="rows">点云 行坐标</param>
+        /// <param name="cols">点云 列坐标</param>
+        /// <param name="circle">返回圆</param>
+        /// <returns>是否拟合成功</returns>
+        public static bool FitCircle1(List<double> rows, List<double> cols, ROICircle circle)
+        {
+            if (cols.Count < 3)
+            {
+                circle.Status = false;
+                return false;
+            }
+            //本地代码验证通过------20180827 yoga
+            ////原始托管代码
+            double sum_x = 0.0f,
+                sum_y = 0.0f;
+            double sum_x2 = 0.0f,
+                sum_y2 = 0.0f;
+            double sum_x3 = 0.0f,
+                sum_y3 = 0.0f;
+            double sum_xy = 0.0f,
+                sum_x1y2 = 0.0f,
+                sum_x2y1 = 0.0f;
+            int N = cols.Count;
+            for (int i = 0; i < N; i++)
+            {
+                double x = rows[i];
+                double y = cols[i];
+                double x2 = x * x;
+                double y2 = y * y;
+                sum_x += x;
+                sum_y += y;
+                sum_x2 += x2;
+                sum_y2 += y2;
+                sum_x3 += x2 * x;
+                sum_y3 += y2 * y;
+                sum_xy += x * y;
+                sum_x1y2 += x * y2;
+                sum_x2y1 += x2 * y;
+            }
+            double C,
+                D,
+                E,
+                G,
+                H;
+            double a,
+                b,
+                c;
+            C = N * sum_x2 - sum_x * sum_x;
+            D = N * sum_xy - sum_x * sum_y;
+            E = N * sum_x3 + N * sum_x1y2 - (sum_x2 + sum_y2) * sum_x;
+            G = N * sum_y2 - sum_y * sum_y;
+            H = N * sum_x2y1 + N * sum_y3 - (sum_x2 + sum_y2) * sum_y;
+            a = (H * D - E * G) / (C * G - D * D);
+            b = (H * C - E * D) / (D * D - G * C);
+            c = -(a * sum_x + b * sum_y + sum_x2 + sum_y2) / N;
+            circle.CenterY = Math.Round(a / (-2), 4);
+            circle.CenterX = Math.Round(b / (-2), 4);
+            circle.Radius = Math.Round(Math.Sqrt(a * a + b * b - 4 * c) / 2, 4);
+            return true;
+        }
+
+
+        /// <summary>
+        /// 点排序
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <param name="cols"></param>
+        public static void SortPairs(ref List<double> rows, ref List<double> cols)
+        {
+            HTuple hv_T1 = new HTuple(rows.ToArray());
+            HTuple hv_T2 = new HTuple(cols.ToArray());
+            //相同的方法 直接使用htuple返回结果
+            SortPairs(ref hv_T1, ref hv_T2);
+            rows = hv_T1.ToDArr().ToList();
+            cols = hv_T2.ToDArr().ToList();
+            return;
+        }
+
+
+        /// <summary>
+        /// 点排序
+        /// </summary>
+        /// <param name="hv_T1"></param>
+        /// <param name="hv_T2"></param>
+        public static void SortPairs(ref HTuple hv_T1, ref HTuple hv_T2)
+        {
+            HTuple hv_Sorted1 = new HTuple();
+            HTuple hv_Sorted2 = new HTuple();
+            HTuple hv_SortMode = new HTuple();
+            HTuple hv_Indices1 = new HTuple(),
+                hv_Indices2 = new HTuple();
+            if (
+                (hv_T1.TupleMax().D - hv_T1.TupleMin().D)
+                > (hv_T2.TupleMax().D - hv_T2.TupleMin().D)
+            )
+                hv_SortMode = new HTuple("1");
+            else
+                hv_SortMode = new HTuple("2");
+            if (
+                (int)(
+                    (new HTuple(hv_SortMode.TupleEqual("1"))).TupleOr(
+                        new HTuple(hv_SortMode.TupleEqual(1))
+                    )
+                ) != 0
+            )
+            {
+                HOperatorSet.TupleSortIndex(hv_T1, out hv_Indices1);
+                hv_Sorted1 = hv_T1.TupleSelect(hv_Indices1);
+                hv_Sorted2 = hv_T2.TupleSelect(hv_Indices1);
+            }
+            else if (
+                (int)(
+                    (
+                        new HTuple(
+                            (new HTuple(hv_SortMode.TupleEqual("column"))).TupleOr(
+                                new HTuple(hv_SortMode.TupleEqual("2"))
+                            )
+                        )
+                    ).TupleOr(new HTuple(hv_SortMode.TupleEqual(2)))
+                ) != 0
+            )
+            {
+                HOperatorSet.TupleSortIndex(hv_T2, out hv_Indices2);
+                hv_Sorted1 = hv_T1.TupleSelect(hv_Indices2);
+                hv_Sorted2 = hv_T2.TupleSelect(hv_Indices2);
+            }
+            hv_T1 = hv_Sorted1;
+            hv_T2 = hv_Sorted2;
+        }
+
+
+        /// <summary>创建点xld</summary>
+        /// <param name="MeasCross"></param>
+        /// <param name="RowList"></param>
+        /// <param name="ColList"></param>
+        /// <param name="size"></param>
+        /// <param name="angle"></param>
+        public static void GenCross(
+            out HObject MeasCross,
+            HTuple RowList,
+            HTuple ColList,
+            HTuple size,
+            HTuple angle
+        )
+        {
+            HOperatorSet.GenCrossContourXld(out MeasCross, RowList, ColList, size, angle);
+        }
+
+
+        /// <summary>创建结果xld-线</summary>
+        /// <param name="ResultXLD"></param>
+        /// <param name="StartX"></param>
+        /// <param name="StartY"></param>
+        /// <param name="EndX"></param>
+        /// <param name="EndY"></param>
+        public static void GenContour(
+            out HObject ResultXLD,
+            double StartX,
+            double StartY,
+            double EndX,
+            double EndY
+        )
+        {
+            HOperatorSet.GenContourPolygonXld(
+                out ResultXLD,
+                new HTuple(StartX, StartY),
+                new HTuple(EndX, EndY)
+            );
+        }
+
+        /// <summary>创建结果xld-圆 </summary>
+        /// <param name="ResultXLD"></param>
+        /// <param name="CenterX"></param>
+        /// <param name="CenterY"></param>
+        /// <param name="Radius"></param>
+        public static void GenCircle(
+            out HObject ResultXLD,
+            double CenterX,
+            double CenterY,
+            double Radius
+        )
+        {
+            HOperatorSet.GenCircleContourXld(
+                out ResultXLD,
+                CenterY,
+                CenterX,
+                Radius,
+                0,
+                6.28318,
+                "positive",
+                1
+            );
+        }
+
+
+        public void ShowHRoi()
+        {
+            if (mWindowH != null)
+            {
+                mWindowH.ClearROI();
+            }
+
+            List<HRoi> roiList = mHRoi.Where(c => c.ModuleName == ModuleName).ToList();
+            foreach (HRoi roi in roiList)
+            {
+                if (roi.roiType == HRoiType.文字显示)
+                {
+                    HText roiText = (HText)roi;
+                    ShowTool.SetFont(
+                        mWindowH.hControl.HalconWindow,
+                        roiText.size,
+                        "false",
+                        "false"
+                    );
+                    ShowTool.SetMsg(
+                        mWindowH.hControl.HalconWindow,
+                        roiText.text,
+                        "image",
+                        roiText.row,
+                        roiText.col,
+                        roiText.drawColor,
+                        "false"
+                    );
+                }
+                else
+                {
+                    if (mWindowH != null)
+                        mWindowH.WindowH.DispHobject(roi.hobject, roi.drawColor, roi.IsFillDisp);
+                }
+            }
+        }
+
+
+        public void ShowHRoi(HRoi ROI)
+        {
+            try
+            {
+                int index = mHRoi.FindIndex(e => e.roiType == ROI.roiType && e.ModuleName == ROI.ModuleName);
+                if (ROI.fors == true)
+                {
+                    mHRoi.Add(ROI);
+                    return;
+                }
+                if (index > -1)
+                    mHRoi[index] = ROI;
+                else
+                    mHRoi.Add(ROI);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+
+
+
+        #endregion
+
+    }
+
+
+
+
+
+}

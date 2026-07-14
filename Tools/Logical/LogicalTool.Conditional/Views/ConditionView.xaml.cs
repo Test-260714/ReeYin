@@ -1,0 +1,35 @@
+﻿using LogicalTool.Conditional.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace LogicalTool.Conditional.Views
+{
+    /// <summary>
+    /// ConditionView.xaml 的交互逻辑
+    /// </summary>
+    public partial class ConditionView : UserControl
+    {
+        public ConditionView()
+        {
+            InitializeComponent();
+
+            Loaded += (_, __) =>
+            {
+                if (DataContext is ConditionViewModel vm)
+                    vm.RegionManager = RegionManager.GetRegionManager(this);
+            };
+        }
+    }
+}

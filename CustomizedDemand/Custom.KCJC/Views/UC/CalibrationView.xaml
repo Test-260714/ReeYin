@@ -1,0 +1,508 @@
+<UserControl x:Class="Custom.KCJC.Views.CalibrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Custom.KCJC.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="14"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="1300" Height="820"
+             d:DesignHeight="820" d:DesignWidth="1300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>    <!-- 左：图像 + 传感器参数 -->
+            <ColumnDefinition Width="1.6*"/>  <!-- 右：测量明细（上）+ 标准参考值（下）-->
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>               <!-- 主内容 -->
+            <RowDefinition Height="Auto"/> <!-- 操作栏 -->
+        </Grid.RowDefinitions>
+
+        <!-- ===== 左列：图像（上）+ 传感器基础参数（下）===== -->
+        <Grid Grid.Column="0" Grid.Row="0" Margin="4,4,2,4">
+            <Grid.RowDefinitions>
+                <RowDefinition/>           <!-- 图像：充满剩余高度 -->
+                <RowDefinition Height="Auto"/> <!-- 传感器基础参数 -->
+            </Grid.RowDefinitions>
+
+            <!-- 标定图像 -->
+            <WxGroupBox:WxGroupBox Header="标定图像展示" Grid.Row="0" Margin="0,0,0,4">
+                <Controls:ImageEditView Image="{Binding ModelParam.DisposeImage}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Background="Transparent"
+                                        MinHeight="160" MinWidth="200"/>
+            </WxGroupBox:WxGroupBox>
+
+            <!-- 传感器基础参数 -->
+            <WxGroupBox:WxGroupBox Header="传感器基础参数" Grid.Row="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="4"
+                                          hc:InfoElement.Title="X像素当量："
+                                          Width="auto" Style="{StaticResource NumericUpDownExtend}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1" Foreground="Black"
+                                          Margin="5,3" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                          Value="{Binding ModelParam.CalibMeasureParam.IntervalX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="4"
+                                          hc:InfoElement.Title="Y像素当量："
+                                          Width="auto" Style="{StaticResource NumericUpDownExtend}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1" Foreground="Black"
+                                          Margin="5,3" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                          Value="{Binding ModelParam.CalibMeasureParam.IntervalY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="4"
+                                          hc:InfoElement.Title="Z像素当量："
+                                          Width="auto" Style="{StaticResource NumericUpDownExtend}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1" Foreground="Black"
+                                          Margin="5,3" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                          Value="{Binding ModelParam.CalibMeasureParam.IntervalZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          hc:InfoElement.Title="算法类型："
+                                          Width="auto" Style="{StaticResource NumericUpDownExtend}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1" Foreground="Black"
+                                          Margin="5,3" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                          Minimum="0" Maximum="2"
+                                          Value="{Binding ModelParam.CalibMeasureParam.AlgorithmType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="(0=槽线标定  1=凸点标定  2=台阶高度标定)" FontSize="11" Foreground="Gray" Margin="5,0,0,4"/>
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          hc:InfoElement.Title="边缘屏蔽(px)："
+                                          Width="auto" Style="{StaticResource NumericUpDownExtend}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1" Foreground="Black"
+                                          Margin="5,3" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                          Value="{Binding ModelParam.CalibMeasureParam.ImageEdgeMaskSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Grid>
+            </WxGroupBox:WxGroupBox>
+        </Grid>
+
+        <!-- ===== 右列：测量明细（上）+ 标准参考值（下）===== -->
+        <Grid Grid.Column="1" Grid.Row="0" Margin="2,4,4,4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.8*"/> <!-- 测量明细 -->
+                <RowDefinition Height="1*"/>   <!-- 标准参考值 -->
+            </Grid.RowDefinitions>
+
+            <!-- ── 右上：测量明细 ── -->
+            <ScrollViewer Grid.Row="0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Margin="0,0,0,4">
+                <StackPanel>
+
+                    <!-- 各槽测量明细 -->
+                    <WxGroupBox:WxGroupBox Header="各槽测量明细"
+                                           Visibility="{Binding ModelParam.GrooveSectionVisibility}">
+                        <StackPanel>
+                            <!-- 表头 -->
+                            <Grid Margin="5,6,5,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="1.4*"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="1.4*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="槽号"     Grid.Column="0" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Text="槽宽(测)" Grid.Column="1" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="槽宽(标)" Grid.Column="2" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                <TextBlock Text="宽偏差"   Grid.Column="3" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="槽深(测)" Grid.Column="4" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="槽深(标)" Grid.Column="5" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                <TextBlock Text="深偏差"   Grid.Column="6" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Separator Margin="5,3"/>
+                            <ListBox ItemsSource="{Binding ModelParam.GrooveDisplayItems}" FontSize="12"
+                                     BorderThickness="0" Background="Transparent">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="5,3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Label}"                            Grid.Column="0" Foreground="Gray" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Width,         StringFormat=F3}"  Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding WidthStandard, StringFormat=F3}"  Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                            <TextBlock Text="{Binding WidthDeviationText}"              Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Foreground="{Binding WidthDeviationBrush}"/>
+                                            <TextBlock Text="{Binding Depth,         StringFormat=F3}"  Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DepthStandard, StringFormat=F3}"  Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                            <TextBlock Text="{Binding DepthDeviationText}"              Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Foreground="{Binding DepthDeviationBrush}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </WxGroupBox:WxGroupBox>
+
+                    <!-- 各点测量明细 -->
+                    <WxGroupBox:WxGroupBox Header="各点测量明细"
+                                           Visibility="{Binding ModelParam.BumpSectionVisibility}">
+                        <StackPanel>
+                            <!-- 表头 -->
+                            <Grid Margin="5,6,5,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="1.4*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="点号"     Grid.Column="0" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Text="高度(测)" Grid.Column="1" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="高度(标)" Grid.Column="2" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                <TextBlock Text="高度偏差" Grid.Column="3" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Separator Margin="5,3"/>
+                            <ListBox ItemsSource="{Binding ModelParam.BumpDisplayItems}" FontSize="12"
+                                     BorderThickness="0" Background="Transparent">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="5,3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Label}"                             Grid.Column="0" Foreground="Gray" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Height,         StringFormat=F3}"   Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding HeightStandard, StringFormat=F3}"   Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                            <TextBlock Text="{Binding HeightDeviationText}"               Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Foreground="{Binding HeightDeviationBrush}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </WxGroupBox:WxGroupBox>
+
+                    <!-- 台阶测量明细 -->
+                    <WxGroupBox:WxGroupBox Header="台阶测量明细"
+                                           Visibility="{Binding ModelParam.StepSectionVisibility}">
+                        <StackPanel>
+                            <Grid Margin="5,6,5,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="台阶号"   Grid.Column="0" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Text="高度(测)" Grid.Column="1" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="高度(标)" Grid.Column="2" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="偏差"     Grid.Column="3" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Separator Margin="5,3"/>
+                            <ListBox ItemsSource="{Binding ModelParam.StepDisplayItems}" FontSize="12"
+                                     BorderThickness="0" Background="Transparent">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="5,3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Label}"                           Grid.Column="0" Foreground="Gray" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Height, StringFormat=F3}"        Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding HeightStandard, StringFormat=F3}" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding HeightDeviationText}"            Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Foreground="{Binding HeightDeviationBrush}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Grid Margin="5,8,5,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding ModelParam.CalibResult.StepHeightPhysicalMean, StringFormat=平均值：{0:F3}}"/>
+                                <TextBlock Grid.Column="1"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding ModelParam.CalibResult.StepHeightPhysicalMax, StringFormat=最大值：{0:F3}}"/>
+                                <TextBlock Grid.Column="2"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding ModelParam.CalibResult.StepHeightPhysicalMin, StringFormat=最小值：{0:F3}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </WxGroupBox:WxGroupBox>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ── 右下：标准参考值 ── -->
+            <WxGroupBox:WxGroupBox Header="标准参考值" Grid.Row="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 各槽/点比对标准（TabControl）-->
+                    <TabControl Grid.Row="0" FontSize="12"
+                                BorderThickness="1" Padding="0">
+
+                        <!-- Tab：各槽比对标准 -->
+                        <TabItem Header="各槽比对标准  (AlgoType=0)">
+                            <Grid Margin="4,6,4,4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/> <!-- 工具栏 -->
+                                    <RowDefinition/>               <!-- DataGrid -->
+                                </Grid.RowDefinitions>
+                                <!-- 工具栏 -->
+                                <DockPanel Grid.Row="0" Margin="0,0,0,4" LastChildFill="False">
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="序号与 GrooveWidthRealListV2 / GrooveDepthRealListV2 下标对应"
+                                               FontSize="11" Foreground="#888" VerticalAlignment="Center"/>
+                                    <Button DockPanel.Dock="Right" Content="- 删除选中"
+                                            Command="{Binding GeneralCommand}" CommandParameter="删除槽标准"
+                                            Style="{StaticResource GeneralButtonStyle}"
+                                            Height="26" Padding="8,0" FontSize="12"/>
+                                    <Button DockPanel.Dock="Right" Content="+ 添加槽"
+                                            Command="{Binding GeneralCommand}" CommandParameter="添加槽标准"
+                                            Style="{StaticResource GeneralButtonStyle}"
+                                            Height="26" Padding="8,0" FontSize="12" Margin="0,0,6,0"/>
+                                </DockPanel>
+                                <!-- DataGrid -->
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding ModelParam.GrooveStandardRefs}"
+                                          SelectedItem="{Binding ModelParam.SelectedGrooveStandardRef, Mode=TwoWay}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False" CanUserDeleteRows="False"
+                                          FontSize="12"
+                                          VerticalScrollBarVisibility="Auto"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="槽号"
+                                                            Binding="{Binding Label}"
+                                                            IsReadOnly="True" Width="50"/>
+                                        <DataGridTextColumn Header="标准槽宽 (um)"
+                                                            Binding="{Binding WidthStandard}"
+                                                            Width="*"/>
+                                        <DataGridTextColumn Header="宽允差 (um)"
+                                                            Binding="{Binding WidthStdDev}"
+                                                            Width="*"/>
+                                        <DataGridTextColumn Header="标准槽深 (um)"
+                                                            Binding="{Binding DepthStandard}"
+                                                            Width="*"/>
+                                        <DataGridTextColumn Header="深允差 (um)"
+                                                            Binding="{Binding DepthStdDev}"
+                                                            Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- Tab：各点比对标准 -->
+                        <TabItem Header="各点比对标准  (AlgoType=1)">
+                            <Grid Margin="4,6,4,4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/> <!-- 工具栏 -->
+                                    <RowDefinition/>               <!-- DataGrid -->
+                                </Grid.RowDefinitions>
+                                <!-- 工具栏 -->
+                                <DockPanel Grid.Row="0" Margin="0,0,0,4" LastChildFill="False">
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="序号与 BumpHeightPhysicalList 下标对应"
+                                               FontSize="11" Foreground="#888" VerticalAlignment="Center"/>
+                                    <Button DockPanel.Dock="Right" Content="- 删除选中"
+                                            Command="{Binding GeneralCommand}" CommandParameter="删除点标准"
+                                            Style="{StaticResource GeneralButtonStyle}"
+                                            Height="26" Padding="8,0" FontSize="12"/>
+                                    <Button DockPanel.Dock="Right" Content="+ 添加点"
+                                            Command="{Binding GeneralCommand}" CommandParameter="添加点标准"
+                                            Style="{StaticResource GeneralButtonStyle}"
+                                            Height="26" Padding="8,0" FontSize="12" Margin="0,0,6,0"/>
+                                </DockPanel>
+                                <!-- DataGrid -->
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding ModelParam.BumpStandardRefs}"
+                                          SelectedItem="{Binding ModelParam.SelectedBumpStandardRef, Mode=TwoWay}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False" CanUserDeleteRows="False"
+                                          FontSize="12"
+                                          VerticalScrollBarVisibility="Auto"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="点号"
+                                                            Binding="{Binding Label}"
+                                                            IsReadOnly="True" Width="50"/>
+                                        <DataGridTextColumn Header="标准高度 (um)"
+                                                            Binding="{Binding HeightStandard}"
+                                                            Width="*"/>
+                                        <DataGridTextColumn Header="高度允差 (um)"
+                                                            Binding="{Binding HeightStdDev}"
+                                                            Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- Tab：各台阶比对标准 -->
+                        <TabItem Header="各台阶比对标准  (AlgoType=2)">
+                            <Grid Margin="4,6,4,4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <!-- 工具栏 -->
+                                <DockPanel Grid.Row="0" Margin="0,0,0,4" LastChildFill="False">
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="序号与 StepHeightPhysicalList 下标对应"
+                                               FontSize="11" Foreground="#888" VerticalAlignment="Center"/>
+                                    <Button DockPanel.Dock="Right" Content="- 删除选中"
+                                            Command="{Binding GeneralCommand}" CommandParameter="删除台阶标准"
+                                            Style="{StaticResource GeneralButtonStyle}"
+                                            Height="26" Padding="8,0" FontSize="12"/>
+                                    <Button DockPanel.Dock="Right" Content="+ 添加台阶"
+                                            Command="{Binding GeneralCommand}" CommandParameter="添加台阶标准"
+                                            Style="{StaticResource GeneralButtonStyle}"
+                                            Height="26" Padding="8,0" FontSize="12" Margin="0,0,6,0"/>
+                                </DockPanel>
+                                <!-- DataGrid -->
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding ModelParam.StepStandardRefs}"
+                                          SelectedItem="{Binding ModelParam.SelectedStepStandardRef, Mode=TwoWay}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False" CanUserDeleteRows="False"
+                                          FontSize="12"
+                                          VerticalScrollBarVisibility="Auto"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="台阶号"
+                                                            Binding="{Binding Label}"
+                                                            IsReadOnly="True" Width="60"/>
+                                        <DataGridTextColumn Header="标准高度 (um)"
+                                                            Binding="{Binding HeightStandard}"
+                                                            Width="*"/>
+                                        <DataGridTextColumn Header="高度允差 (um)"
+                                                            Binding="{Binding HeightStdDev}"
+                                                            Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
+
+                    </TabControl>
+                </Grid>
+            </WxGroupBox:WxGroupBox>
+
+        </Grid>
+
+        <!-- ===== 底部操作栏（横跨两列）===== -->
+        <WxGroupBox:WxGroupBox Header="操作"
+                               Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               Margin="4,0,4,4">
+            <Grid Margin="0,5,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <hc:NumericUpDown Width="230"
+                                      Height="35"
+                                      Minimum="1"
+                                      DecimalPlaces="0"
+                                      Value="{Binding CalibrationNodeSerial,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.Title="节点序号："
+                                      hc:InfoElement.TitleWidth="100"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      BorderThickness="0 0 0 1"
+                                      Foreground="Black"
+                                      Margin="0,0,8,0"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"/>
+                    <Button FontSize="14"
+                            Command="{Binding GeneralCommand}" CommandParameter="执行标定"
+                            IsEnabled="{Binding CanExecuteCalibration}"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="35" Padding="10,0"
+                            Content="执行标定" Cursor="Hand"/>
+                    <TextBlock Text="标准片流程：5刻槽，8凸点，11台阶"
+                               FontSize="12"
+                               Foreground="Gray"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button FontSize="14"
+                            Command="{Binding GeneralCommand}" CommandParameter="从图片加载"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="35" Padding="10,0"
+                            Content="从图片加载" Cursor="Hand" Margin="0,0,8,0"/>
+                    <Button FontSize="14"
+                            Command="{Binding GeneralCommand}" CommandParameter="保存"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="35" Padding="10,0"
+                            Content="保存" Cursor="Hand" Margin="0,0,8,0"/>
+                    <!--<Button FontSize="14"
+                            Command="{Binding GeneralCommand}" CommandParameter="触发自动标定流程"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="35" Padding="10,0"
+                            Content="触发自动标定流程" Cursor="Hand"/>-->
+                </StackPanel>
+            </Grid>
+        </WxGroupBox:WxGroupBox>
+
+    </Grid>
+</UserControl>

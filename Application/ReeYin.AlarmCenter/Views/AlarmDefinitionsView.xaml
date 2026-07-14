@@ -1,0 +1,410 @@
+﻿<UserControl x:Class="ReeYin.AlarmCenter.Views.AlarmDefinitionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="760"
+             d:DesignWidth="1500"
+             FontSize="12"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ReeYin.AlarmCenter;component/Styles/AlarmWorkbenchResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid x:Name="DefinitionsGovernanceLayout" Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Margin="0,0,0,14" Style="{StaticResource AlarmCommandBarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AlarmPrimaryBrush}"
+                               Text="ALARM CONFIG" />
+                    <TextBlock Margin="0,5,0,0"
+                               Style="{StaticResource SectionTitleStyle}"
+                               Text="报警配置" />
+                    <TextBlock Margin="0,6,24,0"
+                               Style="{StaticResource MutedTextStyle}"
+                               Text="配置报警定义和设备状态自定义触发规则，仅面向设计和工程人员开放。" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" MinWidth="320" VerticalAlignment="Center">
+                    <ProgressBar Height="6"
+                                 Margin="0,0,0,8"
+                                 IsIndeterminate="True"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock HorizontalAlignment="Right" Style="{StaticResource MutedTextStyle}" Text="{Binding StatusText}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Padding="0" Style="{StaticResource AlarmContentCardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TabControl Grid.Row="0"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch">
+                    <TabItem Header="软件报警">
+                        <Border Margin="0,12,0,0" Padding="0" Style="{StaticResource CardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Border Padding="16,14" BorderBrush="{StaticResource AlarmBorderBrush}" BorderThickness="0,0,0,1">
+                                    <DockPanel LastChildFill="True">
+                                        <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="16,0,0,0">
+                                            <TextBox Width="260"
+                                                     Height="32"
+                                                     Margin="0,0,8,8"
+                                                     VerticalContentAlignment="Center"
+                                                     Text="{Binding DefinitionKeyword, UpdateSourceTrigger=PropertyChanged}"
+                                                     ToolTip="输入编码、名称或分类后查询" />
+                                            <Button Margin="0,0,8,8" Command="{Binding RefreshCommand}" Content="查询" Style="{StaticResource AlarmPrimaryButtonStyle}" />
+                                            <Button Margin="0,0,8,8" Command="{Binding NewDefinitionCommand}" Content="新增定义" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                                            <Button Margin="0,0,8,8" Command="{Binding EditDefinitionCommand}" Content="编辑" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                                            <Button Margin="0,0,0,8" Command="{Binding ToggleDefinitionCommand}" Content="启停" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                                        </WrapPanel>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="报警定义列表" />
+                                            <TextBlock Margin="0,4,0,0"
+                                                       Style="{StaticResource MutedTextStyle}"
+                                                       Text="列表使用整页宽度展示，横向滚动保留完整字段；选中记录后点击编辑进入弹窗，取消不会修改原数据。" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+
+                                <DataGrid Grid.Row="1"
+                                          Margin="12"
+                                          Style="{StaticResource AlarmDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          BorderThickness="0"
+                                          CanUserAddRows="False"
+                                          CellStyle="{StaticResource FlatCellStyle}"
+                                          ColumnHeaderStyle="{StaticResource FlatColumnHeaderStyle}"
+                                          EnableColumnVirtualization="True"
+                                          EnableRowVirtualization="True"
+                                          GridLinesVisibility="None"
+                                          HeadersVisibility="Column"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Definitions}"
+                                          RowHeaderWidth="0"
+                                          RowStyle="{StaticResource FlatRowStyle}"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          SelectedItem="{Binding SelectedDefinition}"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.ScrollUnit="Pixel">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding StatusText}" Header="状态" Width="70" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SystemText}" Header="类型" Width="80" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SeverityText}" Header="等级" Width="90" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding PopupModeText}" Header="提示方式" Width="110" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding Code}" Header="编码" Width="220" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding Name}" Header="名称" Width="180" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SourceType}" Header="来源类型" Width="130" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding DefaultSource}" Header="默认来源" Width="150" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding DefaultLocation}" Header="默认位置" Width="150" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding Category}" Header="分类" Width="130" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SuggestedAction}" Header="处理建议" Width="320" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                    </TabItem>
+
+                    <TabItem Header="自定义触发规则">
+                        <Border Margin="0,12,0,0" Padding="0" Style="{StaticResource CardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Border Padding="16,14" BorderBrush="{StaticResource AlarmBorderBrush}" BorderThickness="0,0,0,1">
+                                    <DockPanel LastChildFill="True">
+                                        <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="16,0,0,0">
+                                            <Button Margin="0,0,8,8" Command="{Binding NewHardwareRuleCommand}" Content="新增" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                                            <Button Margin="0,0,8,8" Command="{Binding EditHardwareRuleCommand}" Content="编辑" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                                            <Button Margin="0,0,8,8" Command="{Binding ToggleHardwareRuleCommand}" Content="启停" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                                            <Button Margin="0,0,0,8" Command="{Binding RefreshCommand}" Content="刷新" Style="{StaticResource AlarmPrimaryButtonStyle}" />
+                                        </WrapPanel>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="自定义触发规则" />
+                                            <TextBlock Margin="0,4,0,0"
+                                                       Style="{StaticResource MutedTextStyle}"
+                                                       Text="维护自定义触发规则的匹配、触发、恢复、节流和锁存策略。" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                                <DataGrid Grid.Row="1"
+                                          Margin="12"
+                                          Style="{StaticResource AlarmDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          BorderThickness="0"
+                                          CanUserAddRows="False"
+                                          CellStyle="{StaticResource FlatCellStyle}"
+                                          ColumnHeaderStyle="{StaticResource FlatColumnHeaderStyle}"
+                                          EnableColumnVirtualization="True"
+                                          EnableRowVirtualization="True"
+                                          GridLinesVisibility="None"
+                                          HeadersVisibility="Column"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding HardwareRules}"
+                                          RowHeaderWidth="0"
+                                          RowStyle="{StaticResource FlatRowStyle}"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          SelectedItem="{Binding SelectedHardwareRule}"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.ScrollUnit="Pixel">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding Name}" Header="规则名称" Width="180" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding DefinitionCode}" Header="报警编码" Width="190" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SourceType}" Header="来源类型" Width="120" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SourcePattern}" Header="来源匹配" Width="150" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding LocationPattern}" Header="位置匹配" Width="150" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding TriggerSummary}" Header="触发摘要" Width="260" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding StatusText}" Header="启用" SortMemberPath="Enabled" Width="80" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding SystemText}" Header="系统规则" SortMemberPath="IsSystem" Width="80" />
+                                        <DataGridTextColumn ElementStyle="{StaticResource CenteredDataGridTextElementStyle}" Binding="{Binding UpdatedAt, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Header="更新时间" Width="160" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                    </TabItem>
+                </TabControl>
+
+            </Grid>
+        </Border>
+
+        <Grid Grid.RowSpan="2"
+              Panel.ZIndex="20"
+              Background="{StaticResource AlarmModalOverlayBrush}"
+              Visibility="{Binding IsDefinitionEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="940"
+                    MaxHeight="700"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitleStyle}" Text="编辑报警定义" />
+                        <TextBlock Margin="0,6,0,12"
+                                   Style="{StaticResource MutedTextStyle}"
+                                   Text="新增或修改软件报警定义。保存前的内容只存在于编辑副本中，取消不会污染列表选中项。" />
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,0,6,0">
+                            <UniformGrid Columns="2">
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="报警编码" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.Code, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="报警名称" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.Name, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="分类" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.Category, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="来源类型" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.SourceType, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="默认来源" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.DefaultSource, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="默认位置" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.DefaultLocation, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="报警等级" />
+                                    <ComboBox Height="32"
+                                              DisplayMemberPath="Label"
+                                              ItemsSource="{Binding SeverityOptions}"
+                                              SelectedValue="{Binding EditingDefinition.Severity}"
+                                              SelectedValuePath="Value" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="提示方式" />
+                                    <ComboBox Height="32"
+                                              DisplayMemberPath="Label"
+                                              ItemsSource="{Binding PopupModeOptions}"
+                                              SelectedValue="{Binding EditingDefinition.PopupMode}"
+                                              SelectedValuePath="Value" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="提示节流秒数" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.PopupThrottleSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="节流秒数" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.ThrottleSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="防抖毫秒" />
+                                    <TextBox Height="32" Text="{Binding EditingDefinition.DebounceMilliseconds, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </UniformGrid>
+                            <WrapPanel Margin="0,2,0,14">
+                                <CheckBox Margin="0,0,18,8" Content="启用" IsChecked="{Binding EditingDefinition.Enabled}" />
+                                <CheckBox Margin="0,0,18,8" Content="需要确认" IsChecked="{Binding EditingDefinition.NeedAcknowledge}" />
+                                <CheckBox Margin="0,0,18,8" Content="允许手动清除" IsChecked="{Binding EditingDefinition.AllowManualClear}" />
+                                <CheckBox Margin="0,0,18,8" Content="恢复自动清除" IsChecked="{Binding EditingDefinition.AutoClearOnRecovery}" />
+                            </WrapPanel>
+                            <TextBlock Style="{StaticResource SmallLabelStyle}" Text="处理建议" />
+                            <TextBox MinHeight="110"
+                                     AcceptsReturn="True"
+                                     Text="{Binding EditingDefinition.SuggestedAction, UpdateSourceTrigger=PropertyChanged}"
+                                     TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Border Grid.Row="2" Margin="0,16,0,0" Padding="0,12,0,0" BorderBrush="{StaticResource AlarmBorderBrush}" BorderThickness="0,1,0,0">
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button Margin="0,0,8,0" Command="{Binding CancelDefinitionEditCommand}" Content="取消" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                            <Button Command="{Binding SaveDefinitionCommand}" Content="保存" Style="{StaticResource AlarmPrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.RowSpan="2"
+              Panel.ZIndex="20"
+              Background="{StaticResource AlarmModalOverlayBrush}"
+              Visibility="{Binding IsHardwareRuleEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="920"
+                    MaxHeight="700"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitleStyle}" Text="编辑自定义触发规则" />
+                        <TextBlock Margin="0,6,0,12" Style="{StaticResource MutedTextStyle}" Text="配置匹配、触发、恢复、防抖、节流、锁存和优先级设置。" />
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,0,6,0">
+                            <UniformGrid Columns="2">
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="规则名称" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.Name, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="报警编码" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.DefinitionCode, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="来源类型" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.SourceType, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="来源匹配" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.SourcePattern, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="位置匹配" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.LocationPattern, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="触发类型" />
+                                    <ComboBox Height="32"
+                                              DisplayMemberPath="Label"
+                                              ItemsSource="{Binding HardwareTriggerKindOptions}"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding EditingHardwareRule.TriggerKind, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="触发字段" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.TriggerField, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="比较符" />
+                                    <ComboBox Height="32"
+                                              DisplayMemberPath="Label"
+                                              ItemsSource="{Binding HardwareOperatorOptions}"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding EditingHardwareRule.Operator, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="触发值" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.TriggerValue, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="恢复类型" />
+                                    <ComboBox Height="32"
+                                              DisplayMemberPath="Label"
+                                              ItemsSource="{Binding HardwareClearKindOptions}"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding EditingHardwareRule.ClearKind, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="恢复值" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.ClearValue, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="防抖毫秒" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.DebounceMilliseconds, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="节流秒数" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.ThrottleSeconds, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="锁存模式" />
+                                    <CheckBox Margin="0,6,0,0" IsChecked="{Binding EditingHardwareRule.LatchMode}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,12">
+                                    <TextBlock Style="{StaticResource SmallLabelStyle}" Text="优先级" />
+                                    <TextBox Height="32" Text="{Binding EditingHardwareRule.Priority, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
+                                </StackPanel>
+                            </UniformGrid>
+                            <CheckBox Margin="0,0,0,12" Content="启用" IsChecked="{Binding EditingHardwareRule.Enabled}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Border Grid.Row="2" Margin="0,16,0,0" Padding="0,12,0,0" BorderBrush="{StaticResource AlarmBorderBrush}" BorderThickness="0,1,0,0">
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button Margin="0,0,8,0" Command="{Binding CancelHardwareRuleEditCommand}" Content="取消" Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                            <Button Command="{Binding SaveHardwareRuleCommand}" Content="保存" Style="{StaticResource AlarmPrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+
+
+    </Grid>
+</UserControl>

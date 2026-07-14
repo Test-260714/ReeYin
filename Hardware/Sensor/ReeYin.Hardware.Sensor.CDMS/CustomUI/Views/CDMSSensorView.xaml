@@ -1,0 +1,160 @@
+<UserControl x:Class="ReeYin.Hardware.Sensor.CDMS.CustomUI.Views.CDMSSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="560"
+             d:DesignWidth="820">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="连接设置" Padding="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="设备IP" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.IP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Column="2" Text="端口" VerticalAlignment="Center" />
+                <TextBox Grid.Column="3" Margin="4" Text="{Binding ModelParam.Sensor.Port, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Column="4" Text="本地IP" VerticalAlignment="Center" />
+                <TextBox Grid.Column="5" Margin="4" Text="{Binding ModelParam.Sensor.Config.LocalAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" Margin="0,8,0,0">
+                    <Button Width="90" Margin="4" Content="连接" Command="{Binding GeneralCommand}" CommandParameter="Connect" />
+                    <Button Width="90" Margin="4" Content="断开" Command="{Binding GeneralCommand}" CommandParameter="Disconnect" />
+                    <Button Width="90" Margin="4" Content="刷新" Command="{Binding GeneralCommand}" CommandParameter="Refresh" />
+                    <Button Width="100" Margin="4" Content="单次读取" Command="{Binding GeneralCommand}" CommandParameter="ReadSingle" />
+                    <Button Width="100" Margin="4" Content="开始采集" Command="{Binding GeneralCommand}" CommandParameter="StartCollect" />
+                    <Button Width="100" Margin="4" Content="停止采集" Command="{Binding GeneralCommand}" CommandParameter="StopCollect" />
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <ScrollViewer Grid.Row="1" Margin="0,8,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <GroupBox Header="设备信息" Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="设备ID" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.Config.DeviceID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="2" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="DeviceID" />
+                        <TextBlock Grid.Column="3" Text="设备PN" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.DevicePN, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="DevicePN" />
+
+                        <TextBlock Grid.Row="1" Text="软件版本" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Margin="4" VerticalAlignment="Center" Text="{Binding ModelParam.Sensor.Config.SoftVersion}" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="通道参数" Padding="8" Margin="0,8,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="通道号" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.Config.SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="2" Margin="4" Content="读取" Command="{Binding GeneralCommand}" CommandParameter="RefreshChannel" />
+                        <TextBlock Grid.Column="3" Text="通道使能" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.ChannelEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="ChannelEnabled" />
+
+                        <TextBlock Grid.Row="1" Text="量程" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.Config.FSO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="1" Grid.Column="2" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="FSO" />
+                        <TextBlock Grid.Row="1" Grid.Column="3" Text="初距" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="1" Grid.Column="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.IniDistance, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="1" Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="IniDistance" />
+
+                        <TextBlock Grid.Row="2" Text="归一化0点" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="2" Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.Config.Zero, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="2" Grid.Column="2" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="Zero" />
+                        <TextBlock Grid.Row="2" Grid.Column="3" Text="归一化1点" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="2" Grid.Column="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.One, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="2" Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="One" />
+
+                        <TextBlock Grid.Row="3" Text="IIR带宽" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="3" Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.Config.FreqBW, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="3" Grid.Column="2" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="FreqBW" />
+                        <TextBlock Grid.Row="3" Grid.Column="3" Text="输出模式" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="3" Grid.Column="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.OutDataMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="3" Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="OutDataMode" />
+
+                        <TextBlock Grid.Row="4" Text="触发模式" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="4" Grid.Column="1" Margin="4" Text="{Binding ModelParam.Sensor.Config.TriggerMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="4" Grid.Column="2" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="TriggerMode" />
+                        <TextBlock Grid.Row="4" Grid.Column="3" Text="自检结果" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="4" Grid.Column="4" Margin="4" VerticalAlignment="Center" Text="{Binding ModelParam.Sensor.Config.SelfCheck}" />
+
+                        <TextBlock Grid.Row="5" Text="SLPN" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="4" IsReadOnly="True" Text="{Binding ModelParam.Sensor.Config.SLPN}" />
+                        <TextBlock Grid.Row="5" Grid.Column="3" Text="SSPN" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="5" Grid.Column="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.SSPN, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="5" Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="SSPN" />
+
+                        <TextBlock Grid.Row="6" Text="SSPN备份" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="4" Margin="4" Text="{Binding ModelParam.Sensor.Config.SSPNBackup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Row="6" Grid.Column="5" Margin="4" Content="写入" Command="{Binding ApplyCommand}" CommandParameter="SSPNBackup" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="结果信息" Padding="8" Margin="0,8,0,0">
+                    <StackPanel>
+                        <TextBlock Text="最新数据" />
+                        <TextBox Margin="0,4,0,0" MinHeight="60" TextWrapping="Wrap" IsReadOnly="True" Text="{Binding SampleText}" />
+                        <TextBlock Margin="0,8,0,0" Text="状态信息" />
+                        <TextBox Margin="0,4,0,0" MinHeight="40" TextWrapping="Wrap" IsReadOnly="True" Text="{Binding ModelParam.Sensor.Config.LastMessage}" />
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button Width="90" Margin="4" Content="确认" Command="{Binding GeneralCommand}" CommandParameter="Confirm" />
+            <Button Width="90" Margin="4" Content="取消" Command="{Binding GeneralCommand}" CommandParameter="Cancel" />
+        </StackPanel>
+    </Grid>
+</UserControl>

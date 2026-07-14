@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="ReeYin_V.Hardware.ControlCard.Views.MotionCurveView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.Hardware.ControlCard.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="14"
+             Height="620" Width="880" Background="Black"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="620" d:DesignWidth="880">
+    <Grid>
+        <Grid Height="600" Width="600">
+            <Canvas x:Name="CanvasXY"/>
+            <Canvas x:Name="CanvasTrace"/>
+        </Grid>
+    </Grid>
+</UserControl>

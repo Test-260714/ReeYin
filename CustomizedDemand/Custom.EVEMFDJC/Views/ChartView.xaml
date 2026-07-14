@@ -1,0 +1,12 @@
+﻿<UserControl x:Class="Custom.EVEMFDJC.Views.ChartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Custom.EVEMFDJC.Views"
+             xmlns:Chart="clr-namespace:Custom.EVEMFDJC.GrayAndHeightChart"
+             mc:Ignorable="d">
+    <Grid>
+        <Chart:GrayAndHeightChartView x:Name="group1"></Chart:GrayAndHeightChartView>
+    </Grid>
+</UserControl>

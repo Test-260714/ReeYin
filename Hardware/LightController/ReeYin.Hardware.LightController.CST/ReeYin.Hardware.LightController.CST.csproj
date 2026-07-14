@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\ReeYin.Hardware.LightController\ReeYin.Hardware.LightController.csproj" />
+  </ItemGroup>
+
+  <!-- 隔离的硬件SDK引用 - 本地Dll文件夹 -->
+  <ItemGroup>
+    <Reference Include="ControllerDllCSharp">
+      <HintPath>Dll\ControllerDllCSharp.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- CST光源控制器SDK - 所有DLL复制到输出目录 -->
+  <ItemGroup>
+    <None Include="Dll\CommonToolDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\ControllerDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\ControllerDllCSharp.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\sControllerDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(SolutionDir)' != '' AND '$(SolutionDir)' != '*Undefined*'">
+    <Exec Command="set SOURCE_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_DEBUG=&quot;$(SolutionDir)\OutputExe\Debug\net8.0-windows\Modules\&quot;&#xD;&#xA;set TARGET_DEBUG_ROOT=&quot;$(SolutionDir)\OutputExe\Debug\net8.0-windows\&quot;&#xD;&#xA;&#xD;&#xA;set SOURCE_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_RELEASE=&quot;$(SolutionDir)\OutputExe\Release\net8.0-windows\Modules\&quot;&#xD;&#xA;set TARGET_RELEASE_ROOT=&quot;$(SolutionDir)\OutputExe\Release\net8.0-windows\&quot;&#xD;&#xA;&#xD;&#xA;set SDK_PATH=&quot;$(ProjectDir)Dll\&quot;&#xD;&#xA;&#xD;&#xA;:: 检查Debug配置文件&#xD;&#xA;IF EXIST %25SOURCE_DEBUG%25 (&#xD;&#xA;    echo 找到Debug源文件: %25SOURCE_DEBUG%25&#xD;&#xA;    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    echo Debug文件复制成功！&#xD;&#xA;    :: 复制CST SDK DLL到Debug根目录（非托管DLL需要在根目录）&#xD;&#xA;    xcopy %25SDK_PATH%25*.dll %25TARGET_DEBUG_ROOT%25 /Y /I&#xD;&#xA;    echo CST SDK DLL复制成功！&#xD;&#xA;) ELSE (&#xD;&#xA;    echo 警告：Debug源文件不存在 - %25SOURCE_DEBUG%25&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:: 检查Release配置文件&#xD;&#xA;IF EXIST %25SOURCE_RELEASE%25 (&#xD;&#xA;    echo 找到Release源文件: %25SOURCE_RELEASE%25&#xD;&#xA;    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    echo Release文件复制成功！&#xD;&#xA;    :: 复制CST SDK DLL到Release根目录（非托管DLL需要在根目录）&#xD;&#xA;    xcopy %25SDK_PATH%25*.dll %25TARGET_RELEASE_ROOT%25 /Y /I&#xD;&#xA;    echo CST SDK DLL复制成功！&#xD;&#xA;) ELSE (&#xD;&#xA;    echo 警告：Release源文件不存在 - %25SOURCE_RELEASE%25&#xD;&#xA;)&#xD;&#xA;" />
+  </Target>
+
+</Project>

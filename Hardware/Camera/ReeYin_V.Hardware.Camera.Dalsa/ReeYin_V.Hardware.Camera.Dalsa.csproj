@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Hardware.Camera\ReeYin_V.Hardware.Camera.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="halcondotnetxl">
+      <HintPath>..\..\..\packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+    </Reference>
+    <Reference Include="DALSA.SaperaLT.SapClassBasic.Core">
+      <HintPath>Dll\DALSA.SaperaLT.SapClassBasic.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 复制 Dalsa Sapera 桥接 DLL 到输出目录 -->
+  <ItemGroup>
+    <None Include="Dll\Ijwhost.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Ijwhost.dll</TargetPath>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\OutputExe\$(Configuration)\net8.0-windows\Modules\" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <DalsaRuntimeOutput Include="$(TargetDir)DALSA.SaperaLT.SapClassBasic.Core.dll" Condition="Exists('$(TargetDir)DALSA.SaperaLT.SapClassBasic.Core.dll')" />
+      <DalsaRuntimeOutput Include="$(TargetDir)Ijwhost.dll" Condition="Exists('$(TargetDir)Ijwhost.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DalsaRuntimeOutput)" DestinationFolder="$(SolutionDir)\OutputExe\$(Configuration)\net8.0-windows\" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

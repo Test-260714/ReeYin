@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\import_lib.cpp" />
+    <ClCompile Include="src\interface\filter.cpp" />
+    <ClCompile Include="src\interface\measurement.cpp" />
+    <ClCompile Include="src\interface\pcl_util.cpp" />
+    <ClCompile Include="src\interface\registration.cpp" />
+    <ClCompile Include="src\interface\sampleConsensus.cpp" />
+    <ClCompile Include="src\interface\segmentation.cpp" />
+    <ClCompile Include="src\interface\util_module.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\framework.h" />
+    <ClInclude Include="src\interface\filter.h" />
+    <ClInclude Include="src\interface\measurement.h" />
+    <ClInclude Include="src\interface\pcl_util.h" />
+    <ClInclude Include="src\interface\registration.h" />
+    <ClInclude Include="src\interface\sampleConsensus.h" />
+    <ClInclude Include="src\interface\segmentation.h" />
+    <ClInclude Include="src\interface\util_module.h" />
+    <ClInclude Include="src\pch.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{9a97444d-9608-4d6c-a7c9-89a6566448be}</ProjectGuid>
+    <RootNamespace>ALGOPCLAlgorithmsNative</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <RepoRoot>$(ProjectDir)..\..\</RepoRoot>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;$(IncludePath)</IncludePath>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;$(IncludePath)</IncludePath>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2;$(RepoRoot)thirdparty\PCL1.15.1\include\pcl-1.15;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\include\vtk-9.4;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Eigen3\include\eigen3;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\include\boost-1_87;$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;$(IncludePath)</IncludePath>
+    <LibraryPath>$(RepoRoot)thirdparty\PCL1.15.1\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2\Lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(RepoRoot)OutputExe\$(Configuration)\net8.0-windows\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2;$(RepoRoot)thirdparty\PCL1.15.1\include\pcl-1.15;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\include\vtk-9.4;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Eigen3\include\eigen3;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\include\boost-1_87;$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;$(IncludePath)</IncludePath>
+    <LibraryPath>$(RepoRoot)thirdparty\PCL1.15.1\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2\Lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(RepoRoot)OutputExe\$(Configuration)\net8.0-windows\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;ALGOPCLALGORITHMSNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;ALGOPCLALGORITHMSNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;ALGOPCLALGORITHMSNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2;$(RepoRoot)thirdparty\PCL1.15.1\include\pcl-1.15;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\include\vtk-9.4;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Eigen3\include\eigen3;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\include\boost-1_87;$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(RepoRoot)thirdparty\PCL1.15.1\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2\Lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;ALGOPCLALGORITHMSNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2;$(RepoRoot)thirdparty\PCL1.15.1\include\pcl-1.15;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\include\vtk-9.4;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\include;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Eigen3\include\eigen3;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\include\boost-1_87;$(RepoRoot)Algorithm\ALGO.PCLCoreNative\src;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(RepoRoot)thirdparty\PCL1.15.1\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\OpenNI2\Lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\VTK\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Qhull\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\FLANN\lib;$(RepoRoot)thirdparty\PCL1.15.1\3rdParty\Boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

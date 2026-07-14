@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- HandyControl also defines PrimaryColor/PrimaryBrush. Keep ReeYin theme resources last. -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource ReeYinPrimaryColor}" />
+    <SolidColorBrush x:Key="CPrimaryBrush" Color="{DynamicResource ReeYinPrimaryColor}" />
+    <SolidColorBrush x:Key="TitleBarBrush" Color="{DynamicResource TitleBarColor}" />
+    <SolidColorBrush x:Key="DarkPrimaryBrush" Color="{DynamicResource ReeYinPrimaryColor}" />
+    <SolidColorBrush x:Key="LightPrimaryBrush" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.13" />
+    <SolidColorBrush x:Key="SelectedBrush" Color="{DynamicResource ReeYinPrimaryColor}" />
+    <SolidColorBrush x:Key="BtnOverColor" Color="{DynamicResource ReeYinPrimaryColor}" />
+    <SolidColorBrush x:Key="BtnCheckedColor" Color="{DynamicResource ReeYinPrimaryColor}" />
+
+    <SolidColorBrush x:Key="PrimaryBrushOpacity08" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.08" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity13" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.13" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity14" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.14" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity20" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.20" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity53" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.53" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity80" Color="{DynamicResource ReeYinPrimaryColor}" Opacity="0.80" />
+
+</ResourceDictionary>

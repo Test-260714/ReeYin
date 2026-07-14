@@ -1,0 +1,16 @@
+﻿using ReeYin_V.NodifyManager;
+using System;
+
+namespace Nodify.FlowApp
+{
+    [Obsolete]
+    public class ValueOperation : IOperation
+    {
+        private readonly Func<double> _func;
+
+        public ValueOperation(Func<double> func) => _func = func;
+
+        public double Execute(params double[] operands)
+            => _func();
+    }
+}

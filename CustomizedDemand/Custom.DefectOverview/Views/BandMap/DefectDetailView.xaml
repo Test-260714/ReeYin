@@ -1,0 +1,113 @@
+<UserControl x:Class="Custom.DefectOverview.Views.DefectDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="#F6F8FB">
+    <UserControl.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D8E1EA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+        <Style x:Key="GroupContentCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="CornerRadius" Value="0,0,10,10"/>
+        </Style>
+        <Style x:Key="InfoLabelTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+        </Style>
+        <Style x:Key="InfoValueTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#111827"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="280"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <WxGroupBox:WxGroupBox Header="缺陷预览">
+            <Border Style="{StaticResource GroupContentCardStyle}">
+                <Border Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12">
+                    <Grid>
+                        <Image Source="{Binding PreviewImage}" Stretch="Uniform"/>
+                        <Border Background="#0F172A" CornerRadius="12">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PreviewImage}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="暂无缺陷预览图"
+                                       Foreground="#CBD5E1"
+                                       FontSize="16"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Border>
+        </WxGroupBox:WxGroupBox>
+
+        <WxGroupBox:WxGroupBox Grid.Row="2" Header="缺陷信息">
+            <Border Style="{StaticResource GroupContentCardStyle}" Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding ClassName}" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                    <TextBlock Grid.Row="2" Text="{Binding SummaryText}" FontSize="12" Foreground="#374151" TextWrapping="Wrap"/>
+                    <UniformGrid Grid.Row="3" Columns="2" Margin="0,14,0,0">
+                        <StackPanel Margin="0,0,12,8">
+                            <TextBlock Text="路径" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding PathText}" Style="{StaticResource InfoValueTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="帧号" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding FrameIdText}" Style="{StaticResource InfoValueTextStyle}" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,8">
+                            <TextBlock Text="累计位置" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding MeterText}" Style="{StaticResource InfoValueTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="横向位置" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding PositionText}" Style="{StaticResource InfoValueTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="尺寸" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding SizeText}" Style="{StaticResource InfoValueTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="置信度" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding ConfidenceText}" Style="{StaticResource InfoValueTextStyle}"/>
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Grid.Row="4" Margin="0,10,0,0" Text="{Binding DetailText}" FontSize="12" Foreground="#475569" TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+        </WxGroupBox:WxGroupBox>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="关闭" Command="{Binding CloseCommand}" Style="{StaticResource GeneralButtonStyle}" MinWidth="90" Height="32"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

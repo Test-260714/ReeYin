@@ -1,0 +1,423 @@
+<UserControl x:Class="Custom.DefectOverview.Views.SharedDefectWallView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1200"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="Transparent"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Display">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UnLoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <UserControl.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D8E1EA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+
+        <Style x:Key="GroupContentCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="CornerRadius" Value="0,0,10,10"/>
+        </Style>
+
+        <Style x:Key="ModuleButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#C69300"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#B88300"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="MinWidth" Value="48"/>
+            <Setter Property="Padding" Value="8,1"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background" Value="#B88300"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#9D7000"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background" Value="#9D7000"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DefectWallCardButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D8E1EA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="CardBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#C69300"/>
+                                <Setter TargetName="CardBorder" Property="Background" Value="#FFF9E8"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#C69300"/>
+                                <Setter TargetName="CardBorder" Property="BorderThickness" Value="3"/>
+                                <Setter TargetName="CardBorder" Property="Background" Value="#FFF7D6"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WallInfoTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9.8"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="WallInfoMutedTextStyle" TargetType="TextBlock" BasedOn="{StaticResource WallInfoTextStyle}">
+            <Setter Property="FontSize" Value="8.9"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+        </Style>
+
+        <Style x:Key="WallInfoLabelStyle" TargetType="Run">
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="WallConfidenceBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="#E0F2FE"/>
+            <Setter Property="BorderBrush" Value="#BAE6FD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="5,1"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="WallPillTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <Style x:Key="KeepLatestButtonStyle" TargetType="Button" BasedOn="{StaticResource ModuleButtonStyle}">
+            <Setter Property="MinWidth" Value="82"/>
+            <Setter Property="Background" Value="#FFF7D6"/>
+            <Setter Property="Foreground" Value="#8A6100"/>
+            <Setter Property="BorderBrush" Value="#D4A938"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsKeepingLatestSharedDefectWallPage}" Value="True">
+                    <Setter Property="Background" Value="#8A6100"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="#6E4D00"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <WxGroupBox:WxGroupBox Header="缺陷墙">
+            <Border Style="{StaticResource GroupContentCardStyle}" Padding="4,4,4,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <ItemsControl ItemsSource="{Binding SharedDefectWallItems}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="4" Columns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Margin="4"
+                                            ToolTip="{Binding DetailText}"
+                                            Style="{StaticResource DefectWallCardButtonStyle}"
+                                            Command="{Binding DataContext.SelectSharedDefectWallItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="54"/>
+                                                </Grid.RowDefinitions>
+
+                                                <Border Background="#0F172A"
+                                                        CornerRadius="8,8,0,0"
+                                                        ClipToBounds="True">
+                                                    <Grid x:Name="WallImageHost">
+                                                        <Border Width="{Binding ActualHeight, ElementName=WallImageHost}"
+                                                                Height="{Binding ActualHeight, ElementName=WallImageHost}"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Background="#0F172A">
+                                                            <Grid>
+                                                                <Image Source="{Binding WallImage}"
+                                                                       Stretch="Uniform"
+                                                                       RenderOptions.BitmapScalingMode="LowQuality"/>
+
+                                                                <Border Background="#172036">
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding WallImage}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                                        <TextBlock Text="暂无缺陷图"
+                                                                                   Foreground="#CBD5E1"
+                                                                                   FontSize="14"
+                                                                                   HorizontalAlignment="Center"/>
+                                                                        <TextBlock Margin="0,6,0,0"
+                                                                                   Text="{Binding FrameIdText}"
+                                                                                   Foreground="#94A3B8"
+                                                                                   FontSize="10"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   TextTrimming="CharacterEllipsis"/>
+                                                                    </StackPanel>
+                                                                </Border>
+
+                                                                <Border Margin="6"
+                                                                        Padding="5,1"
+                                                                        HorizontalAlignment="Left"
+                                                                        VerticalAlignment="Top"
+                                                                        CornerRadius="8"
+                                                                        Background="{Binding PathBrush}">
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding PathShortText}" Value="">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding PathShortText}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                    <TextBlock Text="{Binding PathShortText}"
+                                                                               Style="{StaticResource WallPillTextStyle}"/>
+                                                                </Border>
+
+                                                                <Border Margin="6"
+                                                                        Padding="5,1"
+                                                                        HorizontalAlignment="Right"
+                                                                        VerticalAlignment="Top"
+                                                                        CornerRadius="8"
+                                                                        Background="#CC0F172A">
+                                                                    <TextBlock Text="{Binding MeterText}"
+                                                                               Style="{StaticResource WallPillTextStyle}"/>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+
+                                                <Border Grid.Row="1"
+                                                        Background="#FFFFFF"
+                                                        CornerRadius="0,0,8,8"
+                                                        Padding="6,3">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="18"/>
+                                                            <RowDefinition Height="16"/>
+                                                            <RowDefinition Height="14"/>
+                                                        </Grid.RowDefinitions>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                       <TextBlock Grid.Row="0"
+                                                                   Style="{StaticResource WallInfoTextStyle}"
+                                                                   FontWeight="Bold"
+                                                                   FontSize="10.4"
+                                                                   Text="{Binding ClassName}"/>
+                                                        <Border Grid.Row="0"
+                                                                Grid.Column="1"
+                                                                Margin="4,0,0,0"
+                                                                Style="{StaticResource WallConfidenceBadgeStyle}">
+                                                            <TextBlock Text="{Binding ConfidenceText}"
+                                                                       Foreground="#0369A1"
+                                                                       FontSize="8.9"
+                                                                       FontWeight="Bold"/>
+                                                        </Border>
+                                                        <TextBlock Grid.Row="1"
+                                                                   Grid.ColumnSpan="2"
+                                                                   Style="{StaticResource WallInfoTextStyle}">
+                                                            <Run Style="{StaticResource WallInfoLabelStyle}" Text="位置 "/>
+                                                            <Run Text="{Binding PositionSummaryText}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Grid.Row="2"
+                                                                   Style="{StaticResource WallInfoMutedTextStyle}"
+                                                                   Grid.ColumnSpan="2">
+                                                            <Run Style="{StaticResource WallInfoLabelStyle}" Text="尺寸 "/>
+                                                            <Run Text="{Binding SizeText}"/>
+                                                            <Run Text="  ·  "/>
+                                                            <Run Style="{StaticResource WallInfoLabelStyle}" Text="帧 "/>
+                                                            <Run Text="{Binding MeterText}"/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
+                                        </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Background="#F8FAFC"
+                                BorderBrush="#E2E8F0"
+                                BorderThickness="1"
+                                CornerRadius="10">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSharedDefectWallItems}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="当前没有可显示的缺陷卡片"
+                                           Foreground="#475569"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Margin="0,8,0,0"
+                                           Text="等待地图点位或实时检测结果刷新。"
+                                           Foreground="#94A3B8"
+                                           FontSize="12"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Grid.Row="1"
+                            Margin="3,4,3,0"
+                            Padding="6,4"
+                            Background="#F8FAFC"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding SharedDefectWallSummaryText}"
+                                           Foreground="#334155"
+                                           FontWeight="SemiBold"
+                                           FontSize="12.5"/>
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    Background="#DBEAFE"
+                                    BorderBrush="#93C5FD"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="8,2"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding SharedDefectWallPageText}"
+                                           Foreground="#1D4ED8"
+                                           FontSize="10.5"
+                                           FontWeight="SemiBold"/>
+                            </Border>
+
+                            <Button Grid.Column="2"
+                                    Content="首页"
+                                    Style="{StaticResource ModuleButtonStyle}"
+                                    Command="{Binding FirstSharedDefectWallPageCommand}"
+                                    IsEnabled="{Binding CanFirstSharedDefectWallPage}"/>
+                            <Button Grid.Column="3"
+                                    Content="上一页"
+                                    Style="{StaticResource ModuleButtonStyle}"
+                                    Command="{Binding PreviousSharedDefectWallPageCommand}"
+                                    IsEnabled="{Binding CanPreviousSharedDefectWallPage}"/>
+                            <Button Grid.Column="4"
+                                    Content="下一页"
+                                    Style="{StaticResource ModuleButtonStyle}"
+                                    Command="{Binding NextSharedDefectWallPageCommand}"
+                                    IsEnabled="{Binding CanNextSharedDefectWallPage}"/>
+                            <Button Grid.Column="5"
+                                    Content="尾页"
+                                    Style="{StaticResource ModuleButtonStyle}"
+                                    Command="{Binding LastSharedDefectWallPageCommand}"
+                                    IsEnabled="{Binding CanLastSharedDefectWallPage}"/>
+                            <Button Grid.Column="6"
+                                    Content="保持最新页"
+                                    Style="{StaticResource KeepLatestButtonStyle}"
+                                    Command="{Binding KeepLatestSharedDefectWallPageCommand}"/>
+                            <Button Grid.Column="7"
+                                    Content="详情"
+                                    Style="{StaticResource ModuleButtonStyle}"
+                                    Command="{Binding OpenSharedDefectDetailCommand}"
+                                    IsEnabled="{Binding HasSharedSelectedDefect}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </WxGroupBox:WxGroupBox>
+    </Grid>
+</UserControl>

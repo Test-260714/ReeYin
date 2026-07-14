@@ -1,0 +1,11 @@
+<UserControl x:Class="ALGO.BlobAnalysis.Controls.BlobAnalysisHalconControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI">
+    <Grid>
+        <controls:VMHWindowControl x:Name="innerControl"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Stretch"
+                                   IsShapeDrawingEnabled="False" />
+    </Grid>
+</UserControl>

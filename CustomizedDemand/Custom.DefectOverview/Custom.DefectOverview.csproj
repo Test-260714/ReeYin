@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\..\Tools\GeneralALGO\ALGO.DefectPostProcess\ALGO.DefectPostProcess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Arction.DirectX">
+      <HintPath>..\..\packages\LightingChartOld\Arction.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingDefinitions">
+      <HintPath>..\..\packages\LightingChartOld\Arction.RenderingDefinitions.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.Charting.LightningChart">
+      <HintPath>..\..\packages\LightingChartOld\Arction.Wpf.Charting.LightningChart.dll</HintPath>
+    </Reference>
+    <Reference Include="halcondotnetxl">
+      <HintPath>..\..\packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Keep the organized subfolder versions; exclude legacy flat copies from SDK default includes. -->
+    <Compile Remove="Models\BandMapDisplayModels.cs" />
+    <Compile Remove="Models\DefectOverviewIngestModels.cs" />
+    <Compile Remove="Models\DefectOverviewPublishModel.cs" />
+    <Compile Remove="Models\DefectOverviewPublishModel.DualPath.cs" />
+    <Compile Remove="Models\DefectOverviewPublishModel.InputResolve.cs" />
+    <Compile Remove="Models\DefectOverviewPublishModel.PublishedResults.cs" />
+    <Compile Remove="Models\DefectOverviewPublishModel.Utilities.cs" />
+    <Compile Remove="ViewModels\BandMapViewModel.cs" />
+    <Compile Remove="ViewModels\DefectDetailViewModel.cs" />
+    <Compile Remove="ViewModels\DefectOverviewPublishViewModel.cs" />
+    <Compile Remove="ViewModels\DefectOverviewPublishViewModel.Candidates.cs" />
+    <Compile Remove="ViewModels\DefectOverviewPublishViewModel.GraphInputs.cs" />
+    <Compile Remove="ViewModels\DefectOverviewPublishViewModel.Selection.cs" />
+    <Compile Remove="ViewModels\SharedDefectWallViewModel.cs" />
+    <Compile Remove="Views\BandMapView.xaml.cs" />
+    <Compile Remove="Views\DefectDetailView.xaml.cs" />
+    <Compile Remove="Views\DefectOverviewPublishView.xaml.cs" />
+    <Compile Remove="Views\SharedDefectWallView.xaml.cs" />
+    <Page Remove="Views\BandMapView.xaml" />
+    <Page Remove="Views\DefectDetailView.xaml" />
+    <Page Remove="Views\DefectOverviewPublishView.xaml" />
+    <Page Remove="Views\SharedDefectWallView.xaml" />
+  </ItemGroup>
+
+  <Target Name="CopyModuleToOutput" AfterTargets="Build" Condition="'$(SkipCopyModuleToOutput)' != 'true'">
+    <PropertyGroup>
+      <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\'))</RepoRoot>
+      <ModuleOutputDir>$(RepoRoot)OutputExe\$(Configuration)\net8.0-windows\Modules\</ModuleOutputDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(ModuleOutputDir)" />
+
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModuleOutputDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

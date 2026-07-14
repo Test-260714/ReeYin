@@ -1,0 +1,47 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:hc="https://handyorg.github.io/handycontrol">
+    <ResourceDictionary.MergedDictionaries>
+        <!--自定义样式UI-->
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/FontAwesome.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/CheckBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Button.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Converter.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Icon.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/GroupBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/ToggleButton.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/TabControl.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/ComboBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/TextBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Datagrid.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/CustomBrush.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/CustomWins/CustomWindow.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Menu.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Expander.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Scrollview.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/ListBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/UserControls/FastDrawer/FastDrawer.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/UserControls/WxSearchBox/WxSearchBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/UserControls/WxGroupBox/WxGroupBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/UserControls/WxNumericUpDown/WxNumericUpDown.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/UserControls/WxLink/WxLink.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/UserControls/WxLED/WxLED.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Controls/HalconImg/ImageEditView.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Controls/OpenCvImg/CvImageView.xaml"/>
+
+        <!--自定义功能UI-->
+        
+        
+        <!--第三方HandyControlUI-->
+        <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Themes/HandyControlThemeOverride.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="NumericUpDownExtendGlobal"
+           TargetType="{x:Type hc:NumericUpDown}"
+           BasedOn="{StaticResource NumericUpDownExtend}">
+        <Setter Property="FontSize" Value="{DynamicResource SmallFontSize}"/>
+    </Style>
+</ResourceDictionary>
+

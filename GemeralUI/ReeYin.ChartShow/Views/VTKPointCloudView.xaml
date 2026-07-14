@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="ReeYin.ChartShow.Views.VTKPointCloudView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin.ChartShow.Views"
+             xmlns:WinFormHost="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:Chart="clr-namespace:ReeYin_V.UI.UserControls.GrayAndHeightChart;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:FastDrawer="clr-namespace:ReeYin_V.UI.UserControls.FastDrawer;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Loaded="UserControl_Loaded"
+             FontSize="12"
+             x:Name="window" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <WinFormHost:WindowsFormsHost MinHeight="200" Margin="20" MinWidth="200" x:Name="winFormHost">
+            
+        </WinFormHost:WindowsFormsHost>
+
+        <Grid Grid.Row="1">
+            <Button Content="加载文件" Margin="10 0 0 0" Height="auto" Width="auto" FontSize="12" HorizontalAlignment="Right"
+                                       Click="Button_Click"/>
+        </Grid>
+    </Grid>
+</UserControl>

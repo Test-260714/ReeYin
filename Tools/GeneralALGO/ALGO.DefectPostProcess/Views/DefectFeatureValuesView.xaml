@@ -1,0 +1,124 @@
+<UserControl x:Class="ALGO.DefectPostProcess.Views.DefectFeatureValuesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="1700"
+             Height="860"
+             d:DesignHeight="860"
+             d:DesignWidth="1700"
+             Background="#F7F9FC">
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Padding="12"
+                Margin="0,0,0,12"
+                Background="White"
+                BorderBrush="#D8E1EA"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Text="&#x7F3A;&#x9677;&#x7B5B;&#x9009;" />
+                <ComboBox Grid.Column="1"
+                          Height="28"
+                          ItemsSource="{Binding FilterOptions}"
+                          SelectedItem="{Binding SelectedFilter,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="DisplayName" />
+                <TextBlock Grid.Column="3"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           Foreground="#6B7280"
+                           Text="{Binding SummaryText}" />
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#D8E1EA"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="10">
+            <DataGrid AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserResizeRows="False"
+                      FontSize="10.5"
+                      IsReadOnly="True"
+                      ItemsSource="{Binding FilteredItems}"
+                      Style="{StaticResource DefaultDataGridStyle}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="1.6*"
+                                        Binding="{Binding DefectName}"
+                                        Header="&#x7F3A;&#x9677;&#x540D;&#x79F0;" />
+                    <DataGridTextColumn Width="0.9*"
+                                        Binding="{Binding ClassId}"
+                                        Header="ClassId" />
+                    <DataGridTextColumn Width="0.9*"
+                                        Binding="{Binding InstanceIndex}"
+                                        Header="&#x5B9E;&#x4F8B;&#x5E8F;&#x53F7;" />
+                    <DataGridTextColumn Width="1*"
+                                        Binding="{Binding LengthValue,StringFormat=F2}"
+                                        >
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{Binding DataContext.LengthColumnHeader, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="1*"
+                                        Binding="{Binding WidthValue,StringFormat=F2}"
+                                        >
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{Binding DataContext.WidthColumnHeader, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="1.2*"
+                                        Binding="{Binding AreaValue,StringFormat=F2}"
+                                        >
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{Binding DataContext.AreaColumnHeader, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="1.1*"
+                                        Binding="{Binding ActualXValue,StringFormat=F3}"
+                                        Header="&#x5B9E;&#x9645;X(mm)" />
+                    <DataGridTextColumn Width="1.1*"
+                                        Binding="{Binding ActualYValue,StringFormat=F3}"
+                                        Header="&#x5B9E;&#x9645;Y(mm)" />
+                    <DataGridTextColumn Width="1*"
+                                        Binding="{Binding Confidence,StringFormat=F4}"
+                                        Header="&#x7F6E;&#x4FE1;&#x5EA6;" />
+                    <DataGridTextColumn Width="1*"
+                                        Binding="{Binding MatchText}"
+                                        Header="&#x89C4;&#x5219;&#x7ED3;&#x679C;" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <StackPanel Grid.Row="2"
+                    Margin="0,12,0,0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button MinWidth="88"
+                    Height="32"
+                    Command="{Binding CloseCommand}"
+                    Content="&#x5173;&#x95ED;"
+                    FontSize="10.5"
+                    Style="{StaticResource GeneralButtonStyle}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

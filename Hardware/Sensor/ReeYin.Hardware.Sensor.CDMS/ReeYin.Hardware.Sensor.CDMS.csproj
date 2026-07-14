@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CDMSApiDir>$(MSBuildThisFileDirectory)..\..\..\packages\A_ThirdParty\HardAPI\Sensor\CDMS\</CDMSApiDir>
+    <OutputExeModulesDir>$(MSBuildThisFileDirectory)..\..\..\OutputExe\$(Configuration)\$(TargetFramework)\Modules\</OutputExeModulesDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\ReeYin.Hardware.Sensor\ReeYin.Hardware.Sensor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CDMS3010_V1_1_CS">
+      <HintPath>$(CDMSApiDir)CDMS3010_V1_1_CS.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(CDMSApiDir)CDMS3010_V1_1_CS.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Native\CDMS\CDMS3010_V1_1_CS.dll</Link>
+      <TargetPath>CDMS3010_V1_1_CS.dll</TargetPath>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="set SOURCE_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_DEBUG=&quot;$(SolutionDir)\OutputExe\Debug\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;set SOURCE_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_RELEASE=&quot;$(SolutionDir)\OutputExe\Release\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;IF EXIST %25SOURCE_DEBUG%25 (&#xD;&#xA;    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;IF EXIST %25SOURCE_RELEASE%25 (&#xD;&#xA;    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;)&#xD;&#xA;" />
+  </Target>
+
+  <Target Name="CopyCDMSApiToOutputModules" AfterTargets="PostBuild" Condition="Exists('$(CDMSApiDir)CDMS3010_V1_1_CS.dll')">
+    <Copy SourceFiles="$(CDMSApiDir)CDMS3010_V1_1_CS.dll"
+          DestinationFolder="$(OutputExeModulesDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

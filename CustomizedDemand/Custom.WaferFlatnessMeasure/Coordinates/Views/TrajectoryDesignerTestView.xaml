@@ -1,0 +1,290 @@
+﻿<UserControl x:Class="Custom.WaferFlatnessMeasure.Views.TrajectoryDesignerTestView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:ReeYin_V.UI.UserControls.TrajectoryDesigner.Views;assembly=ReeYin_V.UI"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             Height="760"
+             Width="1220"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="760"
+             d:DesignWidth="1220">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock FontSize="22"
+                           FontWeight="SemiBold"
+                           Foreground="#FF243547"
+                           Text="轨迹设计控件测试" />
+                <TextBlock Margin="0,4,0,0"
+                           Foreground="#FF586D81"
+                           Text="验证固定中心创建、拖动移动、右键删除、角度/缩放和内部轨迹随形状移动。" />
+            </StackPanel>
+
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Width="92"
+                        Height="30"
+                        Margin="0,0,8,0"
+                        Command="{Binding AddSampleShapesCommand}"
+                        Content="添加示例"
+                        Style="{StaticResource GeneralButtonStyle}" />
+                <Button Width="92"
+                        Height="30"
+                        Command="{Binding ClearShapesCommand}"
+                        Content="清空"
+                        Style="{StaticResource GeneralButtonStyle}" />
+            </StackPanel>
+        </DockPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="430" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <controls:SkiaTrajectoryDesignerControl
+                                                    ActiveTool="{Binding ActiveTool, Mode=TwoWay}"
+                                                    CoordinateEndX="{Binding CoordinateEndX, Mode=TwoWay}"
+                                                    CoordinateEndY="{Binding CoordinateEndY, Mode=TwoWay}"
+                                                    CoordinateStartX="{Binding CoordinateStartX, Mode=TwoWay}"
+                                                    CoordinateStartY="{Binding CoordinateStartY, Mode=TwoWay}"
+                                                    DefaultArcRadius="70"
+                                                    DefaultArcStartAngle="0"
+                                                    DefaultArcSweepAngle="180"
+                                                    DefaultCenterX="{Binding DefaultCenterX, Mode=TwoWay}"
+                                                    DefaultCenterY="{Binding DefaultCenterY, Mode=TwoWay}"
+                                                    DefaultCircleRadius="55"
+                                                    DefaultRectangleHeight="90"
+                                                    DefaultRectangleWidth="140"
+                                                    SelectedShape="{Binding SelectedShape, Mode=TwoWay}"
+                                                    SelectedShapes="{Binding SelectedShapes}"
+                                                    Shapes="{Binding Shapes}" />
+
+                <Border x:Name="FloatingSelectedShapePanel"
+                        Panel.ZIndex="10"
+                        Width="320"
+                        MaxHeight="540"
+                        Margin="0,16,16,0"
+                        Padding="10"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Background="#F7FFFFFF"
+                        BorderBrush="#AA6B7F95"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasSelectedShape}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="18"
+                                          Direction="315"
+                                          Opacity="0.18"
+                                          ShadowDepth="4" />
+                    </Border.Effect>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="96" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Grid.ColumnSpan="2"
+                                               Margin="0,0,0,8"
+                                               FontWeight="SemiBold"
+                                               Foreground="#FF243547"
+                                               Text="选中图形参数" />
+
+                                    <TextBlock Grid.Row="1" Margin="0,0,8,6" VerticalAlignment="Center" Text="类型" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,6" VerticalAlignment="Center" Foreground="#FF586D81" Text="{Binding SelectedShape.Kind}" />
+
+                                    <TextBlock Grid.Row="2" Margin="0,0,8,6" VerticalAlignment="Center" Text="X" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.X, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="3" Margin="0,0,8,6" VerticalAlignment="Center" Text="Y" />
+                                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.Y, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="4" Margin="0,0,8,6" VerticalAlignment="Center" Text="半径" />
+                                    <TextBox Grid.Row="4" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.Radius, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="5" Margin="0,0,8,6" VerticalAlignment="Center" Text="宽" />
+                                    <TextBox Grid.Row="5" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.Width, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="6" Margin="0,0,8,6" VerticalAlignment="Center" Text="高" />
+                                    <TextBox Grid.Row="6" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.Height, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="7" Margin="0,0,8,6" VerticalAlignment="Center" Text="起始角" />
+                                    <TextBox Grid.Row="7" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.StartAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="8" Margin="0,0,8,6" VerticalAlignment="Center" Text="弧度" />
+                                    <TextBox Grid.Row="8" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.SweepAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="9" Margin="0,0,8,6" VerticalAlignment="Center" Text="旋转角度" />
+                                    <TextBox Grid.Row="9" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.RotationAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="10" Margin="0,0,8,6" VerticalAlignment="Center" Text="缩放比例" />
+                                    <TextBox Grid.Row="10" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.Scale, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="11" Margin="0,0,8,6" VerticalAlignment="Center" Text="内部轨迹" />
+                                    <ComboBox Grid.Row="11"
+                                              Grid.Column="1"
+                                              Margin="0,0,0,6"
+                                              DisplayMemberPath="DisplayName"
+                                              ItemsSource="{Binding InnerPatternItems}"
+                                              SelectedValue="{Binding SelectedShape.InnerPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              SelectedValuePath="Value" />
+
+                                    <TextBlock Grid.Row="12" Margin="0,0,8,6" VerticalAlignment="Center" Text="内部间距" />
+                                    <TextBox Grid.Row="12" Grid.Column="1" Margin="0,0,0,6" Text="{Binding SelectedShape.InnerSpacing, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+
+                                    <TextBlock Grid.Row="13" Margin="0,0,8,0" VerticalAlignment="Center" Text="内部线数" />
+                                    <TextBox Grid.Row="13" Grid.Column="1" Text="{Binding SelectedShape.InnerLineCount, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" />
+                                </Grid>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
+            <Border Grid.Column="2"
+                    Padding="12"
+                    Background="#FFFBFCFE"
+                    BorderBrush="#FFD8E2EE"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="220" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FF243547"
+                                   Text="图形明细" />
+                        <TextBlock Margin="0,6,0,0"
+                                   Foreground="#FF586D81"
+                                   Text="{Binding ShapeCountText}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Foreground="#FF586D81"
+                                   TextWrapping="Wrap"
+                                   Text="{Binding SelectedShapeText}" />
+                    </StackPanel>
+
+                    <Separator Grid.Row="1" Margin="0,12" />
+
+                    <ScrollViewer Grid.Row="2"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Border Padding="10"
+                                    Background="White"
+                                    BorderBrush="#FFE1E8F0"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Margin="0,0,0,8"
+                                               FontWeight="SemiBold"
+                                               Foreground="#FF243547"
+                                               Text="坐标设置" />
+
+                                    <TextBlock Grid.Row="1"
+                                               Margin="0,0,0,10"
+                                               Foreground="#FF586D81"
+                                               TextWrapping="Wrap"
+                                               Text="整张绘制区域映射为 XY 坐标范围，左下角为起点，右上角为终点。" />
+
+                                    <StackPanel Grid.Row="2"
+                                                Orientation="Horizontal">
+                                        <Button Width="96"
+                                                Height="30"
+                                                Margin="0,0,8,0"
+                                                Click="CoordinateSettingsButton_Click"
+                                                Content="坐标设置"
+                                                Style="{StaticResource GeneralButtonStyle}" />
+                                        <Button Width="128"
+                                                Height="30"
+                                                Command="{Binding RestoreSelectedShapeCenterCommand}"
+                                                Content="还原到固定中心"
+                                                Style="{StaticResource GeneralButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <DataGrid x:Name="ShapeTableGrid"
+                              Grid.Row="3"
+                              Margin="0,10,0,0"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              ItemsSource="{Binding Shapes}"
+                              SelectedItem="{Binding SelectedShape, Mode=TwoWay}"
+                              SelectionMode="Single"
+                              Style="{StaticResource DefaultDataGridStyle}">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn x:Name="ShapeEnabledColumn"
+                                                    Width="56"
+                                                    Binding="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Header="启用" />
+                            <DataGridTextColumn Width="70" Binding="{Binding Kind}" Header="类型" IsReadOnly="True" />
+                            <DataGridTextColumn Width="70" Binding="{Binding CategoryText}" Header="分类" IsReadOnly="True" />
+                            <DataGridTextColumn Width="55" Binding="{Binding X, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Header="X" />
+                            <DataGridTextColumn Width="55" Binding="{Binding Y, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Header="Y" />
+                            <DataGridTextColumn Width="60" Binding="{Binding Radius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Header="半径" />
+                            <DataGridTextColumn Width="60" Binding="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Header="宽" />
+                            <DataGridTextColumn Width="60" Binding="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Header="高" />
+                            <DataGridTextColumn Width="70" Binding="{Binding RotationAngle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Header="角度" />
+                            <DataGridTextColumn Width="70" Binding="{Binding Scale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Header="缩放" />
+                            <DataGridTextColumn Width="90" Binding="{Binding InnerPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="内部" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,333 @@
+<UserControl x:Class="HardwareTool.PointSequenceMotion.Views.PointSequenceMotionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="1080"
+             Height="760"
+             d:DesignWidth="1080"
+             d:DesignHeight="760">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Padding="12"
+                Background="#F7F8FA"
+                BorderBrush="#DDDDDD"
+                BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="控制卡"
+                           VerticalAlignment="Center"
+                           Margin="0 0 8 0"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding ModelParam.Models}"
+                          DisplayMemberPath="NickName"
+                          SelectedItem="{Binding ModelParam.ControlCard, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding GeneralCommand}"
+                                                   CommandParameter="切换控制卡"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+
+                <TextBlock Grid.Column="3"
+                           Text="选择方式"
+                           VerticalAlignment="Center"
+                           Margin="0 0 8 0"/>
+                <ComboBox Grid.Column="4"
+                          ItemsSource="{Binding SelectModes}"
+                          SelectedItem="{Binding ModelParam.SelectMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Column="6"
+                           Text="点位数量"
+                           VerticalAlignment="Center"
+                           Margin="0 0 8 0"/>
+                <TextBox Grid.Column="7"
+                         Text="{Binding PointCount, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                         HorizontalContentAlignment="Center"
+                         VerticalContentAlignment="Center"/>
+
+                <StackPanel Grid.Column="8"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="生成"
+                            Width="70"
+                            Margin="8 0 0 0"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="生成点位"/>
+                    <Button Content="五点"
+                            Width="70"
+                            Margin="8 0 0 0"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="五点"/>
+                    <Button Content="九点"
+                            Width="70"
+                            Margin="8 0 0 0"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="九点"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Padding="12"
+                Margin="0 10 0 10"
+                Background="White"
+                BorderBrush="#DDDDDD"
+                BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="执行次数"
+                           VerticalAlignment="Center"
+                           Margin="0 0 8 0"/>
+                <WxLink:WxLink Grid.Column="1"
+                               InputParams="{Binding ModelParam.InputParams, Mode=OneWay}"
+                               OutputParam="{Binding ModelParam.ExecuteCountInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               Order="OpenParam"
+                               Text="{Binding ModelParam.ExecuteCountInput.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Column="3"
+                           Text="触发点位"
+                           VerticalAlignment="Center"
+                           Margin="0 0 8 0"/>
+                <WxLink:WxLink Grid.Column="4"
+                               InputParams="{Binding ModelParam.InputParams, Mode=OneWay}"
+                               OutputParam="{Binding ModelParam.TriggerPointIndexInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               Order="OpenParam"
+                               Text="{Binding ModelParam.TriggerPointIndexInput.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Column="6"
+                           Text="速度"
+                           VerticalAlignment="Center"
+                           Margin="0 0 8 0"/>
+                <ComboBox Grid.Column="7"
+                          ItemsSource="{Binding SpeedTypes}"
+                          SelectedItem="{Binding ModelParam.DefaultSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <StackPanel Grid.Column="8"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <CheckBox Content="序号从1开始"
+                              IsChecked="{Binding ModelParam.IndexStartsAtOne, Mode=TwoWay}"
+                              VerticalAlignment="Center"
+                              Margin="0 0 12 0"/>
+                    <CheckBox Content="超出后循环"
+                              IsChecked="{Binding ModelParam.LoopWhenOverflow, Mode=TwoWay}"
+                              VerticalAlignment="Center"
+                              Margin="0 0 12 0"/>
+                    <CheckBox Content="安全移动"
+                              IsChecked="{Binding ModelParam.IsSafetyMoving, Mode=TwoWay}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Padding="12"
+                    Background="#F7F8FA"
+                    BorderBrush="#DDDDDD"
+                    BorderThickness="1 1 1 0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="参与轴"
+                                   VerticalAlignment="Center"
+                                   Margin="0 0 10 0"/>
+                        <CheckBox Content="X"
+                                  IsChecked="{Binding ModelParam.UseX, Mode=TwoWay}"
+                                  Margin="0 0 10 0"/>
+                        <CheckBox Content="Y"
+                                  IsChecked="{Binding ModelParam.UseY, Mode=TwoWay}"
+                                  Margin="0 0 10 0"/>
+                        <CheckBox Content="Z"
+                                  IsChecked="{Binding ModelParam.UseZ, Mode=TwoWay}"
+                                  Margin="0 0 10 0"/>
+                        <CheckBox Content="Z1"
+                                  IsChecked="{Binding ModelParam.UseZ1, Mode=TwoWay}"
+                                  Margin="0 0 10 0"/>
+                        <CheckBox Content="Z2"
+                                  IsChecked="{Binding ModelParam.UseZ2, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal">
+                        <Button Content="添加"
+                                Width="70"
+                                Margin="8 0 0 0"
+                                Command="{Binding GeneralCommand}"
+                                CommandParameter="添加点位"/>
+                        <Button Content="删除"
+                                Width="70"
+                                Margin="8 0 0 0"
+                                Command="{Binding GeneralCommand}"
+                                CommandParameter="删除点位"/>
+                        <Button Content="重置循环"
+                                Width="90"
+                                Margin="8 0 0 0"
+                                Command="{Binding GeneralCommand}"
+                                CommandParameter="重置循环"/>
+                        <Button Content="执行选中点"
+                                Width="100"
+                                Margin="8 0 0 0"
+                                Command="{Binding GeneralCommand}"
+                                CommandParameter="执行选中点"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <DataGrid Grid.Row="1"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="All"
+                      ItemsSource="{Binding ModelParam.Points, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      SelectedItem="{Binding ModelParam.SelectedPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Header="启用"
+                                            Width="56"
+                                            Binding="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="名称"
+                                        Width="80"
+                                        Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="备注"
+                                        Width="140"
+                                        Binding="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTemplateColumn Header="位置缓存"
+                                            Width="220">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <WxLink:WxLink Order="OpenPosParam"
+                                               OutputParam="{Binding LinkedPosition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                               Text="{Binding PositionDescription, Mode=OneWay}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="X"
+                                        Width="*"
+                                        Binding="{Binding X, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat=F3}"/>
+                    <DataGridTextColumn Header="Y"
+                                        Width="*"
+                                        Binding="{Binding Y, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat=F3}"/>
+                    <DataGridTextColumn Header="Z"
+                                        Width="*"
+                                        Binding="{Binding Z, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat=F3}"/>
+                    <DataGridTextColumn Header="Z1"
+                                        Width="*"
+                                        Binding="{Binding Z1, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat=F3}"/>
+                    <DataGridTextColumn Header="Z2"
+                                        Width="*"
+                                        Binding="{Binding Z2, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat=F3}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Border Grid.Row="3"
+                Padding="12"
+                Margin="0 10 0 0"
+                Background="#F7F8FA"
+                BorderBrush="#DDDDDD"
+                BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="当前点位: "
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ModelParam.CurrentPointIndex}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text=" / "
+                               Margin="10 0"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ModelParam.CurrentPointName}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="    累计次数: "
+                               Margin="18 0 0 0"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ModelParam.TotalExecutionCount}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="    状态: "
+                               Margin="18 0 0 0"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ModelParam.LastMessage}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="取消"
+                            Width="90"
+                            Height="32"
+                            Margin="0 0 10 0"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="取消"/>
+                    <Button Content="确认"
+                            Width="90"
+                            Height="32"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="确认"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

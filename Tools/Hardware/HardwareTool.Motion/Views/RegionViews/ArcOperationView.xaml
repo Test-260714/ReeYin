@@ -1,0 +1,222 @@
+﻿<UserControl x:Class="HardwareTool.Motion.Views.ArcOperationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="540"
+             d:DesignWidth="850">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#F8F9FA"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="20 12"
+                Margin="0 0 0 15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="圆弧线段"
+                           FontWeight="SemiBold"
+                           Foreground="#555555"
+                           VerticalAlignment="Center"
+                           FontSize="14"/>
+                <TextBlock Text=" - 圆弧支持圆心或半径模式；圆心模式执行前会自动贴到最近圆上点，整圆按 GTN_ArcXYC 的圆心描述方式直接闭合。"
+                           Foreground="#888888"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Margin="5 0 0 0"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.42*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="0.58*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource PrimaryBrush}"
+                            CornerRadius="6 6 0 0"
+                            Padding="12 8">
+                        <TextBlock Text="终点与方向"
+                                   Foreground="White"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="1"
+                                Margin="15">
+                        <TextBlock Text="终点 X (mm)"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <hc:NumericUpDown Maximum="1000"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Increment="1"
+                                          Margin="0 0 0 15"
+                                          Value="{Binding ModelParam.SltMovementLocus.DestinationX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="终点 Y (mm)"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <hc:NumericUpDown Maximum="1000"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Increment="1"
+                                          Margin="0 0 0 15"
+                                          Value="{Binding ModelParam.SltMovementLocus.DestinationY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="旋转方向"
+                                   Foreground="#555555"
+                                   FontWeight="Medium"
+                                   Margin="0 0 0 5"/>
+                        <ToggleButton Style="{StaticResource ToggleButtonSwitch}"
+                                      HorizontalAlignment="Left"
+                                      Content="顺时针"
+                                      IsChecked="{Binding ModelParam.SltMovementLocus.Rotation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <Border Margin="0 18 0 0"
+                                Padding="14"
+                                Background="#F8F9FA"
+                                BorderBrush="#E0E0E0"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <StackPanel>
+                                <TextBlock Text="整圆模式"
+                                           Foreground="#555555"
+                                           FontWeight="SemiBold"
+                                           FontSize="13"/>
+                                <TextBlock Text="启用后会直接按一条圆心圆弧指令闭合回起点，不再拆成两段圆弧。"
+                                           Foreground="#888888"
+                                           TextWrapping="Wrap"
+                                           Margin="0 6 0 10"/>
+                                <CheckBox Content="按整圆执行"
+                                          Foreground="#555555"
+                                          IsChecked="{Binding ModelParam.SltMovementLocus.IsSimulateFullCircle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="整圆仅支持圆心模式；启用后终点会按当前起点处理，方向仍由下方旋转方向决定。"
+                                           Foreground="#888888"
+                                           TextWrapping="Wrap"
+                                           Margin="0 10 0 0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource PrimaryBrush}"
+                            CornerRadius="6 6 0 0"
+                            Padding="12 8">
+                        <TextBlock Text="圆弧定义"
+                                   Foreground="White"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"/>
+                    </Border>
+
+                    <TabControl Grid.Row="1"
+                                TabStripPlacement="Left"
+                                Margin="16"
+                                Style="{StaticResource TabControlCapsule}"
+                                SelectedIndex="{Binding ModelParam.SltMovementLocus.SltDrawingMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TabItem Header="圆心">
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Margin="10">
+                                <TextBlock Text="圆心 X (mm)"
+                                           Foreground="#555555"
+                                           FontWeight="Medium"
+                                           Margin="0 0 0 5"/>
+                                <hc:NumericUpDown Maximum="1000"
+                                                  Style="{StaticResource NumericUpDownExtendGlobal}"
+                                                  Increment="1"
+                                                  Margin="0 0 0 15"
+                                                  Value="{Binding ModelParam.SltMovementLocus.CenterX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="圆心 Y (mm)"
+                                           Foreground="#555555"
+                                           FontWeight="Medium"
+                                           Margin="0 0 0 5"/>
+                                <hc:NumericUpDown Maximum="1000"
+                                                  Style="{StaticResource NumericUpDownExtendGlobal}"
+                                                  Increment="1"
+                                                  Value="{Binding ModelParam.SltMovementLocus.CenterY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="半径">
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Margin="10">
+                                <TextBlock Text="半径 (mm)"
+                                           Foreground="#555555"
+                                           FontWeight="Medium"
+                                           Margin="0 0 0 5"/>
+                                <hc:NumericUpDown Maximum="1000"
+                                                  Style="{StaticResource NumericUpDownExtendGlobal}"
+                                                  Increment="1"
+                                                  Value="{Binding ModelParam.SltMovementLocus.Radius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="2"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    Margin="0 15 0 0">
+            <Button Cursor="Hand"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Height="36"
+                    Width="140"
+                    Margin="0 0 10 0"
+                    FontSize="12"
+                    Background="#FFFFFF"
+                    BorderBrush="#4CAF50"
+                    Foreground="#4CAF50"
+                    Command="{Binding ValidateCommand}"
+                    Content="参数校验"/>
+            <Button Cursor="Hand"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Height="36"
+                    Width="170"
+                    FontSize="12"
+                    Background="#4CAF50"
+                    BorderBrush="#4CAF50"
+                    Foreground="White"
+                    Command="{Binding ExecuteCommand}"
+                    Content="执行圆弧/整圆运动"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
+

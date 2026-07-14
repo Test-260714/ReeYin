@@ -1,0 +1,252 @@
+using OpenCvSharp;
+using ReeYin_V.Core.Calibration;
+using System;
+using static ReeYin_V.Core.Calibration.CameraCalibrationSdk;
+
+namespace Custom.WaferRoutePlan
+{
+    public class CircleCenterActualCoordinateRequest
+    {
+        public double[] CaptureActualXY { get; set; } = new double[2];
+
+        public int[] ImageSize { get; set; } = Array.Empty<int>();
+
+        public double[] CircleCenterPixelIJ { get; set; } = new double[2];
+    }
+
+    public class CircleCenterActualCoordinateResult
+    {
+        public double[] ImageCenterPixelIJ { get; set; } = new double[2];
+
+        public double[] ActualOffsetXY { get; set; } = new double[2];
+
+        public double[] CircleCenterActualXY { get; set; } = new double[2];
+    }
+
+    public class PixelPointsActualDistanceRequest
+    {
+        public double[] Point1PixelIJ { get; set; } = new double[2];
+
+        public double[] Point2PixelIJ { get; set; } = new double[2];
+    }
+
+    public class PixelPointsActualDistanceResult
+    {
+        public double[] Point1ActualXY { get; set; } = new double[2];
+
+        public double[] Point2ActualXY { get; set; } = new double[2];
+
+        public double[] ActualOffsetXY { get; set; } = new double[2];
+
+        public double ActualDistance { get; set; }
+    }
+
+    public class PixelToActualCoordinate_Algorithm
+    {
+        private readonly CameraCalibrationSdk _cameraCalib = new CameraCalibrationSdk();
+        private readonly string _cameraId = string.Empty;
+        private readonly double[]? _homographyMatrix;
+
+        public bool HasNPointCalibration => _homographyMatrix != null;
+
+        public PixelToActualCoordinate_Algorithm(string calibFilePath, string nPointCalibFilePath = "")
+        {
+            if (string.IsNullOrWhiteSpace(calibFilePath))
+            {
+                throw new ArgumentException("Calibration file path cannot be empty.", nameof(calibFilePath));
+            }
+
+            CameraParams cameraParams = new CameraParams();
+
+            _cameraCalib.loadCalibrationFile(calibFilePath);
+            _cameraCalib.getCameraParams(ref cameraParams);
+            _cameraId = cameraParams.cameraId;
+
+            if (!string.IsNullOrWhiteSpace(nPointCalibFilePath))
+            {
+                _homographyMatrix = LoadHomographyMatrix(nPointCalibFilePath);
+            }
+        }
+
+        public CircleCenterActualCoordinateResult CalculateCircleCenterActualCoordinate(CircleCenterActualCoordinateRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            ValidatePoint(request.CaptureActualXY, nameof(request.CaptureActualXY));
+            ValidatePoint(request.CircleCenterPixelIJ, nameof(request.CircleCenterPixelIJ));
+
+            double[] imageCenterPixelIJ = GetImageCenterPixel(request.ImageSize);
+            double[] actualOffsetXY = CalculateActualOffset(imageCenterPixelIJ, request.CircleCenterPixelIJ);
+
+            return new CircleCenterActualCoordinateResult
+            {
+                ImageCenterPixelIJ = imageCenterPixelIJ,
+                ActualOffsetXY = actualOffsetXY,
+                CircleCenterActualXY =
+                [
+                    request.CaptureActualXY[0] - actualOffsetXY[0],
+                    request.CaptureActualXY[1] + actualOffsetXY[1]
+                ]
+            };
+        }
+
+        public double[] CalculateCircleCenterActualCoordinate(double[] captureActualXY, int[] imageSize, double[] circleCenterPixelIJ)
+        {
+            CircleCenterActualCoordinateResult result = CalculateCircleCenterActualCoordinate(new CircleCenterActualCoordinateRequest
+            {
+                CaptureActualXY = captureActualXY,
+                ImageSize = imageSize,
+                CircleCenterPixelIJ = circleCenterPixelIJ
+            });
+
+            return result.CircleCenterActualXY;
+        }
+
+        public static double[] GetImageCenterPixel(int[] imageSize)
+        {
+            if (imageSize == null || imageSize.Length < 2)
+            {
+                throw new ArgumentException("Image size must contain width and height.", nameof(imageSize));
+            }
+
+            return [(imageSize[0] - 1) / 2.0, (imageSize[1] - 1) / 2.0];
+        }
+
+        public double[] CalculateFromImageCenter(double[] imageCenterActualXY, int[] imageSize, double[] targetPixelIJ)
+        {
+            ValidatePoint(imageCenterActualXY, nameof(imageCenterActualXY));
+            ValidatePoint(targetPixelIJ, nameof(targetPixelIJ));
+
+            return CalculateActualCoordinate(
+                imageCenterActualXY,
+                GetImageCenterPixel(imageSize),
+                targetPixelIJ);
+        }
+
+        public double[] CalculateActualCoordinate(double[] referenceActualXY, double[] referencePixelIJ, double[] targetPixelIJ)
+        {
+            ValidatePoint(referenceActualXY, nameof(referenceActualXY));
+            ValidatePoint(referencePixelIJ, nameof(referencePixelIJ));
+            ValidatePoint(targetPixelIJ, nameof(targetPixelIJ));
+
+            double[] actualOffset = CalculateActualOffset(referencePixelIJ, targetPixelIJ);
+            return [referenceActualXY[0] + actualOffset[0], referenceActualXY[1] + actualOffset[1]];
+        }
+
+        public PixelPointsActualDistanceResult CalculateActualDistanceBetweenPixels(PixelPointsActualDistanceRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            ValidatePoint(request.Point1PixelIJ, nameof(request.Point1PixelIJ));
+            ValidatePoint(request.Point2PixelIJ, nameof(request.Point2PixelIJ));
+
+            PixelToActualPlane(
+                request.Point1PixelIJ[0],
+                request.Point1PixelIJ[1],
+                out double point1ActualX,
+                out double point1ActualY);
+            PixelToActualPlane(
+                request.Point2PixelIJ[0],
+                request.Point2PixelIJ[1],
+                out double point2ActualX,
+                out double point2ActualY);
+
+            double[] actualOffsetXY =
+            [
+                point2ActualX - point1ActualX,
+                point2ActualY - point1ActualY
+            ];
+
+            return new PixelPointsActualDistanceResult
+            {
+                Point1ActualXY = [point1ActualX, point1ActualY],
+                Point2ActualXY = [point2ActualX, point2ActualY],
+                ActualOffsetXY = actualOffsetXY,
+                ActualDistance = Math.Sqrt(
+                    actualOffsetXY[0] * actualOffsetXY[0] +
+                    actualOffsetXY[1] * actualOffsetXY[1])
+            };
+        }
+
+        public double CalculateActualDistanceBetweenPixels(double[] point1PixelIJ, double[] point2PixelIJ)
+        {
+            PixelPointsActualDistanceResult result = CalculateActualDistanceBetweenPixels(new PixelPointsActualDistanceRequest
+            {
+                Point1PixelIJ = point1PixelIJ,
+                Point2PixelIJ = point2PixelIJ
+            });
+
+            return result.ActualDistance;
+        }
+
+        public double[] CalculateActualOffset(double[] referencePixelIJ, double[] targetPixelIJ)
+        {
+            ValidatePoint(referencePixelIJ, nameof(referencePixelIJ));
+            ValidatePoint(targetPixelIJ, nameof(targetPixelIJ));
+
+            PixelToActualPlane(referencePixelIJ[0], referencePixelIJ[1], out double referenceActualPlaneX, out double referenceActualPlaneY);
+            PixelToActualPlane(targetPixelIJ[0], targetPixelIJ[1], out double targetActualPlaneX, out double targetActualPlaneY);
+
+            return [targetActualPlaneX - referenceActualPlaneX, targetActualPlaneY - referenceActualPlaneY];
+        }
+
+        public void PixelToActualPlane(double pixelI, double pixelJ, out double actualPlaneX, out double actualPlaneY)
+        {
+            _cameraCalib.pixelToWorld(_cameraId, pixelI, pixelJ, out double worldX, out double worldY, out _);
+            TransformWorldToActualPlane(worldX, worldY, out actualPlaneX, out actualPlaneY);
+        }
+
+        public void TransformWorldToActualPlane(double worldX, double worldY, out double actualPlaneX, out double actualPlaneY)
+        {
+            if (_homographyMatrix == null)
+            {
+                actualPlaneX = worldX;
+                actualPlaneY = worldY;
+                return;
+            }
+
+            ApplyHomography(_homographyMatrix, worldX, worldY, out actualPlaneX, out actualPlaneY);
+        }
+
+        private static double[] LoadHomographyMatrix(string nPointCalibFilePath)
+        {
+            using FileStorage fs = new FileStorage(nPointCalibFilePath, FileStorage.Modes.Read);
+            using Mat homographyMatrix = fs["homographyMatrix"].ToMat();
+
+            if (homographyMatrix.Empty() || homographyMatrix.Rows != 3 || homographyMatrix.Cols != 3)
+            {
+                throw new InvalidOperationException("The homographyMatrix in the N-point calibration file is not a valid 3x3 matrix.");
+            }
+
+            double[] matrix = new double[9];
+            int index = 0;
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < 3; col++)
+                {
+                    matrix[index++] = homographyMatrix.At<double>(row, col);
+                }
+            }
+
+            return matrix;
+        }
+
+        private static void ApplyHomography(double[] homographyMatrix, double x, double y, out double transformedX, out double transformedY)
+        {
+            double denominator = homographyMatrix[6] * x + homographyMatrix[7] * y + homographyMatrix[8];
+            if (Math.Abs(denominator) < 1e-12)
+            {
+                throw new InvalidOperationException("Homography transform failed because the homogeneous denominator is close to 0.");
+            }
+
+            transformedX = (homographyMatrix[0] * x + homographyMatrix[1] * y + homographyMatrix[2]) / denominator;
+            transformedY = (homographyMatrix[3] * x + homographyMatrix[4] * y + homographyMatrix[5]) / denominator;
+        }
+
+        private static void ValidatePoint(double[] point, string paramName)
+        {
+            if (point == null || point.Length < 2)
+            {
+                throw new ArgumentException("Point must contain at least two values.", paramName);
+            }
+        }
+    }
+}

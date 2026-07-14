@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1EC4331E-A878-499E-9B09-F6863147DA4C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>ImageTool.Halcon</RootNamespace>
+    <AssemblyName>ImageTool.Halcon</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="halcondotnetxl">
+      <HintPath>..\..\..\packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config\Circle.cs" />
+    <Compile Include="Config\CircularArc.cs" />
+    <Compile Include="Config\CoordLine.cs" />
+    <Compile Include="Config\HObjectWithColor.cs" />
+    <Compile Include="Config\HRoi.cs" />
+    <Compile Include="Config\Line.cs" />
+    <Compile Include="Config\Point.cs" />
+    <Compile Include="Config\PointSet.cs" />
+    <Compile Include="Config\Rectangle1.cs" />
+    <Compile Include="Config\Rectangle2.cs" />
+    <Compile Include="Config\RImage.cs" />
+    <Compile Include="Config\SerializeHelper.cs" />
+    <Compile Include="Config\ShowTool.cs" />
+    <Compile Include="Helper\NotifyPropertyBase.cs" />
+    <Compile Include="Model\GraphicsContext.cs" />
+    <Compile Include="Model\HObjectEntry.cs" />
+    <Compile Include="Model\HWndCtrl.cs" />
+    <Compile Include="Model\IViewWindow.cs" />
+    <Compile Include="Model\ROI.cs" />
+    <Compile Include="Model\ROICircle.cs" />
+    <Compile Include="Model\ROICircularArc.cs" />
+    <Compile Include="Model\ROIController.cs" />
+    <Compile Include="Model\ROICoordLine.cs" />
+    <Compile Include="Model\ROIInfo.cs" />
+    <Compile Include="Model\ROILine.cs" />
+    <Compile Include="Model\ROIPoint.cs" />
+    <Compile Include="Model\ROIRectangle1.cs" />
+    <Compile Include="Model\ROIRectangle2.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewWindow.cs" />
+    <Compile Include="VMHWindowControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VMHWindowControl.Designer.cs">
+      <DependentUpon>VMHWindowControl.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="VMHWindowControl.resx">
+      <DependentUpon>VMHWindowControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>set SOURCE_DEBUG="$(ProjectDir)bin\Debug\$(ProjectName).dll"
+set TARGET_DEBUG="$(SolutionDir)\OutputExe\Debug\net8.0-windows\"
+
+set SOURCE_RELEASE="$(ProjectDir)bin\Release\$(ProjectName).dll"
+set TARGET_RELEASE="$(SolutionDir)\OutputExe\Release\net8.0-windows\"
+
+:: 检查Debug配置文件
+IF EXIST %25SOURCE_DEBUG%25 (
+    echo 找到Debug源文件: %25SOURCE_DEBUG%25
+    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I
+    echo Debug文件复制成功！
+) ELSE (
+    echo 警告：Debug源文件不存在 - %25SOURCE_DEBUG%25
+)
+
+:: 检查Release配置文件
+IF EXIST %25SOURCE_RELEASE%25 (
+    echo 找到Release源文件: %25SOURCE_RELEASE%25
+    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I
+    echo Release文件复制成功！
+) ELSE (
+    echo 警告：Release源文件不存在 - %25SOURCE_RELEASE%25
+)
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

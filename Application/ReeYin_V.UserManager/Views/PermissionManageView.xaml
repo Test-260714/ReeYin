@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="ReeYin_V.UserManager.Views.PermissionManageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.UserManager.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+               Width="1000" Height="600">
+    <Border BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1">
+        <Grid>
+            <DataGrid  AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}" Margin="20"
+        EnableColumnVirtualization="True" EnableRowVirtualization="False"  VirtualizingPanel.IsVirtualizing="True" ItemsSource="{Binding PermissionModelParam.AllPermisson}" 
+        ScrollViewer.HorizontalScrollBarVisibility="Auto"  FontSize="12"  RowHeaderWidth="20" SelectionUnit="FullRow" HeadersVisibility="Column"
+        GridLinesVisibility="All" IsReadOnly="False" CanUserAddRows="False" >
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="权限名称" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding PermName}" ToolTip="{Binding PermName}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="权限等级" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding PermId,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding PermId}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="权限标识" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding PermCode,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding PermCode}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="操作" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Button
+                                 Name="btnModify" Width="54" Height="28" Padding="1"
+                                 Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                 CommandParameter="{Binding PermId}"
+                                 Content="修改" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</UserControl>

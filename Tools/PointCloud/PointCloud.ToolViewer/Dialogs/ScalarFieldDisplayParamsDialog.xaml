@@ -1,0 +1,143 @@
+<Window x:Class="PointCloud.ToolViewer.Dialogs.ScalarFieldDisplayParamsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="SF display params"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        MinWidth="520"
+        MinHeight="430"
+        Width="560"
+        Height="470">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TabControl>
+            <TabItem Header="Display ranges">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <hc:NumericUpDown x:Name="DisplayMinNumeric"
+                                          Grid.Column="0"
+                                          DecimalPlaces="8"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Increment="0.001"
+                                          Value="{Binding Parameters.DisplayMin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Grid.Column="1"
+                                   Margin="12,0"
+                                   VerticalAlignment="Center"
+                                   Text="displayed" />
+                        <hc:NumericUpDown x:Name="DisplayMaxNumeric"
+                                          Grid.Column="2"
+                                          DecimalPlaces="8"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Increment="0.001"
+                                          Value="{Binding Parameters.DisplayMax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+
+                    <Border Grid.Row="1"
+                            Background="#FFFDFDFD"
+                            BorderBrush="#FFD2D2D2"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="8">
+                        <Canvas x:Name="HistogramCanvas"
+                                MinHeight="180"
+                                SnapsToDevicePixels="True" />
+                    </Border>
+
+                    <Grid Grid.Row="2" Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <hc:NumericUpDown x:Name="SaturationMinNumeric"
+                                          Grid.Column="0"
+                                          DecimalPlaces="8"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Increment="0.001"
+                                          Value="{Binding Parameters.SaturationMin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock x:Name="SaturationLabel"
+                                   Grid.Column="1"
+                                   Margin="12,0"
+                                   VerticalAlignment="Center"
+                                   Text="saturation" />
+                        <hc:NumericUpDown x:Name="SaturationMaxNumeric"
+                                          Grid.Column="2"
+                                          DecimalPlaces="8"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Increment="0.001"
+                                          Value="{Binding Parameters.SaturationMax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Parameters">
+                <StackPanel Margin="12">
+                    <CheckBox x:Name="ShowOutOfRangeInGrayCheckBox"
+                              Margin="0,0,0,10"
+                              Content="show NaN/out of range values in grey"
+                              IsChecked="{Binding Parameters.ShowOutOfRangeInGray, Mode=TwoWay}" />
+                    <CheckBox x:Name="AlwaysShowZeroCheckBox"
+                              Margin="0,0,0,10"
+                              Content="always show 0 in color scale"
+                              IsChecked="{Binding Parameters.AlwaysShowZero, Mode=TwoWay}" />
+                    <CheckBox x:Name="SymmetricalScaleCheckBox"
+                              Margin="0,0,0,10"
+                              Content="symmetrical color scale"
+                              IsChecked="{Binding Parameters.SymmetricalScale, Mode=TwoWay}" />
+                    <CheckBox x:Name="LogScaleCheckBox"
+                              Margin="0,0,0,16"
+                              Content="log scale"
+                              IsChecked="{Binding Parameters.LogScale, Mode=TwoWay}" />
+
+                    <Border Padding="12"
+                            Background="#FFF7F7F7"
+                            BorderBrush="#FFE0E0E0"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <TextBlock x:Name="SummaryTextBlock"
+                                   TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="1"
+                    Margin="0,14,0,0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Width="90"
+                    Margin="0,0,8,0"
+                    IsDefault="True"
+                    Content="OK"
+                    Click="OkButton_Click" />
+            <Button Width="90"
+                    IsCancel="True"
+                    Content="Cancel" />
+        </StackPanel>
+    </Grid>
+</Window>

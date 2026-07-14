@@ -1,0 +1,1365 @@
+﻿using HslCommunication.Core.Net;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using Prism.Mvvm;
+using ReeYin_V.Core.Config;
+using ReeYin_V.Core.Enums;
+using ReeYin_V.Core.Events;
+using ReeYin_V.Core.Helper;
+using ReeYin_V.Core.Interfaces;
+using ReeYin_V.Core.IOC;
+using ReeYin_V.Core.Services.DynamicView;
+using ReeYin_V.Core.Services.Project;
+using ReeYin_V.Hardware.ControlCard;
+using ReeYin_V.Hardware.ControlCard.Models;
+using ReeYin_V.Logger;
+using ReeYin_V.Share;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Windows;
+using LineSegment = ReeYin_V.Core.MovingRelated.LineSegment;
+
+namespace Custom.WaferFlatnessMeasure
+{
+    public partial class SensorMotionControlModel : ModelParamBase
+    {
+        #region Fields
+        [JsonIgnore]
+        private ControlCardBase? ControlCard;
+
+        [JsonIgnore]
+        public int LocusCount => AllLocusInfo?.Count ?? 0;
+
+        //未被压完的剩余指令
+        [JsonIgnore]
+        Queue<LocusInfo> residualOrder = new Queue<LocusInfo>();
+
+        [JsonIgnore]
+        private readonly WaferTrajectoryTrackingPublisher _trajectoryTrackingPublisher = new WaferTrajectoryTrackingPublisher();
+
+        [JsonIgnore]
+        private readonly List<LineSegmentStartPositionInfo> _lineSegmentStartPositions = new List<LineSegmentStartPositionInfo>();
+        #endregion
+
+        #region Properties
+        [JsonIgnore]
+        private CreateTrajectoryModel _createTrajectoryModel = new CreateTrajectoryModel();
+
+        public CreateTrajectoryModel CreateTrajectoryModel
+        {
+            get { return _createTrajectoryModel; }
+            set { _createTrajectoryModel = value; RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private ObservableCollection<LocusInfo> _allLocusInfo = new ObservableCollection<LocusInfo>();
+
+        [OutputParam("AllLocusInfo", "当前轨迹列表")]
+        public ObservableCollection<LocusInfo> AllLocusInfo
+        {
+            get { return _allLocusInfo; }
+            set { _allLocusInfo = value; RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private ObservableCollection<CalibrationWaferPosition> _calibrationWaferPositions = new ObservableCollection<CalibrationWaferPosition>();
+
+        public ObservableCollection<CalibrationWaferPosition> CalibrationWaferPositions
+        {
+            get => _calibrationWaferPositions;
+            set
+            {
+                _calibrationWaferPositions = value ?? new ObservableCollection<CalibrationWaferPosition>();
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        [InputParam(nameof(CircleCenterActualXYLinkParam), "输入图像参数")]
+        public TransmitParam CircleCenterActualXYLinkParam
+        {
+            get => CreateTrajectoryModel.CircleCenterActualXYLinkParam;
+            set
+            {
+                CreateTrajectoryModel.CircleCenterActualXYLinkParam = value ?? new TransmitParam();
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        private double _sensorInterval = 1;
+        //[ReassignParam("SensorInterval", "采样间距")]
+        public double SensorInterval
+        {
+            get => _sensorInterval;
+            set
+            {
+                _sensorInterval = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        private double _zHight = 100;
+        //[ReassignParam("SensorInterval", "采样间距")]
+        public double ZHight
+        {
+            get => _zHight;
+            set
+            {
+                _zHight = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        private double _z1Hight = 100;
+        //[ReassignParam("SensorInterval", "采样间距")]
+        public double Z1Hight
+        {
+            get => _z1Hight;
+            set
+            {
+                _z1Hight = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        private PosComparisonOutputParam _posComparisonParam = new PosComparisonOutputParam();
+
+        public PosComparisonOutputParam PosComparisonParam
+        {
+            get => _posComparisonParam;
+            set
+            {
+                _posComparisonParam = value ?? new PosComparisonOutputParam();
+                RaisePropertyChanged();
+            }
+        }
+
+        private AcsLciFixedDistancePulseConfig _acsLciPulseParam = new AcsLciFixedDistancePulseConfig();
+
+        public AcsLciFixedDistancePulseConfig AcsLciPulseParam
+        {
+            get => _acsLciPulseParam;
+            set
+            {
+                _acsLciPulseParam = value ?? new AcsLciFixedDistancePulseConfig();
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        private ObservableCollection<LocusInfo> _orderedLocusInfo = new ObservableCollection<LocusInfo>();
+
+        [JsonIgnore]
+        [OutputParam("outOrderedLocusInfos", "按最短路径排序后的轨迹")]
+        public ObservableCollection<LocusInfo> OrderedLocusInfo
+        {
+            get => _orderedLocusInfo;
+            set
+            {
+                _orderedLocusInfo = value ?? new ObservableCollection<LocusInfo>();
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(OrderedLocusCount));
+            }
+        }
+
+        private ushort _pointOperationIoMaskHex = 0x20;
+        public ushort PointOperationIoMaskHex
+        {
+            get => _pointOperationIoMaskHex;
+            set => SetProperty(ref _pointOperationIoMaskHex, value);
+        }
+
+        private ushort _pointOperationCloseDelayMs = 1000;
+        public ushort PointOperationCloseDelayMs
+        {
+            get => _pointOperationCloseDelayMs;
+            set => SetProperty(ref _pointOperationCloseDelayMs, value);
+        }
+
+        private ushort _pointReadyDelayMs = 500;
+        public ushort PointReadyDelayMs
+        {
+            get => _pointReadyDelayMs;
+            set => SetProperty(ref _pointReadyDelayMs, value);
+        }
+
+        private int _expectedCollectionDataCount;
+        public int ExpectedCollectionDataCount
+        {
+            get => _expectedCollectionDataCount;
+            set => SetProperty(ref _expectedCollectionDataCount, Math.Max(0, value));
+        }
+
+        private int _trajectoryTrackingPollIntervalMs = 100;
+        public int TrajectoryTrackingPollIntervalMs
+        {
+            get => _trajectoryTrackingPollIntervalMs;
+            set => SetProperty(ref _trajectoryTrackingPollIntervalMs, Math.Max(10, value));
+        }
+
+
+
+        #endregion
+
+
+        [JsonIgnore]
+        public int OrderedLocusCount => OrderedLocusInfo?.Count ?? 0;
+
+        [JsonIgnore]
+        private double _lastFlatnessValue = double.NaN;
+        [JsonIgnore]
+        [OutputParam("outFlatnessValue", "最近一次计算得到的平面度")]
+        public double LastFlatnessValue
+        {
+            get => _lastFlatnessValue;
+            set
+            {
+                if (SetProperty(ref _lastFlatnessValue, value))
+                {
+                    RaisePropertyChanged(nameof(LastFlatnessText));
+                }
+            }
+        }
+
+        [JsonIgnore]
+        public string LastFlatnessText => double.IsFinite(LastFlatnessValue) ? LastFlatnessValue.ToString("F6") : "待计算";
+
+
+        #region Constructor
+        public SensorMotionControlModel()
+        {
+            Name = "晶圆检测轨迹设定";
+        }
+        #endregion
+
+        #region Override
+        /// <summary>
+        /// 加载关键参数
+        /// </summary>
+        /// <returns></returns>
+        public override bool LoadKeyParam()
+        {
+            try
+            {
+                if (!base.LoadKeyParam())
+                {
+                    return false;
+                }
+
+                ModuleName = Serial.ToString("D3");
+                CreateTrajectoryModel.SyncCircleCenterFromInput(param => GetTransmitParam(InputParams, param, false));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"加载参数异常{ex.StackTrace}");
+                return false;
+            }
+        }
+
+        public override bool OnceInit()
+        {
+            try
+            {
+                if (IsOnceInit)
+                {
+                    return true;
+                }
+
+                if (!base.OnceInit())
+                {
+                    return false;
+                }
+
+                //_createTrajectoryModel = new CreateTrajectoryModel();
+
+                if (TriggerModuleRun == null)
+                {
+                    TriggerModuleRun = () =>
+                    {
+                        return ExecuteModule().Result;
+                    };
+                }
+
+                IsOnceInit = true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 模块执行
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ExecuteModuleOutput> ExecuteModule()
+        {
+            var (result, time) = SetTimeHelper.SetTimer(() =>
+            {
+                try
+                {
+                    Console.WriteLine($"开始加载参数：{DateTime.Now:HH:mm:ss.fff}");
+                    LoadKeyParam();
+                    Console.WriteLine($"结束加载参数：{DateTime.Now:HH:mm:ss.fff}");
+
+                    ValidateExecution();
+                    ControlCard = (PrismProvider.HardwareModuleManager.Modules[ConfigKey.ControlCard] as ControlCardConfigModel).CardModels[0];
+                    if (ControlCard == null)
+                    {
+                        return NodeStatus.Error;
+                    }
+
+                    LastFlatnessValue = double.NaN;
+
+                    if (CreateTrajectoryModel.IsPointGenerationMode)
+                    {
+                        ExecutePointMoving(ControlCard);
+                    }
+                    else
+                    {
+                        ExecuteMoving(ControlCard);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Logs.LogError(ex);
+                    return NodeStatus.Error;
+                }
+
+                return NodeStatus.Success;
+            });
+
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}：找圆模块执行时间：{time} 毫秒");
+            return Output = new ExecuteModuleOutput()
+            {
+                RunStatus = result,
+                RunTime = time,
+            };
+        }
+        #endregion
+
+        /// <summary>
+        /// 执行直线轨迹
+        /// </summary>
+        /// <param name="controlCard"></param>
+        public void ExecuteMoving(ControlCardBase? controlCard)
+        {
+            if (controlCard == null)
+            {
+                Logs.LogWarning("运动控制卡为空，无法执行轨迹");
+
+                return;
+            }
+
+            var orderedSegments = WaferTrajectoryMotionHelper.BuildOrderedLineSegments(
+                AllLocusInfo,
+                CreateTrajectoryModel.IsOptimalPathEnabled);
+            if (orderedSegments.Count == 0)
+            {
+                Logs.LogWarning("未配置有效轨迹，跳过执行运动");
+
+                return;
+            }
+
+            if (WaferTrajectoryMotionHelper.HasAnyTrajectoryTargetOutOfSoftLimit(
+                controlCard,
+                WaferTrajectoryMotionHelper.BuildLineTrajectoryTargets(orderedSegments)))
+            {
+                return;
+            }
+
+            string trackingRunId = _trajectoryTrackingPublisher.BeginLineTracking(
+                Serial,
+                orderedSegments,
+                TrajectoryTrackingPollIntervalMs);
+            bool trackingCompleted = false;
+
+            PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish((
+                LineSegmentCsvSessionInfo.EventName,
+                new LineSegmentCsvSessionInfo { ExpectedSegmentCount = orderedSegments.Count }));
+            PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish(("IsPoint", false));
+            _lineSegmentStartPositions.Clear();
+
+            try
+            {
+                for (int trajectoryIndex = 0; trajectoryIndex < orderedSegments.Count; trajectoryIndex++)
+                {
+                    var item = orderedSegments[trajectoryIndex];
+                    var collectPoints = WaferTrajectoryMotionHelper.GenerateLineSamplePoints(
+                        item.Start.X,
+                        item.Start.Y,
+                        item.End.X,
+                        item.End.Y,
+                        NormalizeStep());
+
+                    _trajectoryTrackingPublisher.PublishProgress(trackingRunId, trajectoryIndex, trajectoryIndex - 1);
+                    _trajectoryTrackingPublisher.PublishTarget(trackingRunId, trajectoryIndex, item.Start.X, item.Start.Y);
+
+                    if (!controlCard.CustomInterpolationMoving(new CustomInterPoParam
+                    {
+                        InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                        TargetPosDic = new Dictionary<En_AxisNum, double>
+                        {
+                            { En_AxisNum.X, item.End.X },
+                            { En_AxisNum.Y, item.End.Y },
+                            { En_AxisNum.Z, ZHight },
+                            { En_AxisNum.Z1, Z1Hight },
+                            { En_AxisNum.Z2, 60 },
+                        },
+                    }, () =>
+                    {
+                        if (!controlCard.LineInterpoMoving(new LineInterPoParam
+                        {
+                            InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                            TargetPosDic = new Dictionary<En_AxisNum, double>
+                                {
+                                    { En_AxisNum.X, item.Start.X },
+                                    { En_AxisNum.Y, item.Start.Y },
+                                    { En_AxisNum.Z, ZHight },
+                                    { En_AxisNum.Z1, Z1Hight },
+                                    { En_AxisNum.Z2, 60 },
+                                },
+                            decZSpeed = [5, 10, 50],
+                            upZSpeed = [5, 10, 50],
+                        }))
+                        {
+                            Logs.LogWarning("运动前定位到起点失败");
+                        }
+
+                        return "OK";
+                    }))
+                    {
+                        Logs.LogWarning("执行自定义插补运动到起点失败");
+                    }
+
+                    RecordLineSegmentStartPosition(controlCard, trajectoryIndex + 1, item.Start.X, item.Start.Y);
+                    if (AcsLciPulseParam?.IsEnabled == true)
+                    {
+                        var collectionStarted = false;
+                        try
+                        {
+                            PublishStartCollectEvent(trajectoryIndex + 1, true);
+                            collectionStarted = true;
+                            Task.Delay(100).Wait();
+
+                            if (!ExecuteAcsLciFixedDistancePulseSegment(
+                                controlCard,
+                                item,
+                                collectPoints,
+                                trackingRunId,
+                                trajectoryIndex))
+                            {
+                                Logs.LogWarning($"ACS LCI固定距离脉冲执行失败，已跳过第 {trajectoryIndex + 1} 段轨迹。");
+                            }
+                        }
+                        finally
+                        {
+                            if (collectionStarted)
+                            {
+                                PublishStopCollectEvent(trajectoryIndex + 1, true);
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    SwitchPosCompare(controlCard, true);
+                    Task.Delay(5).Wait();
+
+                    PublishStartCollectEvent(trajectoryIndex + 1, false);
+                    Task.Delay(100).Wait();
+                    _trajectoryTrackingPublisher.PublishProgress(trackingRunId, trajectoryIndex, trajectoryIndex - 1);
+                    _trajectoryTrackingPublisher.PublishTarget(trackingRunId, trajectoryIndex, item.End.X, item.End.Y);
+                    if (!controlCard.CustomInterpolationMoving(new CustomInterPoParam
+                    {
+                        InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                        TargetPosDic = new Dictionary<En_AxisNum, double>
+                                {
+                                    { En_AxisNum.X, item.End.X },
+                                    { En_AxisNum.Y, item.End.Y },
+                                                         { En_AxisNum.Z, ZHight },
+                                    { En_AxisNum.Z1, Z1Hight },
+                                    { En_AxisNum.Z2, 60 },
+                                },
+                    }, () =>
+                    {
+                        if (!controlCard.LineInterpoMoving(new LineInterPoParam
+                        {
+                            InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                            TargetPosDic = new Dictionary<En_AxisNum, double>
+                                {
+                                    { En_AxisNum.X, item.End.X },
+                                    { En_AxisNum.Y, item.End.Y },
+                                                         { En_AxisNum.Z, ZHight },
+                                    { En_AxisNum.Z1, Z1Hight },
+                                    { En_AxisNum.Z2, 60 },
+                                },
+                            decZSpeed = [5, 10, 50],
+                            upZSpeed = [5, 10, 50],
+                        }))
+                        {
+                            Logs.LogWarning("轨迹移动到终点失败");
+                        }
+                        return "OK";
+                    }, true))
+                    {
+                        Logs.LogWarning("执行自定义插补运动到终点失败");
+                    }
+
+
+
+                    PublishLineCollectPoints(collectPoints);
+                    SwitchPosCompare(controlCard, false);
+
+                    PublishStopCollectEvent(trajectoryIndex + 1, false);
+                    //Task.Delay(8000).Wait();
+                }
+
+                PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("RunALGO");
+                trackingCompleted = true;
+            }
+            catch (Exception ex)
+            {
+                Logs.LogError(ex);
+
+            }
+            finally
+            {
+                _trajectoryTrackingPublisher.PublishStop(
+                    trackingRunId,
+                    trackingCompleted,
+                    trackingCompleted ? "Line trajectory finished." : "Line trajectory stopped with error.");
+            }
+        }
+
+        private void RecordLineSegmentStartPosition(
+            ControlCardBase controlCard,
+            int segmentIndex,
+            double fallbackStartX,
+            double fallbackStartY)
+        {
+            if (!TryReadCurrentAxisPosition(controlCard, out double startX, out double startY))
+            {
+                startX = fallbackStartX;
+                startY = fallbackStartY;
+                Logs.LogWarning($"读取线段{segmentIndex}起点实际坐标失败，使用规划起点坐标。");
+            }
+
+            var positionInfo = new LineSegmentStartPositionInfo
+            {
+                SegmentIndex = segmentIndex,
+                StartX = Math.Round(startX, 5),
+                StartY = Math.Round(startY, 5)
+            };
+
+            _lineSegmentStartPositions.Add(positionInfo);
+            PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish((
+                LineSegmentStartPositionInfo.EventName,
+                positionInfo.Clone()));
+        }
+
+        private static bool TryReadCurrentAxisPosition(
+            ControlCardBase controlCard,
+            out double xPosition,
+            out double yPosition)
+        {
+            xPosition = double.NaN;
+            yPosition = double.NaN;
+
+            try
+            {
+                var axisConfigs = controlCard.Config?.AllAxis;
+                if (axisConfigs == null || axisConfigs.Count == 0)
+                {
+                    return false;
+                }
+
+                //var allPosInfos = new double[axisConfigs.Count];
+                //if (controlCard.GetAllPosInfos(ref allPosInfos) &&
+                //    TryGetAxisPositionFromSnapshot(axisConfigs, allPosInfos, En_AxisNum.X, out xPosition) &&
+                //    TryGetAxisPositionFromSnapshot(axisConfigs, allPosInfos, En_AxisNum.Y, out yPosition))
+                //{
+                //    return true;
+                //}
+
+                if (!controlCard.GetAllPosInfos())
+                {
+                    return false;
+                }
+
+                return TryGetAxisPositionFromControlCard(controlCard, En_AxisNum.X, out xPosition) &&
+                       TryGetAxisPositionFromControlCard(controlCard, En_AxisNum.Y, out yPosition);
+            }
+            catch (Exception ex)
+            {
+                Logs.LogWarning($"读取控制卡XY坐标失败：{ex.Message}");
+                return false;
+            }
+        }
+
+        private static bool TryGetAxisPositionFromSnapshot(
+            IList<SingleAxisParam> axisConfigs,
+            double[] allPosInfos,
+            En_AxisNum axisNum,
+            out double position)
+        {
+            position = double.NaN;
+
+            int axisIndex = axisConfigs
+                .Select((axis, index) => new { Axis = axis, Index = index })
+                .FirstOrDefault(item => item.Axis.AxisNum == axisNum)?.Index ?? -1;
+            if (axisIndex < 0 || axisIndex >= allPosInfos.Length)
+            {
+                return false;
+            }
+
+            position = allPosInfos[axisIndex];
+            return double.IsFinite(position);
+        }
+
+        private static bool TryGetAxisPositionFromControlCard(
+            ControlCardBase controlCard,
+            En_AxisNum axisNum,
+            out double position)
+        {
+            position = double.NaN;
+
+            var axisConfig = controlCard.Config?.AllAxis?.FirstOrDefault(axis => axis.AxisNum == axisNum);
+            if (axisConfig == null)
+            {
+                return false;
+            }
+
+            position = axisConfig.CurPos;
+            if (double.IsFinite(position))
+            {
+                return true;
+            }
+
+            if (controlCard.CurPos != null &&
+                axisConfig.AxisNo > 0 &&
+                axisConfig.AxisNo <= controlCard.CurPos.Length)
+            {
+                position = controlCard.CurPos[axisConfig.AxisNo - 1];
+            }
+
+            return double.IsFinite(position);
+        }
+
+        /// <summary>
+        /// 执行打点运动
+        /// </summary>
+        /// <param name="controlCard"></param>
+        public List<LocusInfo> BuildCalibrationWaferLocusInfos()
+        {
+            return (CalibrationWaferPositions ?? new ObservableCollection<CalibrationWaferPosition>())
+                .Where(IsValidCalibrationWaferPosition)
+                .Select(position => new LocusInfo
+                {
+                    Type = LocusInfo.PointType,
+                    OriginX = position.X,
+                    OriginY = position.Y,
+                    TargetX = position.X,
+                    TargetY = position.Y
+                })
+                .ToList();
+        }
+
+        public void ExecuteCalibrationPointMoving(ControlCardBase? controlCard)
+        {
+            var calibrationLocusInfos = BuildCalibrationWaferLocusInfos();
+            if (calibrationLocusInfos.Count == 0)
+            {
+                Logs.LogWarning("未配置有效标定片位置，跳过执行标定。");
+                return;
+            }
+
+            ExecutePointMoving(controlCard, true, calibrationLocusInfos);
+        }
+
+        public void ExecutePointMoving(ControlCardBase? controlCard, bool Calib = false, IEnumerable<LocusInfo>? sourceLocusInfos = null)
+        {
+            if (controlCard == null)
+            {
+                Logs.LogWarning("运动控制卡为空，无法执行轨迹");
+
+                return;
+            }
+
+            string trackingRunId = string.Empty;
+            bool trackingCompleted = false;
+
+            try
+            {
+                PointExecutionPlan pointPlan = new PointExecutionPlan();
+                List<LocusInfo> orderedLocusInfos = new List<LocusInfo>();
+                PrismProvider.Dispatcher.Invoke(() =>
+                {
+                    pointPlan = BuildPointExecutionPlan(Calib, sourceLocusInfos);
+                    orderedLocusInfos = pointPlan.ExecutionLocusInfos;
+                    OrderedLocusInfo = new ObservableCollection<LocusInfo>(orderedLocusInfos);
+                    if (sourceLocusInfos == null &&
+                        CreateTrajectoryModel.IsOptimalPathEnabled &&
+                        !CreateTrajectoryModel.IsCalibrationWaferMeasurementActive &&
+                        orderedLocusInfos.Count > 0)
+                    {
+                        WaferTrajectoryMotionHelper.ReplaceLocusOrder(AllLocusInfo, orderedLocusInfos);
+                    }
+                });
+
+                if (orderedLocusInfos.Count == 0)
+                {
+                    Logs.LogWarning("未配置有效打点轨迹，跳过执行运动");
+                    return;
+                }
+
+                if (WaferTrajectoryMotionHelper.HasAnyTrajectoryTargetOutOfSoftLimit(
+                    controlCard,
+                    WaferTrajectoryMotionHelper.BuildPointTrajectoryTargets(orderedLocusInfos)))
+                {
+                    return;
+                }
+
+                trackingRunId = _trajectoryTrackingPublisher.BeginPointTracking(
+                    Serial,
+                    orderedLocusInfos,
+                    TrajectoryTrackingPollIntervalMs);
+
+                ushort ioMask = WaferTrajectoryMotionHelper.ConvertIoMaskToUInt16(PointOperationIoMaskHex);
+                //const ushort pointReadyDelayMs = 200;
+
+                PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish(("IsPoint", true));
+                PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish((PointCollectionStepInfo.EventName, pointPlan.CollectionSteps));
+                PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish(("CollectPoints", pointPlan.CollectPoints));
+                //映射IO
+                PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("TrrigerStartCollect");
+                PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("GetAllDatas");
+
+                _trajectoryTrackingPublisher.PublishProgress(trackingRunId, 0, -1);
+                _trajectoryTrackingPublisher.PublishTarget(trackingRunId, 0, orderedLocusInfos[0].TargetX, orderedLocusInfos[0].TargetY);
+
+
+                //未被压完的剩余指令
+                //List<LocusInfo> residualOrder = new List<LocusInfo>();
+                residualOrder.Clear();
+                if (!controlCard.CustomInterpolationMoving(new CustomInterPoParam
+                {
+                    InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                    TargetPosDic = new Dictionary<En_AxisNum, double>
+                            {
+                                { En_AxisNum.X, 0 },
+                                { En_AxisNum.Y, 0 },
+                                { En_AxisNum.Z, ZHight },
+                                { En_AxisNum.Z1, Z1Hight },
+                                { En_AxisNum.Z2, 70 },
+                            },
+                }, () =>
+                {
+                    for (int trajectoryIndex = 0; trajectoryIndex < orderedLocusInfos.Count; trajectoryIndex++)
+                    {
+                        var locusInfo = orderedLocusInfos[trajectoryIndex];
+
+                        //压入之前先查询剩余空间
+                        var residualSpace = controlCard.QuerySpace(1);
+                        Console.WriteLine($"Buff剩余空间为：{residualSpace}");
+                        if (residualSpace < 1000)
+                        {
+                            residualOrder.Enqueue(locusInfo);
+                            continue;
+                        }
+
+                        //移动至目标点
+                        if (!controlCard.LineInterpoMoving(new LineInterPoParam
+                        {
+                            InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                            TargetPosDic = new Dictionary<En_AxisNum, double>
+                            {
+                                { En_AxisNum.X, locusInfo.TargetX },
+                                { En_AxisNum.Y, locusInfo.TargetY },
+                                { En_AxisNum.Z, ZHight },
+                                { En_AxisNum.Z1, Z1Hight },
+                                { En_AxisNum.Z2, 70 },
+                            },
+                            decZSpeed = [5, 10, 50],
+                            upZSpeed = [5, 10, 50],
+                        }))
+                        {
+                            Logs.LogWarning("运动前定位到起点失败");
+                        }
+
+                        //延时一下确保到位
+                        controlCard.BufDelay(PointReadyDelayMs);
+
+                        //操作指定IO开启
+                        controlCard.BufIO(ioMask, 0x00);
+
+                        //延时关闭
+                        controlCard.BufDelay(PointOperationCloseDelayMs);
+
+                        //操作指定IO关闭
+                        controlCard.BufIO(ioMask, 0xff);
+                        controlCard.BufDelay(PointReadyDelayMs);
+                        //controlCard.BufDelay(10);
+                    }
+
+                    //开个线程，将之前没压完的是数据压进去
+                    Task.Run(() =>
+                    {
+                        while (true)
+                        {
+                            Task.Delay(10).Wait();
+                            var residualSpace = controlCard.QuerySpace(1);
+                            //压入之前先查询剩余空间
+
+                            Console.WriteLine($"压入剩余空间为：{residualSpace}");
+                            if (residualSpace < 2000)
+                            {
+                                continue;
+                            }
+                            LocusInfo temp = new LocusInfo();
+                            if (residualOrder.Count > 0)
+                            {
+                                temp = residualOrder.Dequeue();
+
+                                //移动至目标点
+                                if (!controlCard.LineInterpoMoving(new LineInterPoParam
+                                {
+                                    InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                                    TargetPosDic = new Dictionary<En_AxisNum, double>
+                            {
+                                { En_AxisNum.X, temp.TargetX },
+                                { En_AxisNum.Y, temp.TargetY },
+                                                              { En_AxisNum.Z, ZHight },
+                                { En_AxisNum.Z1, Z1Hight },
+                                { En_AxisNum.Z2, 70 },
+                            },
+                                    decZSpeed = [5, 10, 50],
+                                    upZSpeed = [5, 10, 50],
+                                }))
+                                {
+                                    Logs.LogWarning("运动前定位到起点失败");
+                                }
+
+                                //延时一下确保到位
+                                controlCard.BufDelay(PointReadyDelayMs);
+
+                                //操作指定IO开启
+                                controlCard.BufIO(ioMask, 0x00);
+
+                                //延时关闭
+                                controlCard.BufDelay(PointOperationCloseDelayMs);
+
+                                //操作指定IO关闭
+                                controlCard.BufIO(ioMask, 0xff);
+
+                                controlCard.PushOrder(null);
+                            }
+
+
+                            if (residualOrder.Count == 0) return;
+                        }
+                    });
+
+                    return "OK";
+                }, true))
+                {
+                    Logs.LogWarning("执行自定义插补运动到起点失败");
+                }
+
+                if (!Calib)
+                {
+                    PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("TrrigerStopCollect");
+                }
+                else
+                {
+                    PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("Calib");
+                }
+
+                trackingCompleted = true;
+            }
+            catch (Exception ex)
+            {
+                Logs.LogError(ex);
+            }
+            finally
+            {
+                _trajectoryTrackingPublisher.PublishStop(
+                    trackingRunId,
+                    trackingCompleted,
+                    trackingCompleted ? "Point trajectory finished." : "Point trajectory stopped with error.");
+            }
+        }
+
+        public bool MoveToLocus(ControlCardBase? controlCard, LocusInfo? locusInfo)
+        {
+            if (controlCard == null)
+            {
+                Logs.LogWarning("运动控制卡为空，无法移动到选中点");
+                return false;
+            }
+
+            if (!WaferTrajectoryMotionHelper.TryGetMoveTarget(locusInfo, out double targetX, out double targetY))
+            {
+                Logs.LogWarning("选中的轨迹点无效，无法执行移动");
+                return false;
+            }
+
+            var moveTarget = new Dictionary<En_AxisNum, double>
+            {
+                { En_AxisNum.X, targetX },
+                { En_AxisNum.Y, targetY },
+                { En_AxisNum.Z, ZHight },
+                { En_AxisNum.Z1, 70 },
+                { En_AxisNum.Z2, 70 },
+            };
+
+            if (WaferTrajectoryMotionHelper.HasAnyTrajectoryTargetOutOfSoftLimit(controlCard, new[] { moveTarget }))
+            {
+                return false;
+            }
+
+            bool moveResult = controlCard.CustomInterpolationMoving(new CustomInterPoParam
+            {
+                InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                TargetPosDic = moveTarget,
+            }, () =>
+            {
+                if (!controlCard.LineInterpoMoving(new LineInterPoParam
+                {
+                    InterPoAxiss = [En_AxisNum.X, En_AxisNum.Y],
+                    TargetPosDic = new Dictionary<En_AxisNum, double>(moveTarget),
+                    decZSpeed = [5, 10, 50],
+                    upZSpeed = [5, 10, 50],
+                }))
+                {
+                    Logs.LogWarning("移动到选中点失败");
+                    return "NG";
+                }
+
+                return "OK";
+            }, true);
+
+            if (!moveResult)
+            {
+                Logs.LogWarning("执行移动到选中点的插补运动失败");
+            }
+
+            return moveResult;
+        }
+
+        private PointExecutionPlan BuildPointExecutionPlan(bool calib, IEnumerable<LocusInfo>? sourceLocusInfos)
+        {
+            var executionLocusInfos = (sourceLocusInfos ?? AllLocusInfo ?? Enumerable.Empty<LocusInfo>())
+                .Where(WaferTrajectoryMotionHelper.IsValidLocus)
+                .ToList();
+
+            if (executionLocusInfos.Count == 0)
+            {
+                return new PointExecutionPlan();
+            }
+
+            bool shouldInsertCalibration = ShouldInsertCalibrationWaferMeasurements(calib, sourceLocusInfos);
+            if (shouldInsertCalibration)
+            {
+                LocusInfo? calibrationLocus = BuildCalibrationWaferLocusInfos().FirstOrDefault();
+                if (calibrationLocus != null)
+                {
+                    return BuildCalibrationInsertedPointExecutionPlan(
+                        executionLocusInfos,
+                        calibrationLocus,
+                        CreateTrajectoryModel.CalibrationWaferMeasurementMode);
+                }
+
+                Logs.LogWarning("已启用标准片测量，但未配置有效标定片位置，已按普通打点轨迹执行。");
+            }
+
+            var orderedLocusInfos = CreateTrajectoryModel.IsOptimalPathEnabled && !shouldInsertCalibration
+                ? WaferTrajectoryMotionHelper.SortPointLocusInfosByShortestPath(executionLocusInfos)
+                : executionLocusInfos;
+
+            return PointExecutionPlan.Create(orderedLocusInfos, orderedLocusInfos, false);
+        }
+
+        private bool ShouldInsertCalibrationWaferMeasurements(bool calib, IEnumerable<LocusInfo>? sourceLocusInfos)
+        {
+            return !calib &&
+                   sourceLocusInfos == null &&
+                   CreateTrajectoryModel?.IsCalibrationWaferMeasurementActive == true;
+        }
+
+        private static PointExecutionPlan BuildCalibrationInsertedPointExecutionPlan(
+            IReadOnlyList<LocusInfo> normalLocusInfos,
+            LocusInfo calibrationLocus,
+            CalibrationWaferMeasurementMode measurementMode)
+        {
+            var executionLocusInfos = new List<LocusInfo>();
+            const double rowTolerance = 1e-6;
+
+            if (measurementMode == CalibrationWaferMeasurementMode.每行开始前)
+            {
+                double? currentRowY = null;
+                foreach (LocusInfo normalLocus in normalLocusInfos)
+                {
+                    if (!currentRowY.HasValue || Math.Abs(normalLocus.TargetY - currentRowY.Value) > rowTolerance)
+                    {
+                        executionLocusInfos.Add(CreateCalibrationReferenceLocus(calibrationLocus));
+                        currentRowY = normalLocus.TargetY;
+                    }
+
+                    executionLocusInfos.Add(normalLocus);
+                }
+            }
+            else if (measurementMode == CalibrationWaferMeasurementMode.每点测量前)
+            {
+                foreach (LocusInfo normalLocus in normalLocusInfos)
+                {
+                    executionLocusInfos.Add(CreateCalibrationReferenceLocus(calibrationLocus));
+                    executionLocusInfos.Add(normalLocus);
+                }
+            }
+            else
+            {
+                executionLocusInfos.AddRange(normalLocusInfos);
+            }
+
+            return PointExecutionPlan.Create(executionLocusInfos, normalLocusInfos, true);
+        }
+
+        private static LocusInfo CreateCalibrationReferenceLocus(LocusInfo calibrationLocus)
+        {
+            return new LocusInfo
+            {
+                Type = LocusInfo.PointType,
+                OriginX = calibrationLocus.TargetX,
+                OriginY = calibrationLocus.TargetY,
+                TargetX = calibrationLocus.TargetX,
+                TargetY = calibrationLocus.TargetY,
+                IsCalibrationReference = true
+            };
+        }
+
+        private sealed class PointExecutionPlan
+        {
+            public List<LocusInfo> ExecutionLocusInfos { get; private set; } = new List<LocusInfo>();
+
+            public List<(double, double)> CollectPoints { get; private set; } = new List<(double, double)>();
+
+            public List<PointCollectionStepInfo> CollectionSteps { get; private set; } = new List<PointCollectionStepInfo>();
+
+            public bool IsCalibrationInserted { get; private set; }
+
+            public static PointExecutionPlan Create(
+                IReadOnlyList<LocusInfo> executionLocusInfos,
+                IReadOnlyList<LocusInfo> normalLocusInfos,
+                bool isCalibrationInserted)
+            {
+                var normalIndexes = new Dictionary<LocusInfo, Queue<int>>();
+                for (int i = 0; i < normalLocusInfos.Count; i++)
+                {
+                    if (!normalIndexes.TryGetValue(normalLocusInfos[i], out Queue<int>? indexes))
+                    {
+                        indexes = new Queue<int>();
+                        normalIndexes[normalLocusInfos[i]] = indexes;
+                    }
+
+                    indexes.Enqueue(i);
+                }
+
+                var plan = new PointExecutionPlan
+                {
+                    ExecutionLocusInfos = executionLocusInfos.ToList(),
+                    CollectPoints = normalLocusInfos
+                        .Select(locus => (locus.TargetX, locus.TargetY))
+                        .ToList(),
+                    IsCalibrationInserted = isCalibrationInserted
+                };
+
+                foreach (LocusInfo locus in executionLocusInfos)
+                {
+                    bool isCalibrationReference = locus.IsCalibrationReference;
+                    int normalPointIndex = -1;
+                    if (!isCalibrationReference &&
+                        normalIndexes.TryGetValue(locus, out Queue<int>? indexes) &&
+                        indexes.Count > 0)
+                    {
+                        normalPointIndex = indexes.Dequeue();
+                    }
+
+                    plan.CollectionSteps.Add(new PointCollectionStepInfo
+                    {
+                        X = locus.TargetX,
+                        Y = locus.TargetY,
+                        IsCalibrationReference = isCalibrationReference,
+                        NormalPointIndex = normalPointIndex
+                    });
+                }
+
+                return plan;
+            }
+        }
+
+        private void PublishStartCollectEvent(int segmentIndex, bool isAcsLci)
+        {
+            Logs.LogInfo($"第 {segmentIndex} 段{FormatCollectModeName(isAcsLci)}轨迹触发传感器开始采集事件：TrrigerStartCollect");
+            PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("TrrigerStartCollect");
+        }
+
+        private void PublishStopCollectEvent(int segmentIndex, bool isAcsLci)
+        {
+            Logs.LogInfo($"第 {segmentIndex} 段{FormatCollectModeName(isAcsLci)}轨迹触发传感器停止采集事件：TrrigerStopCollect");
+            PrismProvider.EventAggregator.GetEvent<UpdateMessageEvent>().Publish("TrrigerStopCollect");
+        }
+
+        private static string FormatCollectModeName(bool isAcsLci)
+        {
+            return isAcsLci ? "ACS LCI" : "普通";
+        }
+
+        private bool ExecuteAcsLciFixedDistancePulseSegment(
+            ControlCardBase controlCard,
+            LineSegment segment,
+            List<(double X, double Y)> collectPoints,
+            string trackingRunId,
+            int trajectoryIndex)
+        {
+            _trajectoryTrackingPublisher.PublishProgress(trackingRunId, trajectoryIndex, trajectoryIndex - 1);
+            _trajectoryTrackingPublisher.PublishTarget(trackingRunId, trajectoryIndex, segment.End.X, segment.End.Y);
+
+            if (!TryRunLciFixedDistancePulseXseg(controlCard, segment, out var message))
+            {
+                Logs.LogWarning($"ACS LCI固定距离脉冲执行失败：{message}");
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Logs.LogInfo(message);
+            }
+
+            PublishLineCollectPoints(collectPoints);
+            return true;
+        }
+
+        private bool TryRunLciFixedDistancePulseXseg(
+            ControlCardBase controlCard,
+            LineSegment segment,
+            out string message)
+        {
+            message = string.Empty;
+            if (!TryGetAcsLciFixedDistancePulseMethod(controlCard, out var method, out var parameterType, out message))
+            {
+                return false;
+            }
+
+            object parameter;
+            try
+            {
+                parameter = BuildAcsLciFixedDistancePulseParam(parameterType, segment);
+            }
+            catch (Exception ex)
+            {
+                message = $"构建ACS LCI固定距离脉冲参数失败：{ex.Message}";
+                return false;
+            }
+
+            try
+            {
+                var args = new object?[] { parameter, null, null };
+                var invokeResult = method.Invoke(controlCard, args);
+                message = args.Length > 2 ? args[2]?.ToString() ?? string.Empty : string.Empty;
+                return invokeResult is bool success && success;
+            }
+            catch (Exception ex)
+            {
+                message = $"调用ACS LCI固定距离脉冲失败：{ex.InnerException?.Message ?? ex.Message}";
+                return false;
+            }
+        }
+
+        private object BuildAcsLciFixedDistancePulseParam(Type parameterType, LineSegment segment)
+        {
+            var config = AcsLciPulseParam ?? new AcsLciFixedDistancePulseConfig();
+            var parameter = Activator.CreateInstance(parameterType)
+                ?? throw new InvalidOperationException($"无法创建ACS LCI参数类型：{parameterType.FullName}");
+
+            var segmentLength = GetLineSegmentLength(segment);
+            var endDistance = config.EndDistance > config.StartDistance
+                ? config.EndDistance
+                : segmentLength;
+            var interval = config.UseSensorInterval ? NormalizeStep() : config.Interval;
+
+            SetAcsLciProperty(parameter, nameof(config.BufferNo), config.BufferNo);
+            SetAcsLciProperty(parameter, nameof(config.AxisX), config.AxisX);
+            SetAcsLciProperty(parameter, nameof(config.AxisY), config.AxisY);
+            SetAcsLciProperty(parameter, nameof(config.PulseWidth), config.PulseWidth);
+            SetAcsLciProperty(parameter, nameof(config.Interval), interval);
+            SetAcsLciProperty(parameter, nameof(config.StartDistance), config.StartDistance);
+            SetAcsLciProperty(parameter, nameof(config.EndDistance), Math.Max(config.StartDistance, endDistance));
+            SetAcsLciProperty(parameter, nameof(config.RouteConfigOutput), config.RouteConfigOutput);
+            SetAcsLciProperty(parameter, nameof(config.ConfigOutputIndex), config.ConfigOutputIndex);
+            SetAcsLciProperty(parameter, nameof(config.ConfigOutputCode), config.ConfigOutputCode);
+            SetAcsLciProperty(parameter, nameof(config.Timeout), config.Timeout);
+            SetAcsLciPoints(parameter, segment);
+
+            return parameter;
+        }
+
+        private static bool TryGetAcsLciFixedDistancePulseMethod(
+            ControlCardBase controlCard,
+            out MethodInfo method,
+            out Type parameterType,
+            out string message)
+        {
+            method = null!;
+            parameterType = null!;
+            if (controlCard == null)
+            {
+                message = "控制卡为空。";
+                return false;
+            }
+
+            method = controlCard.GetType()
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .FirstOrDefault(item =>
+                    item.Name == "TryRunLciFixedDistancePulseXseg" &&
+                    item.GetParameters().Length == 3)!;
+            if (method == null)
+            {
+                message = $"当前控制卡 {controlCard.GetType().Name} 不支持ACS LCI固定距离脉冲。";
+                return false;
+            }
+
+            var parameters = method.GetParameters();
+            parameterType = parameters[0].ParameterType;
+            message = string.Empty;
+            return true;
+        }
+
+        private static void SetAcsLciProperty(object parameter, string propertyName, object value)
+        {
+            var property = parameter.GetType().GetProperty(propertyName)
+                ?? throw new InvalidOperationException($"ACS LCI参数缺少属性：{propertyName}");
+            var targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+            property.SetValue(parameter, Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture));
+        }
+
+        private static void SetAcsLciPoints(object parameter, LineSegment segment)
+        {
+            var pointsProperty = parameter.GetType().GetProperty("Points")
+                ?? throw new InvalidOperationException("ACS LCI参数缺少Points属性。");
+            var pointType = pointsProperty.PropertyType.GetGenericArguments().FirstOrDefault()
+                ?? throw new InvalidOperationException("ACS LCI Points属性不是泛型集合。");
+            var listType = typeof(List<>).MakeGenericType(pointType);
+            var points = (IList)(Activator.CreateInstance(listType)
+                ?? throw new InvalidOperationException("无法创建ACS LCI点位集合。"));
+
+            points.Add(CreateAcsPoint2D(pointType, segment.Start.X, segment.Start.Y));
+            points.Add(CreateAcsPoint2D(pointType, segment.End.X, segment.End.Y));
+            pointsProperty.SetValue(parameter, points);
+        }
+
+        private static object CreateAcsPoint2D(Type pointType, double x, double y)
+        {
+            return Activator.CreateInstance(pointType, x, y)
+                ?? throw new InvalidOperationException("无法创建ACS LCI点位。");
+        }
+
+        private static double GetLineSegmentLength(LineSegment segment)
+        {
+            var dx = segment.End.X - segment.Start.X;
+            var dy = segment.End.Y - segment.Start.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        private static void PublishLineCollectPoints(List<(double X, double Y)> collectPoints)
+        {
+            if (collectPoints.Count > 2)
+            {
+                collectPoints = collectPoints
+                    .Skip(1)
+                    .Take(collectPoints.Count - 2)
+                    .ToList();
+            }
+            else
+            {
+                Logs.LogWarning("轨迹点数量不足，已跳过首尾点剔除。");
+            }
+
+            PrismProvider.EventAggregator.GetEvent<OutputResultEvent>().Publish(("CollectPoints", collectPoints));
+        }
+
+        private bool SwitchPosCompare(ControlCardBase controlCard, bool change)
+        {
+            if (controlCard == null)
+                return false;
+
+            var posComparisonParam = PosComparisonParam ?? new PosComparisonOutputParam();
+            var success = controlCard.ControlPosComparison(change, new PosComparisonOutputParam
+            {
+                psoIndex = posComparisonParam.psoIndex,
+                compareMode = posComparisonParam.compareMode,
+                compareDimension = posComparisonParam.compareDimension,
+                compare_X = posComparisonParam.compare_X,
+                compare_Y = posComparisonParam.compare_Y,
+                comparePulseWidth = posComparisonParam.comparePulseWidth,
+                compareOutputMode = posComparisonParam.compareOutputMode,
+                sourceMode = posComparisonParam.sourceMode,
+                compareErrBand = posComparisonParam.compareErrBand,
+                syncPos = posComparisonParam.syncPos,
+            });
+
+            if (!success)
+            {
+                Logs.LogWarning(change ? "启用位置比较异常!" : "关闭位置比较异常!");
+            }
+
+            return success;
+        }
+
+        private double NormalizeStep()
+        {
+            return SensorInterval > 0 ? SensorInterval : 1;
+        }
+
+        private static bool IsValidCalibrationWaferPosition(CalibrationWaferPosition? position)
+        {
+            return position != null &&
+                   double.IsFinite(position.X) &&
+                   double.IsFinite(position.Y);
+        }
+
+        private void ValidateExecution()
+        {
+            if (SensorInterval <= 0)
+            {
+                throw new InvalidOperationException("采样间距必须大于 0。");
+            }
+
+            if (WaferTrajectoryMotionHelper.BuildOrderedLineSegments(AllLocusInfo).Count == 0)
+            {
+                throw new InvalidOperationException("请先配置至少一条有效轨迹。");
+            }
+
+            if (CreateTrajectoryModel.IsPointGenerationMode)
+            {
+                _ = WaferTrajectoryMotionHelper.ConvertIoMaskToUInt16(PointOperationIoMaskHex);
+            }
+        }
+
+    }
+}

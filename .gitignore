@@ -1,0 +1,46 @@
+# Visual Studio and user-specific state
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# .NET and native build outputs
+**/bin/
+**/obj/
+**/obj-*/
+**/.codex_obj/
+**/x64/
+**/Debug/
+**/Release/
+OutputExe/
+Core/OutputExedebug/
+
+# Restored and locally installed dependencies
+packages/
+thirdparty/
+
+# Build logs, caches, and temporary files
+*.log
+*.tlog
+*.cache
+*.ilk
+*.iobj
+*.ipdb
+*.obj
+*.pch
+*.pdb
+*.tmp
+*.bak
+*.mine
+*~
+
+# Local archives and generated packages
+*.rar
+*.7z
+*.nupkg
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

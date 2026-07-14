@@ -1,0 +1,349 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!--#region Common -->
+    <system:String x:Key="OK">OK</system:String>
+    <system:String x:Key="Cancel">Cancel</system:String>
+    <system:String x:Key="New">New</system:String>
+    <system:String x:Key="Open">Open</system:String>
+    <system:String x:Key="Save">Save</system:String>
+    <system:String x:Key="SaveAs">Save As</system:String>
+    <system:String x:Key="Close">Close</system:String>
+    <system:String x:Key="Edit">Edit</system:String>
+    <system:String x:Key="Title">ReeYin-V</system:String>
+    <system:String x:Key="Exit">Exit</system:String>
+    <system:String x:Key="Versions">Version</system:String>
+    <system:String x:Key="Image">Image</system:String>
+    <system:String x:Key="Module">Module</system:String>
+    <system:String x:Key="SerialNumber">Serial No.</system:String>
+    <system:String x:Key="Others">Others</system:String>
+    <system:String x:Key="Delete">Delete</system:String>
+    <system:String x:Key="settings">Settings</system:String>
+    <system:String x:Key="NoTranslation">No Translation</system:String>
+    <system:String x:Key="Operation">Operation</system:String>
+    <system:String x:Key="Status">Status</system:String>
+    <system:String x:Key="Describe">Description</system:String>
+    <system:String x:Key="Error">Error</system:String>
+    <system:String x:Key="Confirm">Confirm</system:String>
+    <system:String x:Key="FilePath">File Path</system:String>
+    <system:String x:Key="LastModified">Last Modified</system:String>
+    <system:String x:Key="UniqueIdentifier">Unique ID</system:String>
+    <system:String x:Key="BrowseEllipsis">Browse...</system:String>
+    <system:String x:Key="SelectFolder">Select Folder</system:String>
+    <system:String x:Key="DateUpdated">Last Updated</system:String>
+    <system:String x:Key="ResetToDefault">Reset to Default</system:String>
+    <system:String x:Key="Location">Location</system:String>
+    <system:String x:Key="Size">Size</system:String>
+    <system:String x:Key="Zoom">Zoom</system:String>
+    <system:String x:Key="FPS">FPS</system:String>
+    <system:String x:Key="From">From</system:String>
+    <system:String x:Key="To">To</system:String>
+    <!--#endregion-->
+
+    <!--#region Application -->
+    <system:String x:Key="HistoricalOutcome">History</system:String>
+    <system:String x:Key="WelcomeToLogin">Welcome</system:String>
+    <system:String x:Key="PleaseSelectAUser">Please select a user (double-click to type)</system:String>
+    <system:String x:Key="EnterYourPIN">Please enter your password</system:String>
+    <system:String x:Key="PleaseTapYourCard">Please tap your card</system:String>
+    <system:String x:Key="ExecutionNumber">Execution No.</system:String>
+    <system:String x:Key="ModuleResults">Module Results</system:String>
+    <system:String x:Key="ExecutionTime">Execution Time</system:String>
+    <system:String x:Key="Resultdata">Result Data</system:String>
+    <system:String x:Key="CurrentModuleResults">Current Module Results</system:String>
+    <system:String x:Key="ResultInformation">Result Information</system:String>
+    <system:String x:Key="Resultvalues">Result Values</system:String>
+    <system:String x:Key="CommunicationConnection">Communication Connection</system:String>
+    <system:String x:Key="Newplan">New Plan</system:String>
+    <system:String x:Key="PhotoTakingpage">Image Capture Page</system:String>
+    <system:String x:Key="ListOfPlans">Plan List</system:String>
+    <system:String x:Key="MenuManagementPage">Menu Management</system:String>
+    <system:String x:Key="SavedSuccessfully">Saved successfully!</system:String>
+    <system:String x:Key="RapidMode">Rapid Mode</system:String>
+    <system:String x:Key="RunOnce">Run Once</system:String>
+    <system:String x:Key="LoopingOperation">Loop Run</system:String>
+    <system:String x:Key="Stop">Stop</system:String>
+    <system:String x:Key="GlobalVariable">Global Variables</system:String>
+    <system:String x:Key="CameraSetting">Camera Settings</system:String>
+    <system:String x:Key="CommunicationSetting">Communication Settings</system:String>
+    <system:String x:Key="HardwareConfig">Hardware Settings</system:String>
+    <system:String x:Key="CannotBeExecutedInaLoop!">Cannot be executed in a loop!</system:String>
+    <system:String x:Key="Log">Logs</system:String>
+    <system:String x:Key="Axis">Axis</system:String>
+    <system:String x:Key="HGImagePreview">Height/Grayscale Preview</system:String>
+    <system:String x:Key="SingleStepExecution">Step Run</system:String>
+    <system:String x:Key="ContinuousOperation">Continuous Run</system:String>
+    <system:String x:Key="EditingParameters">Edit Parameters</system:String>
+    <system:String x:Key="ExportParameters">Export Parameters</system:String>
+    <system:String x:Key="ImportParameters">Import Parameters</system:String>
+    <system:String x:Key="Square">Square</system:String>
+    <system:String x:Key="Triangle">Triangle</system:String>
+    <system:String x:Key="TriggerProcessRun">Trigger Process Run</system:String>
+    <system:String x:Key="Disconnect">Disconnect</system:String>
+    <system:String x:Key="Rename">Rename</system:String>
+    <system:String x:Key="CancelOperation">Cancel Run</system:String>
+    <system:String x:Key="Lock">Lock</system:String>
+    <system:String x:Key="Unlock">Unlock</system:String>
+    <system:String x:Key="Alignment">Alignment</system:String>
+    <system:String x:Key="Top">Top</system:String>
+    <system:String x:Key="Left">Left</system:String>
+    <system:String x:Key="Bottom">Bottom</system:String>
+    <system:String x:Key="Right">Right</system:String>
+    <system:String x:Key="Middle">Horizontally Center</system:String>
+    <system:String x:Key="Center">Vertically Center</system:String>
+    <system:String x:Key="SelectAll">Select All</system:String>
+    <system:String x:Key="SelectNothing">Select None</system:String>
+    <system:String x:Key="ComponentManagement">Component Management</system:String>
+    <system:String x:Key="Preview">Preview</system:String>
+    <system:String x:Key="Enable">Enable</system:String>
+    <system:String x:Key="GeneralComponentSetting">General Component Settings</system:String>
+    <system:String x:Key="CustomComponentSetting">Custom Component Settings</system:String>
+    <system:String x:Key="BasicSetting">Basic Settings</system:String>
+    <system:String x:Key="SortingID:">Sort ID:</system:String>
+    <system:String x:Key="CustomizedName">Custom Name:</system:String>
+    <system:String x:Key="OtherSetting">Other Settings</system:String>
+    <system:String x:Key="HardwareManagement">Hardware Management</system:String>
+    <system:String x:Key="HardwareStatusDisplay">Hardware Status</system:String>
+    <system:String x:Key="Name">Name</system:String>
+    <system:String x:Key="ConnectionStatus">Connection Status</system:String>
+    <system:String x:Key="WorkCondition">Working Status</system:String>
+    <system:String x:Key="Note">Notes</system:String>
+    <system:String x:Key="LanguageSettings">Language Settings</system:String>
+    <system:String x:Key="UserManagement">User Management</system:String>
+    <system:String x:Key="ModuleSwitching">Module Switching</system:String>
+    <system:String x:Key="StyleConfiguration">Style Configuration</system:String>
+    <system:String x:Key="LicenseActivation">License Activation</system:String>
+    <system:String x:Key="CurrentProject">Current project:</system:String>
+
+    <system:String x:Key="ThemeSetting">Theme Settings</system:String>
+    <system:String x:Key="ReturnMainPage">Back to Main Page</system:String>
+    <system:String x:Key="ReturnDesignPage">Back to Design Page</system:String>
+    <system:String x:Key="SwitchAnotherPage">Switch Page</system:String>
+    <system:String x:Key="InitializingAllComponents">Initializing all components...</system:String>
+    <system:String x:Key="InitializationComponentsCompleted">All components initialized!</system:String>
+    <system:String x:Key="Initialization completed">Initialization completed!!!</system:String>
+    <system:String x:Key="CloseSoftware">Close Software</system:String>
+    <system:String x:Key="PowerOff">Power Off</system:String>
+    <system:String x:Key="ConfirmOperation">Are you sure you want to perform this operation? After confirmation, the device will be powered off.</system:String>
+    <system:String x:Key="Instruction">Hint</system:String>
+    <system:String x:Key="WelcomeLogIn">Welcome</system:String>
+    <system:String x:Key="PleaseSelectTheOperationMode">Please select the operation mode!</system:String>
+    <system:String x:Key="PleaseSelectAnImage">Please select an image:</system:String>
+    <system:String x:Key="ClickToHideOrShow">Click to hide/show</system:String>
+    <system:String x:Key="SelectedNodes">Selected Nodes</system:String>
+    <system:String x:Key="SelectedConnections">Selected Connections</system:String>
+    <!--#endregion-->
+
+    <!-- Menu -->
+    <system:String x:Key="File">File</system:String>
+    <system:String x:Key="Parameter">Parameters</system:String>
+    <system:String x:Key="View">View</system:String>
+    <system:String x:Key="Tools">Tools</system:String>
+    <system:String x:Key="Help">Help</system:String>
+    <system:String x:Key="About">About</system:String>
+    <system:String x:Key="RunningMode">Run Mode</system:String>
+    <system:String x:Key="DesignMode">Design Mode</system:String>
+
+    <!-- Login page -->
+    <system:String x:Key="UserName">Username</system:String>
+    <system:String x:Key="Password">Password</system:String>
+    <system:String x:Key="RememberPassword">Remember Password</system:String>
+    <system:String x:Key="AutomaticLogin">Auto Login</system:String>
+    <system:String x:Key="Login">Login</system:String>
+    <system:String x:Key="PasswordLanding">Password Login</system:String>
+    <system:String x:Key="CardLanding">Card Login</system:String>
+    <system:String x:Key="Skip">Skip</system:String>
+
+    <!--#region Main page -->
+    <system:String x:Key="ActiveUser">Current user:</system:String>
+    <system:String x:Key="CurOperatingStatus">Current status:</system:String>
+    <!--#endregion-->
+
+    <!--#region Solution Manager -->
+    <system:String x:Key="SolutionManagerSection">Section</system:String>
+    <system:String x:Key="SolutionManagerFileMissing">File does not exist</system:String>
+    <system:String x:Key="SolutionManagerImportLegacyProject">Import Legacy Project</system:String>
+    <system:String x:Key="SolutionManagerUnsavedChanges">● Unsaved changes</system:String>
+    <system:String x:Key="SolutionManagerProcessing">Processing...</system:String>
+    <system:String x:Key="SolutionManagerSolution">Solutions</system:String>
+    <system:String x:Key="SolutionManagerLoadedLabel">Loaded:</system:String>
+    <system:String x:Key="SolutionManagerSolutionCountSuffix"> solutions</system:String>
+    <system:String x:Key="SolutionManagerOpenSelected">Open Selected</system:String>
+    <system:String x:Key="SolutionManagerCurrentSolution">Current Solution</system:String>
+    <system:String x:Key="SolutionManagerLoaded">Loaded</system:String>
+    <system:String x:Key="SolutionManagerOperationInstructions">Instructions</system:String>
+    <system:String x:Key="SolutionManagerInstructionOpenByDoubleClick">• Double-click an item in the left list to open the corresponding solution</system:String>
+    <system:String x:Key="SolutionManagerInstructionSwitchSolution">• When switching solutions, the current solution is fully released first, including hardware resources, then the new solution is loaded</system:String>
+    <system:String x:Key="SolutionManagerInstructionSaveAs">• Use "Save As" to copy the current configuration to a new solution</system:String>
+    <system:String x:Key="SolutionManagerInstructionPortableFile">• Solution files (.rysl) can be moved between machines and restore all configuration after loading</system:String>
+    <system:String x:Key="SolutionManagerInstructionRecentLimit">• Up to 20 recent records are kept; older records are cleaned automatically</system:String>
+    <system:String x:Key="SolutionManagerNewSolution">New Solution</system:String>
+    <system:String x:Key="SolutionManagerSolutionNameRequired">Solution Name  *</system:String>
+    <system:String x:Key="SolutionManagerDescriptionOptional">Description (optional)</system:String>
+    <system:String x:Key="SolutionManagerSavePathRequired">Save Path  *</system:String>
+    <system:String x:Key="SolutionManagerNewSnapshotTip">When creating a new solution, all current configuration is packaged automatically as the initial snapshot and can be saved later.</system:String>
+    <system:String x:Key="SolutionManagerCreateSolution">Create Solution</system:String>
+    <system:String x:Key="SolutionManagerCurrentLabel">Current:</system:String>
+    <system:String x:Key="SolutionManagerModifiedLabel">Modified:</system:String>
+    <!--#endregion-->
+
+    <!--#region Recipe Manager -->
+    <system:String x:Key="RecipeManagerNewRecipe">New Recipe</system:String>
+    <system:String x:Key="RecipeManagerDuplicateRecipe">Duplicate Recipe</system:String>
+    <system:String x:Key="RecipeManagerDeleteRecipe">Delete Recipe</system:String>
+    <system:String x:Key="RecipeManagerSetAsCurrent">Set as Current</system:String>
+    <system:String x:Key="RecipeManagerReload">Reload</system:String>
+    <system:String x:Key="RecipeManagerCurrentRecipeLabel">Current Recipe:</system:String>
+    <system:String x:Key="RecipeManagerRecipeList">Recipe List</system:String>
+    <system:String x:Key="RecipeManagerActiveRecipeLabel">Active Recipe</system:String>
+    <system:String x:Key="RecipeManagerCategoryLabel">Category:</system:String>
+    <system:String x:Key="RecipeManagerCurrentTag">Current</system:String>
+    <system:String x:Key="RecipeManagerSidebarHint">Select a recipe to view and edit its basic information here.</system:String>
+    <system:String x:Key="RecipeManagerBasicInfo">Basic Info</system:String>
+    <system:String x:Key="RecipeManagerRecipeName">Recipe Name</system:String>
+    <system:String x:Key="RecipeManagerCategory">Category</system:String>
+    <system:String x:Key="RecipeManagerAuthor">Author</system:String>
+    <system:String x:Key="RecipeManagerDescription">Description</system:String>
+    <system:String x:Key="RecipeManagerCurrentActiveTag">Active</system:String>
+    <system:String x:Key="RecipeManagerUpdatedLabel">Updated:</system:String>
+    <system:String x:Key="RecipeManagerSelectRecipeTitle">Select a Recipe</system:String>
+    <system:String x:Key="RecipeManagerSelectRecipeHint">The parameter details of the selected recipe are shown on the right.</system:String>
+    <system:String x:Key="RecipeManagerParameterCountSuffix">parameters</system:String>
+    <system:String x:Key="RecipeManagerRecipeDescription">Recipe Description</system:String>
+    <system:String x:Key="RecipeManagerEnableThisRecipe">Enable this recipe</system:String>
+    <system:String x:Key="RecipeManagerCreatedTimeLabel">Created:</system:String>
+    <system:String x:Key="RecipeManagerUpdatedTimeLabel">Updated:</system:String>
+    <system:String x:Key="RecipeManagerLastModifiedByLabel">Last modified by:</system:String>
+    <system:String x:Key="RecipeManagerParametersTitle">Recipe Parameters</system:String>
+    <system:String x:Key="RecipeManagerCurrentEditingLabel">Editing:</system:String>
+    <system:String x:Key="RecipeManagerNodeGroupCountSuffix">node groups</system:String>
+    <system:String x:Key="RecipeManagerNodeGroups">Node Groups</system:String>
+    <system:String x:Key="RecipeManagerNodeLabel">Node</system:String>
+    <system:String x:Key="RecipeManagerSelectNodeGroupHint">Select a node group on the left to view parameters.</system:String>
+    <system:String x:Key="RecipeManagerCurrentValue">Current Value</system:String>
+    <system:String x:Key="RecipeManagerStorageScopeLabel">Storage Location:</system:String>
+    <system:String x:Key="RecipeManagerUnsavedChangesLabel">Unsaved Changes:</system:String>
+    <system:String x:Key="RecipeManagerProcessing">Processing recipe...</system:String>
+    <!--#endregion-->
+
+    <!--#region Language settings -->
+    <system:String x:Key="LanguageInfo">Language Info</system:String>
+    <system:String x:Key="InterfacePreview">UI Preview</system:String>
+    <system:String x:Key="LanguageName">Language name:</system:String>
+    <system:String x:Key="LanguageCode">Language code:</system:String>
+    <system:String x:Key="ExternalLanguagePackage">External Language Pack</system:String>
+    <system:String x:Key="LoadLanguagePackFromAnExternalFolder">Load language pack from external folder</system:String>
+    <system:String x:Key="ScanTheLanguagePackage">Scan language packs</system:String>
+    <system:String x:Key="LoadSelectedLanguagePackage">Load selected language pack</system:String>
+    <system:String x:Key="TheDiscoveredLanguagePackage">Discovered language packs:</system:String>
+    <system:String x:Key="LanguagePackageInformation">Language Pack Info</system:String>
+    <system:String x:Key="TranslationCompletionRate">Translation completion</system:String>
+    <system:String x:Key="ApplyThisLanguage">Apply this language</system:String>
+    <system:String x:Key="RefreshTheLanguagePack">Refresh language packs</system:String>
+    <!--#endregion-->
+
+    <!--#region Style config -->
+    <system:String x:Key="StyleConfigTheme">Theme</system:String>
+    <system:String x:Key="StyleConfigRefresh">Refresh</system:String>
+    <system:String x:Key="StyleConfigOpenFile">Open File</system:String>
+    <system:String x:Key="StyleConfigReload">Reload</system:String>
+    <system:String x:Key="StyleConfigApplyPreview">Apply Preview</system:String>
+    <system:String x:Key="StyleConfigResetDefaultColors">Reset Default Colors</system:String>
+    <system:String x:Key="StyleConfigColorResources">Color Resources</system:String>
+    <system:String x:Key="StyleConfigFontSizeResources">Font Size Resources</system:String>
+    <system:String x:Key="StyleConfigColorPicker">Picker</system:String>
+    <system:String x:Key="StyleConfigColorPreview">Color Preview</system:String>
+    <system:String x:Key="StyleConfigResourceKey">Key</system:String>
+    <system:String x:Key="StyleConfigValue">Value</system:String>
+    <system:String x:Key="StyleConfigPreviewDescription">The preview uses current app resources for PrimaryBrush, TextBrush, MainBackgroundBrush, and font sizes.</system:String>
+    <system:String x:Key="StyleConfigSampleButton">Sample Button</system:String>
+    <system:String x:Key="StyleConfigUnsavedChangesLabel">Unsaved changes: </system:String>
+    <system:String x:Key="StyleConfigNoThemeToReset">No theme colors can be reset.</system:String>
+    <system:String x:Key="StyleConfigResetDefaultColorsConfirm">Reset colors to defaults? Click "Save" afterward to write the restored colors back to the theme file.</system:String>
+    <system:String x:Key="StyleConfigNoDefaultColorsToRestore">The current colors are already using defaults.</system:String>
+    <system:String x:Key="StyleConfigDefaultColorsRestoredStatus">Restored {0} colors. Click Save to write them back to the theme file.</system:String>
+    <system:String x:Key="StyleConfigResetDefaultColorsFailed">Failed to reset default colors: {0}</system:String>
+    <system:String x:Key="StyleResourceDescriptionPrimaryColor">Primary color</system:String>
+    <system:String x:Key="StyleResourceDescriptionTitleBarColor">Title bar color</system:String>
+    <system:String x:Key="StyleResourceDescriptionDarkPrimaryColor">Dark primary color</system:String>
+    <system:String x:Key="StyleResourceDescriptionSecondaryColor">Secondary color</system:String>
+    <system:String x:Key="StyleResourceDescriptionColorYellowish">Yellow border/accent color</system:String>
+    <system:String x:Key="StyleResourceDescriptionTitleForegroundColor">Title text color</system:String>
+    <system:String x:Key="StyleResourceDescriptionTextColor">Body text color</system:String>
+    <system:String x:Key="StyleResourceDescriptionMainTopTextBlockColor">Top text color</system:String>
+    <system:String x:Key="StyleResourceDescriptionMainPrimaryTextColor">Main area text color</system:String>
+    <system:String x:Key="StyleResourceDescriptionMainPrimaryTextIconColor">Main area icon/text color</system:String>
+    <system:String x:Key="StyleResourceDescriptionBackgroudColor">Base background color</system:String>
+    <system:String x:Key="StyleResourceDescriptionMainBackgroundColor">Main background color</system:String>
+    <system:String x:Key="StyleResourceDescriptionRegionBackgroundColor">Region background color</system:String>
+    <system:String x:Key="StyleResourceDescriptionMenuBackgroundColor">Menu background color</system:String>
+    <system:String x:Key="StyleResourceDescriptionExpanderHeaderBackgroundColor">Expander header background</system:String>
+    <system:String x:Key="StyleResourceDescriptionExpanderPanelBackgroundColor">Expander panel background</system:String>
+    <system:String x:Key="StyleResourceDescriptionMainBorderColor">Main border color</system:String>
+    <system:String x:Key="StyleResourceDescriptionChartBorderColor">Chart border color</system:String>
+    <system:String x:Key="StyleResourceDescriptionRegionSideColor">Region divider color</system:String>
+    <system:String x:Key="StyleResourceDescriptionHoverColor">Hover color</system:String>
+    <system:String x:Key="StyleResourceDescriptionSplitColor">Splitter color</system:String>
+    <system:String x:Key="StyleResourceDescriptionSelectedColor">Selected color</system:String>
+    <system:String x:Key="StyleResourceDescriptionHeaderFontSize">Header font size</system:String>
+    <system:String x:Key="StyleResourceDescriptionTitleFontSize">Title font size</system:String>
+    <system:String x:Key="StyleResourceDescriptionSubTitleFontSize">Subtitle font size</system:String>
+    <system:String x:Key="StyleResourceDescriptionDefaultFontSize">Default font size</system:String>
+    <system:String x:Key="StyleResourceDescriptionSmallFontSize">Small font size</system:String>
+    <system:String x:Key="StyleResourceDescriptionIconFontSize">Icon font size</system:String>
+    <!--#endregion-->
+
+    <!-- Module components -->
+    <system:String x:Key="Unnamed">Unnamed</system:String>
+    <system:String x:Key="Other">Other</system:String>
+
+    <system:String x:Key="00.DataCollection">00. Data Collection</system:String>
+    <system:String x:Key="TakeAPicture">Capture Image</system:String>
+    <system:String x:Key="ConsecutiveCollection">Continuous Capture</system:String>
+
+    <system:String x:Key="01.LogicModule">01. Logic Module</system:String>
+    <system:String x:Key="ConditionalBranching">Conditional Branch</system:String>
+    <system:String x:Key="BranchRouter">Branch Router</system:String>
+    <system:String x:Key="End">End</system:String>
+    <system:String x:Key="GeneralOutput">General Output</system:String>
+    <system:String x:Key="StartTheCycle">Start Cycle</system:String>
+    <system:String x:Key="EndTheCycle">End Cycle</system:String>
+    <system:String x:Key="Listen/Start">Listen / Start</system:String>
+    <system:String x:Key="ScriptModule">Script Module</system:String>
+
+    <system:String x:Key="02.AlgorithmicTool">02. Algorithm Tools</system:String>
+    <system:String x:Key="CamCalib">Camera Calibration</system:String>
+    <system:String x:Key="ObtainTheArea">Get Region</system:String>
+    <system:String x:Key="ModelInference">Model Inference</system:String>
+    <system:String x:Key="DistanceBetweenLines">Line-to-Line Distance</system:String>
+    <system:String x:Key="Point-LineDistance">Point-to-Line Distance</system:String>
+    <system:String x:Key="DistanceInDots">Point-to-Point Distance</system:String>
+    <system:String x:Key="FilteringArea">Filter Region</system:String>
+    <system:String x:Key="ScanAndRecognize">Scan &amp; Recognize</system:String>
+    <system:String x:Key="ImageProcessing">Image Processing</system:String>
+    <system:String x:Key="PhotoPretreatment">Image Preprocessing</system:String>
+    <system:String x:Key="CircularMeasurement">Circle Measurement</system:String>
+    <system:String x:Key="LinearMeasurement">Line Measurement</system:String>
+    <system:String x:Key="RectangularMeasurement">Rectangle Measurement</system:String>
+    <system:String x:Key="N-PointCalibration">N-Point Calibration</system:String>
+    <system:String x:Key="RegionalProcessing">Region Processing</system:String>
+    <system:String x:Key="ZoneTransfer">Region Convert</system:String>
+    <system:String x:Key="ShapeMatching">Shape Matching</system:String>
+
+    <system:String x:Key="03.FileDandling">03. File Handling</system:String>
+    <system:String x:Key="SaveImage">Save Image</system:String>
+
+    <system:String x:Key="04.Hardware">04. Hardware</system:String>
+    <system:String x:Key="PLCOperation">PLC Operation</system:String>
+    <system:String x:Key="MotionModule">Motion Module</system:String>
+
+    <system:String x:Key="97.WaferMeasurement">97. Wafer Measurement</system:String>
+    <system:String x:Key="WaferPathPlanning">Wafer Path Planning</system:String>
+
+    <system:String x:Key="99.GrooveDetection">99. Groove Detection</system:String>
+    <system:String x:Key="OtherCollection">Other Acquisition</system:String>
+
+    <!--#region Others -->
+    <!--#endregion-->
+</ResourceDictionary>

@@ -1,0 +1,298 @@
+﻿<UserControl x:Class="ReeYin_V.Main.Views.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.Main.Views"
+             xmlns:services="clr-namespace:ReeYin_V.Main.Services"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             d:DesignHeight="1071" d:DesignWidth="1920">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <DrawingBrush x:Key="CriticalSafetyStripeBrush"
+                      TileMode="Tile"
+                      Viewport="0,0,56,56"
+                      ViewportUnits="Absolute">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#F20D0F13" Geometry="M0,0 L56,0 L56,56 L0,56Z" />
+                    <GeometryDrawing Brush="#D9FFD02E" Geometry="M0,0 L18,0 L56,38 L56,56Z" />
+                    <GeometryDrawing Brush="#D9FFD02E" Geometry="M0,38 L18,56 L0,56Z" />
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <DockPanel  Height="59" Background="{DynamicResource TitleBarBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+            </Grid>
+            <!--图标-->
+            <!--<Image Source="{DynamicResource Icon_MainLogo}" Grid.Column="0" Opacity="1" Height="30" Width="180" VerticalAlignment="Center" />-->
+
+            <!--ItemsControl 用于显示导航按钮-->
+            <ItemsControl ItemsSource="{Binding MainBtnList}" Grid.Column="2">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" Margin="1"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <GridSplitter Background="{StaticResource SplitBrush}" Height="50" Width="2"/>
+                            <Button Content="{Binding Icon}" Style="{StaticResource NavOperateButtonStyle}" ToolTip="{Binding Name}" 
+                                Command="{Binding ExecuteEventCommand}" CommandParameter="{Binding}" IsEnabled="{Binding IsEnabled}" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <GridSplitter Background="{StaticResource SplitBrush}" Height="50" Width="2" Grid.Column="3"/>
+
+            <!--ItemsControl 用于显示运行相关按钮-->
+            <StackPanel Orientation="Horizontal" Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <ItemsControl ItemsSource="{Binding RunBtnList}" >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" Margin="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <GridSplitter Background="{StaticResource SplitBrush}" Height="50" Width="2"/>
+                                <Button Content="{Binding Icon}" Style="{StaticResource NavOperateButtonStyle}" ToolTip="{Binding Name}" 
+                                Command="{Binding ExecuteEventCommand}" CommandParameter="{Binding}" IsEnabled="{Binding IsEnabled}">
+    
+                                </Button>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                <GridSplitter Background="{StaticResource SplitBrush}" Height="50" Width="2" Margin=" 0,0,0,0"/>
+
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin=" 10,0,0,0" MinWidth="60">
+                    <Run Text="{DynamicResource ActiveUser}"/>
+                    <LineBreak/>
+                    <Run Text="{Binding CurUser.UserName,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
+                </TextBlock>
+
+                <GridSplitter Background="{StaticResource SplitBrush}" Height="50" Width="2" Margin=" 0,0,0,0"/>
+
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin=" 10,0,0,0" MinWidth="60">
+                    <Run Text="{DynamicResource CurOperatingStatus}"/>
+                    <LineBreak/>
+                    <Run Text="{Binding CurStatus,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
+                </TextBlock>
+            </StackPanel>
+
+
+        </DockPanel>
+        <Grid Grid.Row="1">
+            <ContentControl prism:RegionManager.RegionName="{x:Static share:RegionNames.PrimaryRegion}"/>
+        </Grid>
+        <StackPanel x:Name="AlarmGlobalGrowlHost"
+                    Grid.RowSpan="2"
+                    Width="380"
+                    MaxWidth="420"
+                    Margin="0,18,22,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Panel.ZIndex="200"
+                    hc:Growl.Token="{x:Static services:AlarmNotificationService.GlobalGrowlToken}" />
+        <Grid x:Name="CriticalAlarmOverlay"
+              Grid.RowSpan="2"
+              Panel.ZIndex="500"
+              Visibility="{Binding AlarmNotifications.IsCriticalOverlayVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Background" Value="#F0A00512" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding AlarmNotifications.CriticalOverlayIsSafetyStyle}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource CriticalSafetyStripeBrush}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
+            <Border Background="#66000000" />
+
+            <Border Width="940"
+                    MaxWidth="1120"
+                    Padding="48,40"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    CornerRadius="34"
+                    BorderThickness="7">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#E65C000A" />
+                        <Setter Property="BorderBrush" Value="#FFFF5A5A" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AlarmNotifications.CriticalOverlayIsSafetyStyle}" Value="True">
+                                <Setter Property="Background" Value="#F0720308" />
+                                <Setter Property="BorderBrush" Value="#FFFFD947" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding AlarmNotifications.CriticalOverlayHeader}"
+                               HorizontalAlignment="Center"
+                               FontSize="76"
+                               FontWeight="Black"
+                               Foreground="#FFFFF0F0"
+                               TextAlignment="Center" />
+
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding AlarmNotifications.CriticalOverlayTitle}"
+                               Margin="0,6,0,12"
+                               HorizontalAlignment="Center"
+                               FontSize="88"
+                               FontWeight="Black"
+                               Foreground="White"
+                               TextAlignment="Center" />
+
+                    <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding AlarmNotifications.CriticalOverlayCode}"
+                                   HorizontalAlignment="Center"
+                                   FontSize="34"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   TextAlignment="Center" />
+                        <TextBlock Text="{Binding AlarmNotifications.CriticalOverlayName}"
+                                   Margin="0,8,0,0"
+                                   HorizontalAlignment="Center"
+                                   FontSize="30"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap" />
+                        <StackPanel Margin="0,16,0,0"
+                                    HorizontalAlignment="Center"
+                                    Orientation="Horizontal">
+                            <TextBlock Text="{Binding AlarmNotifications.CriticalOverlaySourceLocation}"
+                                       FontSize="26"
+                                       Foreground="#FFFFD9D9"
+                                       TextAlignment="Center" />
+                            <TextBlock Text="    "
+                                       FontSize="26" />
+                            <TextBlock Text="{Binding AlarmNotifications.CriticalOverlayOccurrenceText}"
+                                       FontSize="26"
+                                       Foreground="#FFFFD9D9"
+                                       TextAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="3"
+                               Text="{Binding AlarmNotifications.CriticalOverlayMessage}"
+                               Margin="0,32,0,0"
+                               HorizontalAlignment="Center"
+                               FontSize="32"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap" />
+
+                    <Button Grid.Row="4"
+                            Width="260"
+                            Height="64"
+                            Margin="0,38,0,0"
+                            HorizontalAlignment="Center"
+                            Command="{Binding AlarmNotifications.ConfirmCriticalAlarmCommand}"
+                            Content="{Binding AlarmNotifications.CriticalOverlayActionText}"
+                            FontSize="28"
+                            FontWeight="Bold">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="White" />
+                                <Setter Property="Foreground" Value="#FF8F000B" />
+                                <Setter Property="BorderBrush" Value="White" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Cursor" Value="Hand" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AlarmNotifications.CriticalOverlayIsSafetyStyle}" Value="True">
+                                        <Setter Property="Background" Value="#FFFFD02E" />
+                                        <Setter Property="Foreground" Value="#FF151515" />
+                                        <Setter Property="BorderBrush" Value="#FFFFD02E" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+        <Grid x:Name="ControlCardResetOverlay"
+              Grid.RowSpan="2"
+              Panel.ZIndex="1000"
+              IsHitTestVisible="True"
+              Background="#AA000000"
+              Visibility="{Binding IsControlCardResetOverlayVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Width="520"
+                    Padding="42,36"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    CornerRadius="24"
+                    Background="#F5FFFFFF"
+                    BorderBrush="#FFFFFFFF"
+                    BorderThickness="1">
+                <StackPanel HorizontalAlignment="Center">
+                    <ProgressBar Height="8"
+                                 Width="320"
+                                 IsIndeterminate="True"
+                                 Foreground="#2196F3"
+                                 Margin="0,0,0,26" />
+                    <TextBlock Text="复位中，不允许操作"
+                               HorizontalAlignment="Center"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               Foreground="#222222"
+                               TextAlignment="Center" />
+                    <TextBlock Text="{Binding ControlCardResetOverlayMessage}"
+                               Margin="0,18,0,0"
+                               HorizontalAlignment="Center"
+                               FontSize="18"
+                               Foreground="#666666"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+
+</UserControl>

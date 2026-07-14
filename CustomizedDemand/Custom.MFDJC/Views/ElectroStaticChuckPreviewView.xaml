@@ -1,0 +1,108 @@
+<UserControl x:Class="Custom.MFDJC.Views.ElectroStaticChuckPreviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:Chart="clr-namespace:ReeYin_V.UI.UserControls.GrayAndHeightChart;assembly=ReeYin_V.UI"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="720"
+             d:DesignWidth="1280"
+             FontSize="14">
+    <Grid Margin="12" Background="{DynamicResource RegionBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Padding="10"
+                BorderBrush="{DynamicResource SplitBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Background="{DynamicResource RegionBackgroundBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Width="96"
+                        Height="34"
+                        Content="加载图片"
+                        Command="{Binding LoadImagesCommand}"
+                        IsEnabled="{Binding IsNotLoading}"
+                        Style="{StaticResource GeneralButtonStyle}"
+                        Cursor="Hand" />
+
+                <TextBox Grid.Column="1"
+                         Margin="12,0"
+                         Height="32"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Column="2"
+                           MinWidth="220"
+                           VerticalAlignment="Center"
+                           TextAlignment="Right"
+                           Text="{Binding LoadStatus}"
+                           Foreground="{DynamicResource SelectedBrush}" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    BorderBrush="{DynamicResource SplitBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Background="{DynamicResource RegionBackgroundBrush}"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="34" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Margin="12,0"
+                               VerticalAlignment="Center"
+                               Text="深度图"
+                               FontWeight="SemiBold" />
+                    <Chart:GrayAndHeightChartView Grid.Row="1"
+                                                  Margin="4"
+                                                  DisplayResult="{Binding DepthDisplayResult}" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2"
+                    BorderBrush="{DynamicResource SplitBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Background="{DynamicResource RegionBackgroundBrush}"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="34" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Margin="12,0"
+                               VerticalAlignment="Center"
+                               Text="平面图"
+                               FontWeight="SemiBold" />
+                    <Controls:ImageEditView Grid.Row="1"
+                                            Margin="4"
+                                            Image="{Binding PlaneImage}"
+                                            IsStatusBarVisible="True"
+                                            IsCrossVisible="True" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

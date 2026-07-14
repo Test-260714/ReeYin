@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\boards\calibration_board_calib_factory.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\charuco\charuco_calib.cpp" />
+    <ClCompile Include="src\chessboard\chessboard_calib.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\import_lib.cpp" />
+    <ClCompile Include="src\interface.cpp" />
+    <ClCompile Include="src\multicam\bundle_adjuster.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\multicam\common_plane_projector.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\multicam\fused_plane_grid_model.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\multicam\multi_camera_calib.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\multicam\multi_camera_stitcher.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\multicam\observation_graph.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\multicam\reference_camera_canvas.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\boards\calibration_board_calib.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\boards\calibration_board_calib_factory.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\charuco\charuco_calib.h" />
+    <ClInclude Include="src\chessboard\chessboard_calib.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\framework.h" />
+    <ClInclude Include="src\interface.h" />
+    <ClInclude Include="src\multicam\bundle_adjuster.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\common_plane_projector.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\fused_plane_grid_model.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\multi_camera_calib.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\multi_camera_stitcher.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\multi_camera_types.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\observation_graph.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\multicam\reference_camera_canvas.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="src\pch.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{d74c5c3a-346f-4330-9059-7ba619ffa2e3}</ProjectGuid>
+    <RootNamespace>Calibration</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>ALGO.CalibrationNative</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)thirdparty\opencv481\include;$(SolutionDir)thirdparty\ceres-solver\include;$(SolutionDir)thirdparty\ceres-solver\include\ceres\internal\miniglog;$(SolutionDir)thirdparty\Eigen\Eigen3\include\eigen3;$(ProjectDir)src;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)thirdparty\opencv481\staticlib;$(SolutionDir)thirdparty\ceres-solver\staticlib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)..\..\OutputExe\$(Configuration)\net8.0-windows\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)thirdparty\opencv481\include;$(SolutionDir)thirdparty\ceres-solver\include;$(SolutionDir)thirdparty\ceres-solver\include\ceres\internal\miniglog;$(SolutionDir)thirdparty\Eigen\Eigen3\include\eigen3;$(ProjectDir)src;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)thirdparty\opencv481\staticlib;$(SolutionDir)thirdparty\ceres-solver\staticlib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)..\..\OutputExe\$(Configuration)\net8.0-windows\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CALIBRATION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CALIBRATION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;CALIBRATION_EXPORTS;CERES_STATIC_DEFINE;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <OutputFile>$(ProjectDir)..\..\OutputExe\$(Configuration)\net8.0-windows\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;CALIBRATION_EXPORTS;CERES_STATIC_DEFINE;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <OutputFile>$(ProjectDir)..\..\OutputExe\$(Configuration)\net8.0-windows\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyOpenCvRuntime" AfterTargets="Build" Condition="'$(Platform)'=='x64'">
+    <Copy SourceFiles="$(ProjectDir)..\..\thirdparty\opencv481\x64\vc16\bin\opencv_world481d.dll" DestinationFolder="$(OutDir)" Condition="'$(Configuration)'=='Debug' and Exists('$(ProjectDir)..\..\thirdparty\opencv481\x64\vc16\bin\opencv_world481d.dll')" />
+    <Copy SourceFiles="$(ProjectDir)..\..\thirdparty\opencv481\x64\vc16\bin\opencv_world481.dll" DestinationFolder="$(OutDir)" Condition="'$(Configuration)'=='Release' and Exists('$(ProjectDir)..\..\thirdparty\opencv481\x64\vc16\bin\opencv_world481.dll')" />
+  </Target>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

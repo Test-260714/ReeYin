@@ -1,0 +1,19 @@
+<UserControl x:Class="ReeYin.RootManager.Views.HardwareManageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" Background="Transparent"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="640" d:DesignWidth="980">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="&#xe7b2;" FontFamily="{StaticResource Iconfont}" FontSize="72"
+                   Foreground="{DynamicResource BorderBrush}" HorizontalAlignment="Center"/>
+        <TextBlock Text="硬件管理" FontSize="20" FontWeight="Medium"
+                   HorizontalAlignment="Center" Margin="0,16,0,6"/>
+        <TextBlock Text="功能开发中..." FontSize="14"
+                   Foreground="{DynamicResource SecondaryTextBrush}"
+                   HorizontalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

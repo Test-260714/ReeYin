@@ -1,0 +1,309 @@
+<UserControl x:Class="ReeYin.Hardware.LightController.CST.CustomUI.Views.CSTLightControllerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:prism="http://prismlibrary.com/" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="900" Height="650"
+             FontSize="14"
+             Background="#F5F5F5"
+             d:DesignHeight="550" d:DesignWidth="750">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部：连接状态栏 -->
+        <Border Grid.Row="0" Background="White" CornerRadius="6" Margin="0,0,0,12" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="连接状态：" Foreground="#666666" VerticalAlignment="Center"/>
+                    <Ellipse Width="10" Height="10" Margin="4,0,6,0" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#D32F2F"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Fill" Value="#4CAF50"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock VerticalAlignment="Center" FontWeight="Medium">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="未连接"/>
+                                <Setter Property="Foreground" Value="#D32F2F"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Text" Value="已连接"/>
+                                        <Setter Property="Foreground" Value="#4CAF50"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Content="连接" Width="70" Height="30" Margin="0,0,8,0" 
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Command="{Binding GeneralCommand}" CommandParameter="连接"/>
+                    <Button Content="断开" Width="70" Height="30" Margin="0,0,8,0"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Command="{Binding GeneralCommand}" CommandParameter="断开"/>
+                    <Button Content="刷新" Width="70" Height="30"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Command="{Binding GeneralCommand}" CommandParameter="刷新"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 中部：主内容区 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- 左侧：参数设置 -->
+            <Border Grid.Column="0" Background="White" CornerRadius="6" Margin="0,0,12,0" Padding="16">
+                <StackPanel>
+                    <!-- 亮度控制 -->
+                    <TextBlock Text="亮度控制" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,12"/>
+                    <StackPanel Margin="0,0,0,8">
+                        <TextBlock Text="全局亮度" Foreground="#666666" Margin="0,0,0,4"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="0" Maximum="255" Value="{Binding GlobalBrightness}" 
+                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding GlobalBrightness}" Height="28" 
+                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Button Content="全部应用" Width="58" Height="26" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}"
+                                Command="{Binding GeneralCommand}" CommandParameter="全部应用"/>
+                        <Button Content="全开" Width="45" Height="26" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}"
+                                Command="{Binding GeneralCommand}" CommandParameter="全部打开"/>
+                        <Button Content="全关" Width="45" Height="26" Style="{StaticResource GeneralButtonStyle}"
+                                Command="{Binding GeneralCommand}" CommandParameter="全部关闭"/>
+                    </StackPanel>
+                    
+                    <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,16"/>
+                    
+                    <!-- 触发模式 - 仅高级控制器支持 -->
+                    <StackPanel Visibility="{Binding SupportsTriggerMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="触发模式" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,12"/>
+                        <ComboBox Height="30" SelectedIndex="{Binding TriggerMode}" Margin="0,0,0,8" IsEnabled="{Binding SupportsTriggerMode}">
+                            <ComboBoxItem Content="常亮模式"/>
+                            <ComboBoxItem Content="外触发模式"/>
+                            <ComboBoxItem Content="内触发模式"/>
+                        </ComboBox>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <Button Content="设置" Width="70" Height="26" Margin="0,0,8,0" Style="{StaticResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="设置触发" IsEnabled="{Binding SupportsTriggerMode}"/>
+                            <Button Content="读取" Width="70" Height="26" Style="{StaticResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="读取触发" IsEnabled="{Binding SupportsTriggerMode}"/>
+                        </StackPanel>
+                        
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,16"/>
+                        
+                        <!-- 频闪设置 -->
+                        <TextBlock Text="频闪设置" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,12"/>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="频闪时间 (us)" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding GlobalStrobeTime}" Height="28" HorizontalContentAlignment="Center" IsEnabled="{Binding SupportsTriggerMode}"/>
+                        </StackPanel>
+                        <Button Content="应用到所有通道" Height="28" Style="{StaticResource GeneralButtonStyle}"
+                                Command="{Binding GeneralCommand}" CommandParameter="应用频闪" Margin="0,0,0,16" IsEnabled="{Binding SupportsTriggerMode}"/>
+                        
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,16"/>
+                        
+                        <!-- 内触发测试 -->
+                        <TextBlock Text="内触发测试" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,12"/>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="触发周期 (ms)" Foreground="#666666" Margin="0,0,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding InternalTriggerCycle}" Height="28" 
+                                         HorizontalContentAlignment="Center" Margin="0,0,8,0" IsEnabled="{Binding SupportsTriggerMode}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Content="设置" Width="40" Height="28" Margin="0,0,4,0" Style="{StaticResource GeneralButtonStyle}"
+                                            Command="{Binding GeneralCommand}" CommandParameter="设置周期" IsEnabled="{Binding SupportsTriggerMode}"/>
+                                    <Button Content="读取" Width="40" Height="28" Style="{StaticResource GeneralButtonStyle}"
+                                            Command="{Binding GeneralCommand}" CommandParameter="读取周期" IsEnabled="{Binding SupportsTriggerMode}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <!-- 不支持触发模式时显示提示 -->
+                    <Border Background="#FFF3E0" CornerRadius="4" Padding="12,10" Margin="0,0,0,16">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SupportsTriggerMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock Text="基础型控制器" FontWeight="SemiBold" Foreground="#E65100" Margin="0,0,0,4"/>
+                            <TextBlock Text="当前控制器仅支持亮度控制，不支持触发模式和频闪功能。" 
+                                       Foreground="#666666" FontSize="11" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+            
+            <!-- 右侧：通道列表 -->
+            <Border Grid.Column="1" Background="White" CornerRadius="6" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="通道控制" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,12"/>
+                    
+                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" 
+                              ItemsSource="{Binding ChannelList}"
+                              CanUserAddRows="False" IsReadOnly="False"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                              Background="Transparent" BorderThickness="0"
+                              RowHeight="40" ColumnHeaderHeight="36"
+                              HorizontalGridLinesBrush="#EEEEEE">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#FAFAFA"/>
+                                <Setter Property="Foreground" Value="#666666"/>
+                                <Setter Property="FontSize" Value="12"/>
+                                <Setter Property="Padding" Value="8,6"/>
+                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                        <Setter Property="Foreground" Value="#333333"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="CH" Binding="{Binding ChannelIndex}" Width="40" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="Medium"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="亮度" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Slider Minimum="0" Maximum="255" 
+                                                Value="{Binding Brightness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="值" Binding="{Binding Brightness}" Width="45">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="频闪" Width="60">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding StrobeTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Height="26" Width="50" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="光源延时" Width="70">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding LightDelay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Height="26" Width="55" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="相机延时" Width="70">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding CameraDelay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Height="26" Width="55" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="操作" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="设置" Width="40" Height="24" Margin="0,0,4,0" Style="{StaticResource GeneralButtonStyle}"
+                                                    Command="{Binding DataContext.SetChannelCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Content="读取" Width="40" Height="24" Style="{StaticResource GeneralButtonStyle}"
+                                                    Command="{Binding DataContext.GetChannelCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部：确定取消按钮 -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="确定" Width="80" Height="32" Margin="0,0,8,0" Style="{StaticResource GeneralButtonStyle}"
+                    Command="{Binding GeneralCommand}" CommandParameter="确定"/>
+            <Button Content="取消" Width="80" Height="32" Style="{StaticResource GeneralButtonStyle}"
+                    Command="{Binding GeneralCommand}" CommandParameter="取消"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

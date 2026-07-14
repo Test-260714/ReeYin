@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\..\Hardware\ControlCard\ReeYin_V.Hardware.ControlCard\ReeYin_V.Hardware.ControlCard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="halcondotnetxl">
+      <HintPath>..\..\..\packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DesignTimeBuild)' != 'true' and '$(SolutionDir)' != '' and '$(SolutionDir)' != '*Undefined*'">
+    <Exec Command="set SOURCE_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_DEBUG=&quot;$(SolutionDir)\OutputExe\Debug\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;set SOURCE_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_RELEASE=&quot;$(SolutionDir)\OutputExe\Release\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;IF EXIST %25SOURCE_DEBUG%25 (&#xD;&#xA;    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;)&#xD;&#xA;IF EXIST %25SOURCE_RELEASE%25 (&#xD;&#xA;    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;)" IgnoreExitCode="true" />
+  </Target>
+
+</Project>

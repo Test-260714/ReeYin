@@ -1,0 +1,436 @@
+<UserControl x:Class="LogicalTool.ParamLink.Views.ParamLinkView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:LogicalTool.ParamLink.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="14"
+             Height="620" Width="880"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="620" d:DesignWidth="880">
+
+    <UserControl.Resources>
+        <!-- 详情面板标签样式 -->
+        <Style x:Key="DetailLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0 0 5 0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- 详情面板值样式 -->
+        <Style x:Key="DetailValueStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <!-- 居中文字样式 -->
+        <Style x:Key="CenteredTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4 0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Border CornerRadius="0" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Center">
+            <TabControl Width="880" Height="610" Style="{DynamicResource TabControlStyle}"
+                        SelectedIndex="{Binding ActiveTabIndex, Mode=TwoWay}">
+
+                <!-- Tab 1: 上一节点输入 -->
+                <TabItem Header="上一节点输入" Style="{DynamicResource SingleTabItemStyle}" Width="auto">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 提示条 -->
+                        <Border Grid.Row="0" Background="#E3F2FD" CornerRadius="4" Padding="10 8" Margin="0 0 0 10">
+                            <TextBlock Text="单击查看详情，双击快速选择参数" Foreground="#1976D2" FontSize="11"/>
+                        </Border>
+
+                        <!-- DataGrid -->
+                        <DataGrid Grid.Row="1" AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}"
+                                  EnableColumnVirtualization="True"
+                                  EnableRowVirtualization="False"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  ItemsSource="{Binding ModelParam.LastNodeInputParams}"
+                                  SelectedItem="{Binding SltLastNodeInput, Mode=TwoWay}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  FontSize="12"
+                                  RowHeaderWidth="0"
+                                  SelectionUnit="FullRow"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="All"
+                                  BorderBrush="#D0D0D0"
+                                  BorderThickness="1"
+                                  LoadingRow="DataGrid_LoadingRow"
+                                  IsReadOnly="True" CanUserAddRows="False">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="DoubleClickLastNode"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" IsReadOnly="True" Width="40"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}, Mode=FindAncestor}}"/>
+                                <DataGridTextColumn Header="参数名称" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="数据类型" IsReadOnly="True" Width="100"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Type}"/>
+                                <DataGridTextColumn Header="值" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Value}"/>
+                                <DataGridTextColumn Header="备注" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Describe}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- 详情面板 -->
+                        <Border Grid.Row="2" Background="#F5F5F5" CornerRadius="4" Padding="15 10" Margin="0 10 0 0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="参数名称：" Style="{StaticResource DetailLabelStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SltLastNodeInput.Name}" Style="{StaticResource DetailValueStyle}" ToolTip="{Binding SltLastNodeInput.Name}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="数据类型：" Style="{StaticResource DetailLabelStyle}" Margin="20 0 5 0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding SltLastNodeInput.Type}" Style="{StaticResource DetailValueStyle}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="当前值：" Style="{StaticResource DetailLabelStyle}" Margin="0 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SltLastNodeInput.Value}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltLastNodeInput.Value}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="备注：" Style="{StaticResource DetailLabelStyle}" Margin="20 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding SltLastNodeInput.Describe}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltLastNodeInput.Describe}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- 底部按钮 -->
+                        <Border Grid.Row="3" Margin="0 10 0 0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="选择此参数" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="100" Height="32" FontSize="13"
+                                        Background="#2196F3" BorderBrush="#2196F3" Foreground="White"
+                                        Command="{Binding ConfirmSelectCommand}" Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 2: 全局 -->
+                <TabItem Header="全局" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 提示条 -->
+                        <Border Grid.Row="0" Background="#E3F2FD" CornerRadius="4" Padding="10 8" Margin="0 0 0 10">
+                            <TextBlock Text="单击查看详情，双击快速选择参数" Foreground="#1976D2" FontSize="11"/>
+                        </Border>
+
+                        <!-- DataGrid -->
+                        <DataGrid Grid.Row="1" AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}"
+                                  EnableColumnVirtualization="True"
+                                  EnableRowVirtualization="False"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  ItemsSource="{Binding ModelParam.GlobalParams}"
+                                  SelectedItem="{Binding SltGlobalNodeInput, Mode=TwoWay}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  FontSize="12"
+                                  RowHeaderWidth="0"
+                                  SelectionUnit="FullRow"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="All"
+                                  BorderBrush="#D0D0D0"
+                                  BorderThickness="1"
+                                  LoadingRow="DataGrid_LoadingRow"
+                                  IsReadOnly="True" CanUserAddRows="False">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="DoubleClickGlobalNode"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" IsReadOnly="True" Width="40"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}, Mode=FindAncestor}}"/>
+                                <DataGridTextColumn Header="参数名称" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="数据类型" IsReadOnly="True" Width="100"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Type}"/>
+                                <DataGridTextColumn Header="值" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Value}"/>
+                                <DataGridTextColumn Header="备注" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Describe}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- 详情面板 -->
+                        <Border Grid.Row="2" Background="#F5F5F5" CornerRadius="4" Padding="15 10" Margin="0 10 0 0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="参数名称：" Style="{StaticResource DetailLabelStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SltGlobalNodeInput.Name}" Style="{StaticResource DetailValueStyle}" ToolTip="{Binding SltGlobalNodeInput.Name}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="数据类型：" Style="{StaticResource DetailLabelStyle}" Margin="20 0 5 0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding SltGlobalNodeInput.Type}" Style="{StaticResource DetailValueStyle}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="当前值：" Style="{StaticResource DetailLabelStyle}" Margin="0 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SltGlobalNodeInput.Value}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltGlobalNodeInput.Value}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="备注：" Style="{StaticResource DetailLabelStyle}" Margin="20 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding SltGlobalNodeInput.Describe}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltGlobalNodeInput.Describe}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- 底部按钮 -->
+                        <Border Grid.Row="3" Margin="0 10 0 0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="选择此参数" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="100" Height="32" FontSize="13"
+                                        Background="#2196F3" BorderBrush="#2196F3" Foreground="White"
+                                        Command="{Binding ConfirmSelectCommand}" Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 3: 自定义全局 -->
+                <TabItem Header="自定义全局" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 提示条 -->
+                        <Border Grid.Row="0" Background="#E3F2FD" CornerRadius="4" Padding="10 8" Margin="0 0 0 10">
+                            <TextBlock Text="单击查看详情，双击快速选择参数" Foreground="#1976D2" FontSize="11"/>
+                        </Border>
+
+                        <!-- DataGrid -->
+                        <DataGrid Grid.Row="1" AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}"
+                                  EnableColumnVirtualization="True"
+                                  EnableRowVirtualization="False"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  ItemsSource="{Binding ModelParam.CustomGlobalParams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectedItem="{Binding SltCustomNodeInput, Mode=TwoWay}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  FontSize="12"
+                                  RowHeaderWidth="0"
+                                  SelectionUnit="FullRow"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="All"
+                                  BorderBrush="#D0D0D0"
+                                  BorderThickness="1"
+                                  LoadingRow="DataGrid_LoadingRow"
+                                  IsReadOnly="True" CanUserAddRows="False">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="DoubleClickCustomGlobalNode"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" IsReadOnly="True" Width="40"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}, Mode=FindAncestor}}"/>
+                                <DataGridTextColumn Header="参数名称" IsReadOnly="True" Width="150"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="数据类型" IsReadOnly="True" Width="100"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Type}"/>
+                                <DataGridTextColumn Header="值" IsReadOnly="True" Width="150"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Value}"/>
+                                <DataGridTextColumn Header="备注" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Describe}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- 详情面板 -->
+                        <Border Grid.Row="2" Background="#F5F5F5" CornerRadius="4" Padding="15 10" Margin="0 10 0 0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="参数名称：" Style="{StaticResource DetailLabelStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SltCustomNodeInput.Name}" Style="{StaticResource DetailValueStyle}" ToolTip="{Binding SltCustomNodeInput.Name}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="数据类型：" Style="{StaticResource DetailLabelStyle}" Margin="20 0 5 0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding SltCustomNodeInput.Type}" Style="{StaticResource DetailValueStyle}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="当前值：" Style="{StaticResource DetailLabelStyle}" Margin="0 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SltCustomNodeInput.Value}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltCustomNodeInput.Value}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="备注：" Style="{StaticResource DetailLabelStyle}" Margin="20 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding SltCustomNodeInput.Describe}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltCustomNodeInput.Describe}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- 底部按钮 -->
+                        <Border Grid.Row="3" Margin="0 10 0 0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="选择此参数" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="100" Height="32" FontSize="13"
+                                        Background="#2196F3" BorderBrush="#2196F3" Foreground="White"
+                                        Command="{Binding ConfirmSelectCommand}" Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 4: 其他 -->
+                <TabItem Header="其他" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 提示条 -->
+                        <Border Grid.Row="0" Background="#E3F2FD" CornerRadius="4" Padding="10 8" Margin="0 0 0 10">
+                            <TextBlock Text="单击查看详情，双击快速选择参数" Foreground="#1976D2" FontSize="11"/>
+                        </Border>
+
+                        <!-- DataGrid -->
+                        <DataGrid Grid.Row="1" AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}"
+                                  EnableColumnVirtualization="True"
+                                  EnableRowVirtualization="False"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  ItemsSource="{Binding InputParams}"
+                                  SelectedItem="{Binding SltOtherNodeInput, Mode=TwoWay}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  FontSize="12"
+                                  RowHeaderWidth="0"
+                                  SelectionUnit="FullRow"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="All"
+                                  BorderBrush="#D0D0D0"
+                                  BorderThickness="1"
+                                  LoadingRow="DataGrid_LoadingRow"
+                                  IsReadOnly="True" CanUserAddRows="False">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="DoubleClickOtherNode"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" IsReadOnly="True" Width="40"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}, Mode=FindAncestor}}"/>
+                                <DataGridTextColumn Header="参数名称" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="数据类型" IsReadOnly="True" Width="100"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Type}"/>
+                                <DataGridTextColumn Header="值" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Value}"/>
+                                <DataGridTextColumn Header="备注" IsReadOnly="True" Width="*"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                    Binding="{Binding Describe}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- 详情面板 -->
+                        <Border Grid.Row="2" Background="#F5F5F5" CornerRadius="4" Padding="15 10" Margin="0 10 0 0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="参数名称：" Style="{StaticResource DetailLabelStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SltOtherNodeInput.Name}" Style="{StaticResource DetailValueStyle}" ToolTip="{Binding SltOtherNodeInput.Name}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="数据类型：" Style="{StaticResource DetailLabelStyle}" Margin="20 0 5 0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding SltOtherNodeInput.Type}" Style="{StaticResource DetailValueStyle}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="当前值：" Style="{StaticResource DetailLabelStyle}" Margin="0 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SltOtherNodeInput.Value}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltOtherNodeInput.Value}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="备注：" Style="{StaticResource DetailLabelStyle}" Margin="20 5 5 0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding SltOtherNodeInput.Describe}" Style="{StaticResource DetailValueStyle}" Margin="0 5 0 0" ToolTip="{Binding SltOtherNodeInput.Describe}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- 底部按钮 -->
+                        <Border Grid.Row="3" Margin="0 10 0 0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="选择此参数" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="100" Height="32" FontSize="13"
+                                        Background="#2196F3" BorderBrush="#2196F3" Foreground="White"
+                                        Command="{Binding ConfirmSelectCommand}" Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+            </TabControl>
+        </Border>
+    </Grid>
+</UserControl>

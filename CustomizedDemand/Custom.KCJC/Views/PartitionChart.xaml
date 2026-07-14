@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="Custom.KCJC.Views.PartitionChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:lcusb="http://schemas.arction.com/ChartingMVVM/ultimate/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:local="clr-namespace:Custom.KCJC.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Border>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border
+				Grid.Row="0"
+				Grid.Column="0"
+				Height="50">
+                <DockPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                    <Rectangle
+						Width="5"
+						Height="20"
+						Fill="White" />
+
+                    <TextBlock
+						Margin="10,0"
+						VerticalAlignment="Center"
+						FontSize="15"
+						FontWeight="Bold"
+						Foreground="{DynamicResource MainPrimaryTextBrush}"
+						Text="图" />
+
+                    <Button Content="Reset" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="20,0" Command="{Binding GeneralCommand}" CommandParameter="重置"></Button>
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <!--  图表  -->
+                <lcusb:LightningChart Name="MeasureChart">
+                    <lcusb:LightningChart.Title>
+                        <lcusb:ChartTitle Text="" />
+                    </lcusb:LightningChart.Title>
+                    <lcusb:LightningChart.ViewXY>
+                        <lcusb:ViewXY
+							Annotations="{Binding Annotations}"
+							ConstantLines="{Binding ConstantLines}"
+							FreeformPointLineSeries="{Binding PointLineSeriesCollection}"
+							XAxes="{Binding AxisXCollection}"
+							YAxes="{Binding AxisYCollection}">
+                            <lcusb:ViewXY.AxisLayout>
+                                <lcusb:AxisLayout
+									AutoAdjustMargins="False"
+									AutoShrinkYAxesGap="True"
+									XAxisAutoPlacement="Off"
+									XAxisTitleAutoPlacement="False"
+									YAxesLayout="Stacked"
+									YAxisAutoPlacement="Off"
+									YAxisTitleAutoPlacement="False" />
+                            </lcusb:ViewXY.AxisLayout>
+                            <lcusb:ViewXY.Margins>
+                                <Thickness
+									Bottom="40"
+									Left="80"
+									Right="10"
+									Top="20" />
+                            </lcusb:ViewXY.Margins>
+                        </lcusb:ViewXY>
+                    </lcusb:LightningChart.ViewXY>
+
+                </lcusb:LightningChart>
+
+            </Grid>
+
+        </Grid>
+    </Border>
+</UserControl>

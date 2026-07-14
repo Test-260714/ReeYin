@@ -1,0 +1,607 @@
+﻿<UserControl x:Class="ReeYin.Hardware.Sensor.JueXin_LineSpectrum.CustomUI.Views.JueXinLineSpectrumSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:Chart="clr-namespace:ReeYin_V.UI.UserControls.GrayAndHeightChart;assembly=ReeYin_V.UI"
+             xmlns:lc="clr-namespace:Arction.Wpf.ChartingMVVM;assembly=Arction.Wpf.ChartingMVVM.LightningChart"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d"
+             FontSize="14"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Height="880"
+             Width="1480"
+             d:DesignHeight="800"
+             d:DesignWidth="1280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="3" />
+                <ColumnDefinition Width="0.5*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Padding="5">
+                <TabControl HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Style="{DynamicResource TabControlStyle}">
+                    <TabItem Header="参数设置" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="5">
+                                <WxGroupBox:WxGroupBox Header="连接参数" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="通信超时(ms)："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="100"
+                                                          Maximum="60000"
+                                                          Value="{Binding ModelParam.Sensor.Timeout, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="测量参数" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="采样间隔："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="1"
+                                                          Value="{Binding ModelParam.Sensor.SampleInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="积分时间："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.Sensor.IntegrationTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <CheckBox Content="启用光源"
+                                                  Margin="10"
+                                                  IsChecked="{Binding ModelParam.Sensor.LightEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="高速模式："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedIndex="{Binding ModelParam.Sensor.HighSpeedMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="x1" />
+                                            <ComboBoxItem Content="x1.5" />
+                                            <ComboBoxItem Content="x2" />
+                                            <ComboBoxItem Content="x4" />
+                                        </ComboBox>
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="弱信号阈值："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.Sensor.WeakSignalThresh, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <StackPanel Orientation="Horizontal" Margin="10">
+                                            <CheckBox Content="启用位移滤波"
+                                                      Width="150"
+                                                      VerticalAlignment="Center"
+                                                      IsChecked="{Binding ModelParam.Sensor.DistanceFilterEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <hc:NumericUpDown Width="160"
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:InfoElement.Title="宽度："
+                                                              hc:InfoElement.TitleWidth="60"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              BorderThickness="0 0 0 1"
+                                                              Foreground="Black"
+                                                              HorizontalContentAlignment="Center"
+                                                              Value="{Binding ModelParam.Sensor.DistanceFilterWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="峰值数量："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="1"
+                                                          Maximum="8"
+                                                          Value="{Binding ModelParam.Sensor.PeakCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="多峰阈值："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="1"
+                                                          Maximum="512"
+                                                          Value="{Binding ModelParam.Sensor.MultiPeakThresh, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="多峰峰间隔："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="0"
+                                                          Maximum="511"
+                                                          Value="{Binding ModelParam.Sensor.MultiPeakInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="输出峰索引："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="0"
+                                                          Maximum="7"
+                                                          Value="{Binding ModelParam.Sensor.MultiPeakIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="峰宽模式："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedIndex="{Binding ModelParam.Sensor.MultiPeakWidthMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="手动输入" />
+                                            <ComboBoxItem Content="左峰宽 x2" />
+                                            <ComboBoxItem Content="右峰宽 x2" />
+                                            <ComboBoxItem Content="自适应" />
+                                        </ComboBox>
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="多峰峰宽："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="0"
+                                                          Maximum="511"
+                                                          Value="{Binding ModelParam.Sensor.MultiPeakWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="单峰模式："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedIndex="{Binding ModelParam.Sensor.SinglePeakMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="阈值分割" />
+                                            <ComboBoxItem Content="左右取点" />
+                                        </ComboBox>
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="单侧点数："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Minimum="1"
+                                                          Maximum="100"
+                                                          Value="{Binding ModelParam.Sensor.SinglePeakHalfWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="单峰阈值："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          DecimalPlaces="3"
+                                                          Minimum="0"
+                                                          Maximum="1"
+                                                          Value="{Binding ModelParam.Sensor.SinglePeakThresh, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="光谱通道："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.Sensor.SpectrumChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="触发参数" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <CheckBox Content="启用触发"
+                                                  Margin="10"
+                                                  IsChecked="{Binding ModelParam.Sensor.TriggerEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="触发源："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedValuePath="Content"
+                                                  SelectedValue="{Binding ModelParam.Sensor.TriggerSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="Input" />
+                                            <ComboBoxItem Content="Encoder1" />
+                                            <ComboBoxItem Content="Encoder2" />
+                                        </ComboBox>
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="触发模式："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedValuePath="Content"
+                                                  SelectedValue="{Binding ModelParam.Sensor.TriggerMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="Edge" />
+                                            <ComboBoxItem Content="Level" />
+                                            <ComboBoxItem Content="Count" />
+                                            <ComboBoxItem Content="Position" />
+                                        </ComboBox>
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="触发电平："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedValuePath="Content"
+                                                  SelectedValue="{Binding ModelParam.Sensor.TriggerLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="RisingEdge" />
+                                            <ComboBoxItem Content="FallingEdge" />
+                                            <ComboBoxItem Content="High" />
+                                            <ComboBoxItem Content="Low" />
+                                        </ComboBox>
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="触发次数："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.Sensor.TriggerCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="去抖时间(us)："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          DecimalPlaces="3"
+                                                          Value="{Binding ModelParam.Sensor.TriggerDebounceTimeUs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="同步参数" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <CheckBox Content="启用同步"
+                                                  Margin="10"
+                                                  IsChecked="{Binding ModelParam.Sensor.SyncEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <CheckBox Content="从机模式"
+                                                  Margin="10"
+                                                  IsChecked="{Binding ModelParam.Sensor.SyncIsSlave, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <CheckBox Content="启用终端电阻"
+                                                  Margin="10"
+                                                  IsChecked="{Binding ModelParam.Sensor.SyncTermResEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Header="编码器参数" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <StackPanel Orientation="Horizontal" Margin="10">
+                                            <CheckBox Content="启用编码器"
+                                                      Width="150"
+                                                      VerticalAlignment="Center"
+                                                      IsChecked="{Binding ModelParam.Sensor.EncoderEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <hc:NumericUpDown Width="160"
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:InfoElement.Title="编号："
+                                                              hc:InfoElement.TitleWidth="60"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              BorderThickness="0 0 0 1"
+                                                              Foreground="Black"
+                                                              HorizontalContentAlignment="Center"
+                                                              Value="{Binding ModelParam.Sensor.EncoderId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="输入模式："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedValuePath="Content"
+                                                  SelectedValue="{Binding ModelParam.Sensor.EncoderInputMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="SinglePhase" />
+                                            <ComboBoxItem Content="DualPhase" />
+                                        </ComboBox>
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="触发方向："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedValuePath="Content"
+                                                  SelectedValue="{Binding ModelParam.Sensor.EncoderTriggerDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="Forward" />
+                                            <ComboBoxItem Content="Reverse" />
+                                            <ComboBoxItem Content="Both" />
+                                        </ComboBox>
+                                        <ComboBox Width="320"
+                                                  hc:InfoElement.TitlePlacement="Left"
+                                                  hc:InfoElement.Title="解码模式："
+                                                  hc:InfoElement.TitleWidth="120"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  BorderThickness="0 0 0 1"
+                                                  Foreground="Black"
+                                                  Margin="10"
+                                                  HorizontalContentAlignment="Center"
+                                                  SelectedValuePath="Content"
+                                                  SelectedValue="{Binding ModelParam.Sensor.EncoderDecodeMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <ComboBoxItem Content="X1" />
+                                            <ComboBoxItem Content="X2" />
+                                            <ComboBoxItem Content="X4" />
+                                        </ComboBox>
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="每次触发脉冲："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.Sensor.EncoderPulsePerTrigger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <hc:NumericUpDown Width="320"
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.Title="单脉冲长度："
+                                                          hc:InfoElement.TitleWidth="120"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          BorderThickness="0 0 0 1"
+                                                          Foreground="Black"
+                                                          Margin="10"
+                                                          HorizontalContentAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          DecimalPlaces="6"
+                                                          Value="{Binding ModelParam.Sensor.EncoderLengthPerPulse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <StackPanel Orientation="Horizontal" Margin="10">
+                                            <CheckBox Content="启用Z相复位"
+                                                      Width="150"
+                                                      VerticalAlignment="Center"
+                                                      IsChecked="{Binding ModelParam.Sensor.EncoderZPhaseEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <hc:NumericUpDown Width="160"
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:InfoElement.Title="复位值："
+                                                              hc:InfoElement.TitleWidth="70"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              BorderThickness="0 0 0 1"
+                                                              Foreground="Black"
+                                                              HorizontalContentAlignment="Center"
+                                                              DecimalPlaces="3"
+                                                              Value="{Binding ModelParam.Sensor.EncoderZPhaseResetPosition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="其它" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                        <StackPanel Margin="10" HorizontalAlignment="Left">
+                            <Button Margin="0,0,0,10"
+                                    FontSize="16"
+                                    MinHeight="30"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="SaveGrayImage"
+                                    Width="120"
+                                    Style="{StaticResource GeneralButtonStyle}"
+                                    Content="保存灰度图"
+                                    Cursor="Hand" />
+                            <Button FontSize="16"
+                                    MinHeight="30"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="SaveHeightImage"
+                                    Width="120"
+                                    Style="{StaticResource GeneralButtonStyle}"
+                                    Content="保存高度图"
+                                    Cursor="Hand" />
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Height="730" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch" />
+
+            <Border Grid.Row="0" Grid.Column="2"  Padding="5"  BorderBrush="#D9D9D9" BorderThickness="1" CornerRadius="4">
+                <TabControl Width="Auto" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{DynamicResource TabControlStyle}">
+                    <TabItem Header="2D图像" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                        <WxGroupBox:WxGroupBox Header="2D图显示">
+                              <Controls:ImageEditView Image="{Binding DisposeImage}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" MinHeight="300" MinWidth="300"/>
+                        </WxGroupBox:WxGroupBox>
+                    </TabItem>
+                    <TabItem Header="3D图像" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                        <WxGroupBox:WxGroupBox Header="3D图显示">
+                            <Chart:GrayAndHeightChartView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DisplayResult="{Binding HeightDisplayResult}" MinHeight="300" MinWidth="300"/>
+                        </WxGroupBox:WxGroupBox>
+                    </TabItem>
+                    <TabItem Header="位移信号" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                        <Grid Margin="6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Button Grid.Row="0"
+                                    Margin="0,0,0,8"
+                                    FontSize="16"
+                                    MinHeight="30"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="ToggleSignalCollect"
+                                    Width="100"
+                                    HorizontalAlignment="Left"
+                                    Style="{StaticResource GeneralButtonStyle}"
+                                    Content="{Binding SignalCollectButtonText}"
+                                    Cursor="Hand" />
+
+                            <WxGroupBox:WxGroupBox Grid.Row="1" Header="位移(mm)">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <lc:LightningChart Grid.Row="0"
+                                                       HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Stretch"
+                                                       ViewXY="{Binding DistanceChartView}" />
+                                    <TextBlock Grid.Row="1"
+                                               Margin="0,4,0,0"
+                                               HorizontalAlignment="Center"
+                                               Foreground="#666666"
+                                               Text="通道" />
+                                </Grid>
+                            </WxGroupBox:WxGroupBox>
+
+                            <WxGroupBox:WxGroupBox Grid.Row="2" Header="峰值强度" Margin="0,8,0,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <lc:LightningChart Grid.Row="0"
+                                                       HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Stretch"
+                                                       ViewXY="{Binding PeakChartView}" />
+                                    <TextBlock Grid.Row="1"
+                                               Margin="0,4,0,0"
+                                               HorizontalAlignment="Center"
+                                               Foreground="#666666"
+                                               Text="通道" />
+                                </Grid>
+                            </WxGroupBox:WxGroupBox>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
+
+        <TextBlock Grid.Row="1"
+                   Margin="15,0,0,0"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   FontSize="16"
+                   Foreground="Black"
+                   Text="{Binding CollectedDataCountText}" />
+
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Margin="0,0,15,0"
+                    FontSize="18"
+                    MinHeight="30"
+                    Command="{Binding GeneralCommand}"
+                    CommandParameter="StartCollect"
+                    Width="100"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Content="开始采集"
+                    Cursor="Hand" />
+            <Button Margin="0,0,15,0"
+                    FontSize="18"
+                    MinHeight="30"
+                    Command="{Binding GeneralCommand}"
+                    CommandParameter="StopCollect"
+                    Width="100"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Content="停止采集"
+                    Cursor="Hand" />
+            <Button Margin="0,0,15,0"
+                    FontSize="18"
+                    MinHeight="30"
+                    Command="{Binding GeneralCommand}"
+                    CommandParameter="Cancel"
+                    Width="80"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Content="取消"
+                    Cursor="Hand" />
+            <Button Margin="0,0,15,0"
+                    FontSize="18"
+                    Command="{Binding GeneralCommand}"
+                    CommandParameter="Confirm"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Height="auto"
+                    Width="80"
+                    Content="确认"
+                    Cursor="Hand" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,262 @@
+﻿<UserControl x:Class="LogicalTool.Conditional.Views.IntConditionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:LogicalTool.Conditional.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="12"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="500" d:DesignWidth="800">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 变量信息卡片 - 横向布局 -->
+        <Border Grid.Row="0" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="20 12" Margin="0 0 0 15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 名称 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="名称：" FontWeight="SemiBold" Foreground="#555555" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.Name}" Foreground="#222222" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                </StackPanel>
+
+                <!-- 类型 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="类型：" FontWeight="SemiBold" Foreground="#555555" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.Type}" Foreground="#222222" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                </StackPanel>
+
+                <!-- 当前值 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="当前值：" FontWeight="SemiBold" Foreground="#555555" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.Value}" Foreground="#2196F3" VerticalAlignment="Center" Margin="5 0 0 0" FontWeight="Bold" FontSize="14"/>
+                </StackPanel>
+
+                <!-- 数据源 -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <TextBlock Text="来源：" FontWeight="SemiBold" Foreground="#555555" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurCodition.Variable.ResourcePath}" Foreground="#888888" VerticalAlignment="Center" Margin="5 0 0 0"
+                               TextTrimming="CharacterEllipsis" MaxWidth="150" ToolTip="{Binding CurCodition.Variable.ResourcePath}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 数值判断区域 - 三列横向布局 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 比较判断 -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 标题栏 -->
+                    <Border Grid.Row="0" Background="{DynamicResource PrimaryBrush}" CornerRadius="6 6 0 0" Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="比较判断" Foreground="White" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right" Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding CurCodition.IntCompareEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 内容区 -->
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <!-- 比较类型 -->
+                        <TextBlock Text="比较类型" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <ComboBox SelectedItem="{Binding CurCodition.IntCompareType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  Margin="0 0 0 15"/>
+
+                        <!-- 比较值 -->
+                        <TextBlock Text="比较值" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <hc:NumericUpDown DecimalPlaces="0"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Value="{Binding CurCodition.IntCompareValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0 0 0 15"/>
+
+                        <!-- 结果预览 -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 5 0 0">
+                            <StackPanel>
+                                <TextBlock Text="判断结果" Foreground="#888888" FontSize="11" Margin="0 0 0 5"/>
+                                <TextBlock Text="{Binding CompareResultText}" FontWeight="Bold" FontSize="14"
+                                           Foreground="{Binding CompareResultColor}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 范围判断 -->
+            <Border Grid.Column="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 标题栏 -->
+                    <Border Grid.Row="0" Background="{DynamicResource PrimaryBrush}" CornerRadius="6 6 0 0" Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="范围判断" Foreground="White" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right" Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding CurCodition.IntRangeEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 内容区 -->
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <!-- 最小值和最大值 -->
+                        <Grid Margin="0 0 0 10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="最小值" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                                <hc:NumericUpDown DecimalPlaces="0"
+                                                  Style="{StaticResource NumericUpDownExtendGlobal}"
+                                                  Value="{Binding CurCodition.IntRangeMin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="最大值" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                                <hc:NumericUpDown DecimalPlaces="0"
+                                                  Style="{StaticResource NumericUpDownExtendGlobal}"
+                                                  Value="{Binding CurCodition.IntRangeMax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- 边界选项 -->
+                        <StackPanel Orientation="Horizontal" Margin="0 5 0 15">
+                            <CheckBox Content="含最小" Margin="0 0 15 0"
+                                      IsChecked="{Binding CurCodition.IntRangeIncludeMin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <CheckBox Content="含最大"
+                                      IsChecked="{Binding CurCodition.IntRangeIncludeMax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- 结果预览 -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 5 0 0">
+                            <StackPanel>
+                                <TextBlock Text="判断结果" Foreground="#888888" FontSize="11" Margin="0 0 0 5"/>
+                                <TextBlock Text="{Binding RangeResultText}" FontWeight="Bold" FontSize="14"
+                                           Foreground="{Binding RangeResultColor}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 数值运算 -->
+            <Border Grid.Column="4" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 标题栏 -->
+                    <Border Grid.Row="0" Background="{DynamicResource PrimaryBrush}" CornerRadius="6 6 0 0" Padding="12 8">
+                        <Grid>
+                            <TextBlock Text="数值运算" Foreground="White" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right" Style="{StaticResource ToggleButtonSwitch}"
+                                          IsChecked="{Binding CurCodition.IntOperationEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 内容区 -->
+                    <StackPanel Grid.Row="1" Margin="15">
+                        <!-- 运算类型 -->
+                        <TextBlock Text="运算类型" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <ComboBox SelectedItem="{Binding CurCodition.IntOperationType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  Margin="0 0 0 15"/>
+
+                        <!-- 运算值 -->
+                        <TextBlock Text="运算值" Foreground="#555555" FontWeight="Medium" Margin="0 0 0 5"/>
+                        <hc:NumericUpDown DecimalPlaces="0"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          Value="{Binding CurCodition.IntOperationValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0 0 0 15"/>
+
+                        <!-- 结果预览 -->
+                        <Border Background="#F5F5F5" CornerRadius="4" Padding="10" Margin="0 5 0 0">
+                            <StackPanel>
+                                <TextBlock Text="运算结果" Foreground="#888888" FontSize="11" Margin="0 0 0 5"/>
+                                <TextBlock Text="{Binding OperationResultText}" FontWeight="Bold" FontSize="14" Foreground="#2196F3"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部操作栏 -->
+        <Border Grid.Row="2" Margin="0 15 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 提示信息 -->
+                <TextBlock Grid.Column="0" Text="提示：启用对应功能后，点击「追加至输出」将结果添加到输出参数列表"
+                           Foreground="#888888" FontSize="11" VerticalAlignment="Center"/>
+
+                <!-- 操作按钮 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding GeneralCommand}"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="36"
+                            Width="90"
+                            Content="测试判断"
+                            CommandParameter="测试判断"
+                            Cursor="Hand"
+                            FontSize="12"
+                            Margin="0 0 10 0"/>
+                    <Button Command="{Binding GeneralCommand}"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="36"
+                            Width="110"
+                            Content="追加至输出"
+                            CommandParameter="追加至输出"
+                            Cursor="Hand"
+                            FontSize="12"
+                            Background="#2196F3"
+                            BorderBrush="#2196F3"
+                            Foreground="White"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
+

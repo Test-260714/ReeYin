@@ -1,0 +1,395 @@
+using Newtonsoft.Json;
+using ReeYin_V.Core.Enums;
+using ReeYin_V.Core.Helper;
+using ReeYin_V.Core.Interfaces;
+using ReeYin_V.Core.Services.Project;
+using ReeYin_V.Share;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
+
+namespace Custom.WaferRoutePlan
+{
+    public class PixelToActualCoordinateModel : ModelParamBase
+    {
+        #region Fields
+
+        #endregion
+
+        #region Properties
+
+        #endregion
+
+        private double _captureXPos;
+        public double CaptureXPos
+        {
+            get => _captureXPos;
+            set => SetProperty(ref _captureXPos, value);
+        }
+
+        private double _captureYPos;
+        public double CaptureYPos
+        {
+            get => _captureYPos;
+            set => SetProperty(ref _captureYPos, value);
+        }
+
+        private double _imageWidth = 5120;
+        public double ImageWidth
+        {
+            get => _imageWidth;
+            set => SetProperty(ref _imageWidth, value);
+        }
+
+        private double _imageHeight = 5120;
+        public double ImageHeight
+        {
+            get => _imageHeight;
+            set => SetProperty(ref _imageHeight, value);
+        }
+
+        [InputParam(nameof(CircleCenterI), "圆心像素 X 坐标", needDeepCopy: false)]
+        private TransmitParam _circleCenterI = new TransmitParam();
+        public TransmitParam CircleCenterI
+        {
+            get => _circleCenterI;
+            set => SetProperty(ref _circleCenterI, value);
+        }
+
+        [InputParam(nameof(CircleCenterJ), "圆心像素 Y 坐标", needDeepCopy: false)]
+        private TransmitParam _circleCenterJ = new TransmitParam();
+        public TransmitParam CircleCenterJ
+        {
+            get => _circleCenterJ;
+            set => SetProperty(ref _circleCenterJ, value);
+        }
+
+        private double _outputCompensationX;
+        [RecipeParam("OutputCompensationX", "输出补偿X")]
+        public double OutputCompensationX
+        {
+            get => _outputCompensationX;
+            set => SetProperty(ref _outputCompensationX, value);
+        }
+
+        private double _outputCompensationY;
+        public double OutputCompensationY
+        {
+            get => _outputCompensationY;
+            set => SetProperty(ref _outputCompensationY, value);
+        }
+
+        private string _calibrationFile = string.Empty;
+        public string CalibrationFile
+        {
+            get => _calibrationFile;
+            set => SetProperty(ref _calibrationFile, value);
+        }
+
+        private string _nPointCalibrationFile = string.Empty;
+        public string NPointCalibrationFile
+        {
+            get => _nPointCalibrationFile;
+            set => SetProperty(ref _nPointCalibrationFile, value);
+        }
+
+        [JsonIgnore]
+        private double _imageCenterPixelI;
+        [JsonIgnore]
+        public double ImageCenterPixelI
+        {
+            get => _imageCenterPixelI;
+            set => SetProperty(ref _imageCenterPixelI, value);
+        }
+
+        [JsonIgnore]
+        private double _imageCenterPixelJ;
+        [JsonIgnore]
+        public double ImageCenterPixelJ
+        {
+            get => _imageCenterPixelJ;
+            set => SetProperty(ref _imageCenterPixelJ, value);
+        }
+
+        [JsonIgnore]
+        private double _actualOffsetX;
+        [JsonIgnore]
+        public double ActualOffsetX
+        {
+            get => _actualOffsetX;
+            set => SetProperty(ref _actualOffsetX, value);
+        }
+
+        [JsonIgnore]
+        private double _actualOffsetY;
+        [JsonIgnore]
+        public double ActualOffsetY
+        {
+            get => _actualOffsetY;
+            set => SetProperty(ref _actualOffsetY, value);
+        }
+
+        [JsonIgnore]
+        private double _circleCenterActualX;
+        [JsonIgnore]
+        public double CircleCenterActualX
+        {
+            get => _circleCenterActualX;
+            set => SetProperty(ref _circleCenterActualX, value);
+        }
+
+        [JsonIgnore]
+        private double _circleCenterActualY;
+        [JsonIgnore]
+        public double CircleCenterActualY
+        {
+            get => _circleCenterActualY;
+            set => SetProperty(ref _circleCenterActualY, value);
+        }
+
+        [JsonIgnore]
+        private string _resultMessage = "待执行";
+        [JsonIgnore]
+        public string ResultMessage
+        {
+            get => _resultMessage;
+            set => SetProperty(ref _resultMessage, value);
+        }
+
+        [JsonIgnore]
+        private double[] _outCircleCenterActualXY = [0, 0];
+        [JsonIgnore]
+        [OutputParam("outCircleCenterActualXY", "圆心实际坐标")]
+        public double[] OutCircleCenterActualXY
+        {
+            get => _outCircleCenterActualXY;
+            set => SetProperty(ref _outCircleCenterActualXY, value);
+        }
+
+        [JsonIgnore]
+        private double[] _outActualOffsetXY = [0, 0];
+        [JsonIgnore]
+        [OutputParam("outActualOffsetXY", "圆心相对拍照中心的实际偏移")]
+        public double[] OutActualOffsetXY
+        {
+            get => _outActualOffsetXY;
+            set => SetProperty(ref _outActualOffsetXY, value);
+        }
+
+        [JsonIgnore]
+        private double[] _outImageCenterPixelIJ = [0, 0];
+        [JsonIgnore]
+        [OutputParam("outImageCenterPixelIJ", "图像中心像素坐标")]
+        public double[] OutImageCenterPixelIJ
+        {
+            get => _outImageCenterPixelIJ;
+            set => SetProperty(ref _outImageCenterPixelIJ, value);
+        }
+
+        [JsonIgnore]
+        public override Func<ExecuteModuleOutput> TriggerModuleRun { get; set; }
+
+        public PixelToActualCoordinateModel()
+        {
+
+        }
+
+        protected string GetRecipeParamSubjection()
+        {
+            return "PixelToActualCoordinate";
+        }
+
+        public override bool OnceInit()
+        {
+            try
+            {
+                if (IsOnceInit)
+                {
+                    return true;
+                }
+
+                if (!base.OnceInit())
+                {
+                    return false;
+                }
+
+                if (TriggerModuleRun == null)
+                {
+                    TriggerModuleRun = () =>
+                    {
+                        return ExecuteModule().Result;
+                    };
+                }
+
+                IsOnceInit = true;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+        public override bool LoadKeyParam()
+        {
+            return base.LoadKeyParam();
+        }
+
+        public async Task<ExecuteModuleOutput> ExecuteModule()
+        {
+            var (result, time) = SetTimeHelper.SetTimer(() =>
+            {
+                try
+                {
+                    LoadKeyParam();
+                    ValidateInputs();
+
+                    double circleCenterI = GetRequiredCircleCenterValue(nameof(CircleCenterI), CircleCenterI, "X像素坐标");
+                    double circleCenterJ = GetRequiredCircleCenterValue(nameof(CircleCenterJ), CircleCenterJ, "Y像素坐标");
+
+                    PixelToActualCoordinate_Algorithm algorithm = new PixelToActualCoordinate_Algorithm(
+                        CalibrationFile,
+                        NPointCalibrationFile);
+
+                    CircleCenterActualCoordinateResult result = algorithm.CalculateCircleCenterActualCoordinate(
+                        new CircleCenterActualCoordinateRequest
+                        {
+                            CaptureActualXY = [CaptureXPos, CaptureYPos],
+                            ImageSize = [Convert.ToInt32(ImageWidth), Convert.ToInt32(ImageHeight)],
+                            CircleCenterPixelIJ = [circleCenterI, circleCenterJ]
+                        });
+
+                    OutImageCenterPixelIJ = result.ImageCenterPixelIJ;
+                    OutActualOffsetXY =
+                    [
+                        result.ActualOffsetXY[0] + OutputCompensationX,
+                        result.ActualOffsetXY[1] + OutputCompensationY
+                    ];
+                    OutCircleCenterActualXY =
+                    [
+                        result.CircleCenterActualXY[0] + OutputCompensationX,
+                        result.CircleCenterActualXY[1] + OutputCompensationY
+                    ];
+
+                    ImageCenterPixelI = result.ImageCenterPixelIJ[0];
+                    ImageCenterPixelJ = result.ImageCenterPixelIJ[1];
+                    ActualOffsetX = OutActualOffsetXY[0];
+                    ActualOffsetY = OutActualOffsetXY[1];
+                    CircleCenterActualX = OutCircleCenterActualXY[0];
+                    CircleCenterActualY = OutCircleCenterActualXY[1];
+
+                    ResultMessage = algorithm.HasNPointCalibration
+                        ? $"已使用相机标定和N点标定完成换算，输出补偿为 X={OutputCompensationX:F4}, Y={OutputCompensationY:F4}。"
+                        : $"已使用相机标定完成换算，输出补偿为 X={OutputCompensationX:F4}, Y={OutputCompensationY:F4}。";
+                }
+                catch (Exception ex)
+                {
+                    ResultMessage = ex.Message;
+                    return NodeStatus.Error;
+                }
+
+                foreach (var item in OutputParams)
+                {
+                    item.Value = OutputParamCollector.GetDataPointValues(this)[item.ParamName];
+                }
+
+                return NodeStatus.Success;
+            });
+
+            Output = new ExecuteModuleOutput
+            {
+                RunStatus = result,
+                RunTime = time
+            };
+
+            return Output;
+        }
+
+        private void ValidateInputs()
+        {
+            if (string.IsNullOrWhiteSpace(CalibrationFile))
+            {
+                throw new InvalidOperationException("请选择相机标定文件。");
+            }
+
+            if (ImageWidth <= 0 || ImageHeight <= 0)
+            {
+                throw new InvalidOperationException("图像宽高必须大于0。");
+            }
+        }
+
+        private double GetRequiredCircleCenterValue(string inputParamName, TransmitParam param, string displayName)
+        {
+            object value = GetMarkedInputParamValue(inputParamName);
+            if (TryConvertToDouble(value, out double result))
+            {
+                return result;
+            }
+
+            if (TryConvertToDouble(param?.Value, out result))
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException($"{displayName}未链接或值无效。");
+        }
+
+        private static bool TryConvertToDouble(object value, out double result)
+        {
+            switch (value)
+            {
+                case null:
+                    result = 0;
+                    return false;
+                case double doubleValue:
+                    result = doubleValue;
+                    return true;
+                case float floatValue:
+                    result = floatValue;
+                    return true;
+                case decimal decimalValue:
+                    result = (double)decimalValue;
+                    return true;
+                case byte byteValue:
+                    result = byteValue;
+                    return true;
+                case sbyte sbyteValue:
+                    result = sbyteValue;
+                    return true;
+                case short shortValue:
+                    result = shortValue;
+                    return true;
+                case ushort ushortValue:
+                    result = ushortValue;
+                    return true;
+                case int intValue:
+                    result = intValue;
+                    return true;
+                case uint uintValue:
+                    result = uintValue;
+                    return true;
+                case long longValue:
+                    result = longValue;
+                    return true;
+                case ulong ulongValue:
+                    result = ulongValue;
+                    return true;
+                case string stringValue:
+                    return double.TryParse(stringValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result)
+                        || double.TryParse(stringValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out result);
+                default:
+                    try
+                    {
+                        result = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+                        return true;
+                    }
+                    catch
+                    {
+                        result = 0;
+                        return false;
+                    }
+            }
+        }
+    }
+}

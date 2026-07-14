@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <!--
+      This repo only uses desktop .NET SDKs. Disabling the workload resolver
+      avoids Visual Studio load failures when a broken/incomplete .NET SDK
+      installation is missing workload locator folders.
+    -->
+    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+    <ReeYinRepositoryRoot Condition="'$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</ReeYinRepositoryRoot>
+    <ReeYinRepositoryRoot Condition="'$(ReeYinRepositoryRoot)' == ''">$(MSBuildThisFileDirectory)</ReeYinRepositoryRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/obj-*/**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="halcondotnet">
+      <HintPath>$(ReeYinRepositoryRoot)packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

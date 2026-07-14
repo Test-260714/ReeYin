@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ALGO.Calibration": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -1,0 +1,201 @@
+﻿<UserControl x:Class="Custom.KCJC.Views.InfoConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="760" Height="620"
+             d:DesignHeight="620" d:DesignWidth="760">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <WxGroupBox:WxGroupBox Header="报表信息">
+            <Grid Margin="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <hc:ComboBox Grid.Row="0" Grid.Column="0"
+                             Width="260" Height="30"
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:InfoElement.Title="报表类型："
+                             hc:InfoElement.TitleWidth="90"
+                             Style="{StaticResource ComboBoxExtend}"
+                             BorderThickness="0 0 0 1"
+                             Foreground="Black"
+                             Margin="5"
+                             HorizontalContentAlignment="Center"
+                             HorizontalAlignment="Left"
+                             SelectedValuePath="Content"
+                             SelectedValue="{Binding Model.ReportType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBoxItem Content="首件"/>
+                    <ComboBoxItem Content="巡检"/>
+                    <ComboBoxItem Content="点检"/>
+                </hc:ComboBox>
+
+                <TextBox Grid.Row="0" Grid.Column="1"
+                         Width="260" Height="30"
+                         hc:InfoElement.TitlePlacement="Left"
+                         hc:InfoElement.Title="工件名称："
+                         hc:InfoElement.TitleWidth="90"
+                         Style="{StaticResource TextBoxExtend}"
+                         BorderThickness="0 0 0 1"
+                         Foreground="Black"
+                         Margin="5"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         Text="{Binding Model.WorkpieceName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                <hc:ComboBox Grid.Row="1" Grid.Column="0"
+                             Width="260" Height="30"
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:InfoElement.Title="班别："
+                             hc:InfoElement.TitleWidth="90"
+                             Style="{StaticResource ComboBoxExtend}"
+                             BorderThickness="0 0 0 1"
+                             Foreground="Black"
+                             Margin="5"
+                             HorizontalContentAlignment="Center"
+                             HorizontalAlignment="Left"
+                             SelectedValuePath="Content"
+                             SelectedValue="{Binding Model.ShiftName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBoxItem Content="白班"/>
+                    <ComboBoxItem Content="夜班"/>
+                </hc:ComboBox>
+
+                <hc:ComboBox Grid.Row="1" Grid.Column="1"
+                             Width="260" Height="30"
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:InfoElement.Title="车间："
+                             hc:InfoElement.TitleWidth="90"
+                             Style="{StaticResource ComboBoxExtend}"
+                             BorderThickness="0 0 0 1"
+                             Foreground="Black"
+                             Margin="5"
+                             HorizontalContentAlignment="Center"
+                             HorizontalAlignment="Left"
+                             SelectedValuePath="Content"
+                             SelectedValue="{Binding Model.Workshop,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBoxItem Content="装配三"/>
+                    <ComboBoxItem Content="装配二"/>
+                    <ComboBoxItem Content="备料"/>
+                </hc:ComboBox>
+
+                <hc:ComboBox Grid.Row="2" Grid.Column="0"
+                             Width="260" Height="30"
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:InfoElement.Title="工序："
+                             hc:InfoElement.TitleWidth="90"
+                             Style="{StaticResource ComboBoxExtend}"
+                             BorderThickness="0 0 0 1"
+                             Foreground="Black"
+                             Margin="5"
+                             HorizontalContentAlignment="Center"
+                             HorizontalAlignment="Left"
+                             SelectedValuePath="Content"
+                             SelectedValue="{Binding Model.ProcessName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBoxItem Content="AET"/>
+                    <ComboBoxItem Content="CET"/>
+                    <ComboBoxItem Content="卷绕"/>
+                </hc:ComboBox>
+
+                <TextBox Grid.Row="2" Grid.Column="1"
+                         Width="260" Height="30"
+                         hc:InfoElement.TitlePlacement="Left"
+                         hc:InfoElement.Title="机台号："
+                         hc:InfoElement.TitleWidth="90"
+                         Style="{StaticResource TextBoxExtend}"
+                         BorderThickness="0 0 0 1"
+                         Foreground="Black"
+                         Margin="5"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         Text="{Binding Model.MachineNo,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBox Grid.Row="3" Grid.Column="0"
+                         Width="260" Height="30"
+                         hc:InfoElement.TitlePlacement="Left"
+                         hc:InfoElement.Title="测试员："
+                         hc:InfoElement.TitleWidth="90"
+                         Style="{StaticResource TextBoxExtend}"
+                         BorderThickness="0 0 0 1"
+                         Foreground="Black"
+                         Margin="5"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         Text="{Binding Model.Tester,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+            </Grid>
+        </WxGroupBox:WxGroupBox>
+
+        <ScrollViewer Grid.Row="1" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <WxGroupBox:WxGroupBox Header="刻槽测试项目">
+                    <ItemsControl ItemsSource="{Binding GrooveSummaryTestItems}" Margin="10">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Name}"
+                                          IsChecked="{Binding IsChecked,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                          Width="150"
+                                          Margin="5"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="压花测试项目" Margin="0,10,0,0">
+                    <ItemsControl ItemsSource="{Binding ConvexSummaryTestItems}" Margin="10">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Name}"
+                                          IsChecked="{Binding IsChecked,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                          Width="150"
+                                          Margin="5"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </WxGroupBox:WxGroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <TextBlock VerticalAlignment="Center" Margin="0,0,15,0" Foreground="Gray" Text="当前类别未勾选时默认输出当前类别全部项目"/>
+            <Button Width="90" Height="32"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Command="{Binding SaveCommand}"
+                    Content="保存"/>
+            <Button Width="90" Height="32"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Margin="10,0,0,0"
+                    Command="{Binding CloseCommand}"
+                    Content="关闭"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

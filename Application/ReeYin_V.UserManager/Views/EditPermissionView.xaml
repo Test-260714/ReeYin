@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="ReeYin_V.UserManager.Views.EditPermissionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.UserManager.Views"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:conv="clr-namespace:ReeYin_V.UserManager.Converters"
+             mc:Ignorable="d" 
+             Width="800" Height="500"
+             d:DesignHeight="400" d:DesignWidth="600">
+    
+    <UserControl.Resources>
+        <conv:MenuIdToMenuNameConverter  x:Key="MenuIdToMenuNameConverter" />
+    </UserControl.Resources>
+
+    <Border BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="60"></RowDefinition>
+            </Grid.RowDefinitions>
+            <DataGrid  AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}" Margin="20"
+         EnableColumnVirtualization="True" EnableRowVirtualization="False"  VirtualizingPanel.IsVirtualizing="True" ItemsSource="{Binding Menus}" 
+         ScrollViewer.HorizontalScrollBarVisibility="Auto"  FontSize="12"  RowHeaderWidth="20" SelectionUnit="FullRow" HeadersVisibility="Column"
+         GridLinesVisibility="All" IsReadOnly="False" CanUserAddRows="False" >
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="菜单名称" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding MenuId,Converter={StaticResource MenuIdToMenuNameConverter}}" ToolTip="{Binding MenuId}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="可见" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox HorizontalAlignment="Center" hc:Poptip.Content="Visiblity" IsChecked="{Binding IsVisible, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="可编辑" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox HorizontalAlignment="Center" hc:Poptip.Content="Visiblity" IsChecked="{Binding IsEnabled, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Grid.Row="1"  HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+
+                <Button Margin="0,0,15,0" FontSize="18"
+                        Command="{Binding GeneralCommand}" CommandParameter="取消"
+                        Height="35" Width="80"
+                        Style="{StaticResource GeneralButtonStyle}"
+                        Content="取消"
+                        Cursor="Hand"/>
+                <Button  Margin="0,0,15,0" FontSize="18"
+                        Command="{Binding GeneralCommand}" CommandParameter="确认"
+                        Style="{StaticResource GeneralButtonStyle}"
+                        Height="35" Width="80"
+                        Content="确认"
+                        Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

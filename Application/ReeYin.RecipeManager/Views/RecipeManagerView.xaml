@@ -1,0 +1,798 @@
+﻿<UserControl x:Class="ReeYin.RecipeManager.Views.RecipeManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             Background="#FFF9EB"
+             FontSize="13"
+             d:DesignHeight="920"
+             d:DesignWidth="1680">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <SolidColorBrush x:Key="PanelBrush" Color="#FFF9EB" />
+        <SolidColorBrush x:Key="CardBrush" Color="#FFFFF8" />
+        <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource ColorYellowish}" />
+        <SolidColorBrush x:Key="TextBrush" Color="#3D2E00" />
+        <SolidColorBrush x:Key="SubTextBrush" Color="#8D710B" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource PrimaryColor}" />
+        <SolidColorBrush x:Key="PrimaryLightBrush" Color="#FFF1C9" />
+        <SolidColorBrush x:Key="DangerBrush" Color="#E63757" />
+        <SolidColorBrush x:Key="SidebarBrush" Color="#735400" />
+        <SolidColorBrush x:Key="SidebarHoverBrush" Color="#8A6500" />
+        <SolidColorBrush x:Key="SidebarActiveBrush" Color="{DynamicResource PrimaryColor}" />
+        <SolidColorBrush x:Key="SidebarTextBrush" Color="#FFF7DE" />
+        <SolidColorBrush x:Key="SidebarSubTextBrush" Color="#F1D98B" />
+        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#FFF6DD" />
+        <SolidColorBrush x:Key="SoftCardBrush" Color="#FFF7E6" />
+        <SolidColorBrush x:Key="SidebarPanelBrush" Color="#8A6500" />
+        <SolidColorBrush x:Key="SidebarBadgeBrush" Color="#A17600" />
+        <SolidColorBrush x:Key="SidebarInputBrush" Color="#9A7200" />
+        <SolidColorBrush x:Key="SidebarInputBorderBrush" Color="#C49718" />
+        <SolidColorBrush x:Key="SidebarDividerBrush" Color="#A77B0E" />
+
+        <ControlTemplate x:Key="FlatButtonTemplate" TargetType="Button">
+            <Border x:Name="Root"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="6">
+                <ContentPresenter Margin="{TemplateBinding Padding}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Root" Property="Opacity" Value="0.9" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="Root" Property="Opacity" Value="0.76" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Root" Property="Opacity" Value="0.45" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style x:Key="ButtonBaseStyle" TargetType="Button">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template" Value="{StaticResource FlatButtonTemplate}" />
+        </Style>
+
+        <Style x:Key="ToolbarButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonBaseStyle}">
+            <Setter Property="Background" Value="{StaticResource CardBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonBaseStyle}">
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonBaseStyle}">
+            <Setter Property="Background" Value="#FFF1F4" />
+            <Setter Property="BorderBrush" Value="#F4B8C4" />
+            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+        </Style>
+
+        <Style x:Key="SidebarRecipeItemStyle" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="10,3" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="ItemRoot"
+                                Background="Transparent"
+                                CornerRadius="10"
+                                Padding="12,10">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemRoot" Property="Background" Value="{StaticResource SidebarHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemRoot" Property="Background" Value="{StaticResource SidebarActiveBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GroupItemStyle" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="8,2" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="ItemRoot"
+                                Background="Transparent"
+                                CornerRadius="6"
+                                Padding="12,9">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemRoot" Property="Background" Value="{StaticResource SidebarHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemRoot" Property="Background" Value="{StaticResource SidebarActiveBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SidebarInfoLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SidebarSubTextBrush}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+
+        <Style x:Key="SidebarInfoTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Background" Value="{StaticResource SidebarInputBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource SidebarInputBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CaretBrush" Value="White" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PanelBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Margin="8,8,8,0"
+                Padding="0,6"
+                BorderBrush="{StaticResource PrimaryBrush}"
+                BorderThickness="0,0,0,2">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
+                <Button Name="btnLogin" Margin="5 0 5 0" IsEnabled="{Binding IsEnabled}" Content="{Binding}"
+                        Style="{StaticResource GeneralButtonStyle}" Width="auto" Height="30"
+                        Command="{Binding CloseCommand}">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="&#xe8a4;" VerticalAlignment="Center" FontSize="24"
+                                       HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" />
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+
+                <TextBlock VerticalAlignment="Center"
+                           Foreground="{StaticResource TextBrush}"
+                           FontSize="13"
+                           Text="{DynamicResource ReturnDesignPage}" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1"
+                Margin="16,14,16,0"
+                Padding="16,12"
+                Background="{StaticResource CardBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource ToolbarButtonStyle}" Command="{Binding NewRecipeCommand}" Content="{DynamicResource RecipeManagerNewRecipe}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource ToolbarButtonStyle}" Command="{Binding DuplicateRecipeCommand}" Content="{DynamicResource RecipeManagerDuplicateRecipe}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource DangerButtonStyle}" Command="{Binding DeleteRecipeCommand}" Content="{DynamicResource RecipeManagerDeleteRecipe}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource ToolbarButtonStyle}" Command="{Binding ActivateRecipeCommand}" Content="{DynamicResource RecipeManagerSetAsCurrent}" />
+                    <Button Margin="20,0,0,0" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SaveCommand}" Content="{DynamicResource Save}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource ToolbarButtonStyle}" Command="{Binding ResetCommand}" Content="{DynamicResource RecipeManagerReload}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Padding="10,4" Background="{StaticResource PrimaryLightBrush}" CornerRadius="12">
+                        <TextBlock Foreground="{StaticResource PrimaryBrush}" FontSize="12" FontWeight="SemiBold">
+                            <Run Text="{DynamicResource RecipeManagerCurrentRecipeLabel}" />
+                            <Run Text="{Binding ActiveRecipeName, Mode=OneWay}" />
+                        </TextBlock>
+                    </Border>
+                    <Border Margin="8,0,0,0" Padding="10,4" Background="{StaticResource SoftCardBrush}" CornerRadius="12">
+                        <TextBlock Foreground="{StaticResource SubTextBrush}" FontSize="12" FontWeight="SemiBold" Text="{Binding RecipeSummary}" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" CornerRadius="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Padding="20,18,20,14" BorderBrush="{StaticResource SidebarDividerBrush}" BorderThickness="0,0,0,1">
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="18" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerRecipeList}" />
+                            <TextBlock Margin="0,4,0,0" Foreground="{StaticResource SidebarSubTextBrush}" FontSize="12" Text="{Binding RecipeSummary}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Margin="14,12,14,0" Padding="14,10" Background="{StaticResource SidebarPanelBrush}" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Foreground="{StaticResource SidebarSubTextBrush}" FontSize="11" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerActiveRecipeLabel}" />
+                            <TextBlock Margin="0,4,0,0" Foreground="White" FontSize="14" FontWeight="SemiBold" Text="{Binding ActiveRecipeName}" />
+                        </StackPanel>
+                    </Border>
+
+                    <ListBox Grid.Row="2"
+                             Margin="0,12,0,12"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ItemContainerStyle="{StaticResource SidebarRecipeItemStyle}"
+                             ItemsSource="{Binding Recipes}"
+                             SelectedItem="{Binding SelectedRecipe}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Foreground="White"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   Text="{Binding Name}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Foreground="{StaticResource SidebarSubTextBrush}"
+                                                   FontSize="11"
+                                                   TextTrimming="CharacterEllipsis">
+                                            <Run Text="{DynamicResource RecipeManagerCategoryLabel}" />
+                                            <Run Text="{Binding Category, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <Border Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            Padding="7,2"
+                                            Background="{StaticResource SidebarBadgeBrush}"
+                                            CornerRadius="9"
+                                            VerticalAlignment="Top"
+                                            Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Foreground="White"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Text="{DynamicResource RecipeManagerCurrentTag}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <Border Grid.Row="3" Margin="14,0,14,14" Padding="14" Background="{StaticResource SidebarPanelBrush}" CornerRadius="10">
+                        <Grid>
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource SidebarSubTextBrush}"
+                                       FontSize="12"
+                                       Text="{DynamicResource RecipeManagerSidebarHint}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedRecipe}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Grid>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedRecipe}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.ColumnSpan="2" Foreground="White" FontSize="13" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerBasicInfo}" />
+
+                                <StackPanel Grid.Row="1" Margin="0,10,8,0">
+                                    <TextBlock Style="{StaticResource SidebarInfoLabelStyle}" Text="{DynamicResource RecipeManagerRecipeName}" />
+                                    <TextBox Style="{StaticResource SidebarInfoTextBoxStyle}" Text="{Binding SelectedRecipe.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,10,0,0">
+                                    <TextBlock Style="{StaticResource SidebarInfoLabelStyle}" Text="{DynamicResource RecipeManagerCategory}" />
+                                    <TextBox Style="{StaticResource SidebarInfoTextBoxStyle}" Text="{Binding SelectedRecipe.Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Margin="0,8,8,0">
+                                    <TextBlock Style="{StaticResource SidebarInfoLabelStyle}" Text="{DynamicResource Versions}" />
+                                    <TextBox Style="{StaticResource SidebarInfoTextBoxStyle}" Text="{Binding SelectedRecipe.Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="8,8,0,0">
+                                    <TextBlock Style="{StaticResource SidebarInfoLabelStyle}" Text="{DynamicResource RecipeManagerAuthor}" />
+                                    <TextBox Style="{StaticResource SidebarInfoTextBoxStyle}" Text="{Binding SelectedRecipe.Author, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,8,0,0">
+                                    <TextBlock Style="{StaticResource SidebarInfoLabelStyle}" Text="{DynamicResource RecipeManagerDescription}" />
+                                    <TextBox MinHeight="54"
+                                             Padding="8,6"
+                                             Background="{StaticResource SidebarInputBrush}"
+                                             Foreground="White"
+                                             BorderBrush="{StaticResource SidebarInputBorderBrush}"
+                                             BorderThickness="1"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding SelectedRecipe.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                                        <CheckBox Foreground="White"
+                                                  IsChecked="{Binding SelectedRecipe.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  Content="{DynamicResource Enable}" />
+                                        <Border Margin="10,0,0,0"
+                                                Padding="8,2"
+                                                Background="{StaticResource SidebarBadgeBrush}"
+                                                CornerRadius="10"
+                                                Visibility="{Binding SelectedRecipe.IsCurrent, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Foreground="White" FontSize="11" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerCurrentActiveTag}" />
+                                        </Border>
+                                        <TextBlock Margin="10,1,0,0"
+                                                   Foreground="{StaticResource SidebarSubTextBrush}"
+                                                   FontSize="11">
+                                            <Run Text="{DynamicResource RecipeManagerUpdatedLabel}" />
+                                            <Run Text="{Binding SelectedRecipe.ModifiedAt, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="2">
+                <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="14" Visibility="{Binding EmptyStateVisibility}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}" FontSize="20" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerSelectRecipeTitle}" />
+                        <TextBlock Margin="0,10,0,0" HorizontalAlignment="Center" Foreground="{StaticResource SubTextBrush}" FontSize="13" Text="{DynamicResource RecipeManagerSelectRecipeHint}" />
+                    </StackPanel>
+                </Border>
+
+                <Grid Visibility="{Binding DetailVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0" />
+                        <RowDefinition Height="0" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22,20">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Foreground="{StaticResource TextBrush}" FontSize="20" FontWeight="SemiBold" Text="{Binding SelectedRecipe.Name}" />
+                                    <TextBlock Margin="0,6,0,0" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{Binding NodeSummary}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                    <Border Padding="10,4" Background="{StaticResource PrimaryLightBrush}" CornerRadius="12">
+                                        <TextBlock Foreground="{StaticResource PrimaryBrush}" FontSize="12" FontWeight="SemiBold">
+                                            <Run Text="{Binding SelectedRecipe.ParameterCount, Mode=OneWay}" />
+                                            <Run Text=" " />
+                                            <Run Text="{DynamicResource RecipeManagerParameterCountSuffix}" />
+                                        </TextBlock>
+                                    </Border>
+                                    <Border Margin="8,0,0,0" Padding="10,4" Background="{StaticResource PrimaryLightBrush}" CornerRadius="12" Visibility="{Binding SelectedRecipe.IsCurrent, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Foreground="{StaticResource PrimaryBrush}" FontSize="12" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerCurrentActiveTag}" />
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Grid.Row="1" Margin="0,18,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2.2*" />
+                                    <ColumnDefinition Width="1.4*" />
+                                    <ColumnDefinition Width="1.1*" />
+                                    <ColumnDefinition Width="1.3*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Margin="0,0,14,0">
+                                    <TextBlock Margin="0,0,0,6" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{DynamicResource RecipeManagerRecipeName}" />
+                                    <TextBox Height="36" Padding="10,7" BorderBrush="{StaticResource BorderBrush}" Text="{Binding SelectedRecipe.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="0,0,14,0">
+                                    <TextBlock Margin="0,0,0,6" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{DynamicResource RecipeManagerCategory}" />
+                                    <TextBox Height="36" Padding="10,7" BorderBrush="{StaticResource BorderBrush}" Text="{Binding SelectedRecipe.Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Margin="0,0,14,0">
+                                    <TextBlock Margin="0,0,0,6" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{DynamicResource Versions}" />
+                                    <TextBox Height="36" Padding="10,7" BorderBrush="{StaticResource BorderBrush}" Text="{Binding SelectedRecipe.Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3">
+                                    <TextBlock Margin="0,0,0,6" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{DynamicResource RecipeManagerAuthor}" />
+                                    <TextBox Height="36" Padding="10,7" BorderBrush="{StaticResource BorderBrush}" Text="{Binding SelectedRecipe.Author, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,18,14,0">
+                                    <TextBlock Margin="0,0,0,6" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{DynamicResource RecipeManagerRecipeDescription}" />
+                                    <TextBox MinHeight="92"
+                                             Padding="10,8"
+                                             BorderBrush="{StaticResource BorderBrush}"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding SelectedRecipe.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <Border Grid.Row="1" Grid.Column="3" Margin="0,18,0,0" Padding="14" Background="{StaticResource SoftCardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="10">
+                                    <StackPanel>
+                                        <CheckBox Content="{DynamicResource RecipeManagerEnableThisRecipe}" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}" IsChecked="{Binding SelectedRecipe.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Margin="0,14,0,0" Foreground="{StaticResource SubTextBrush}" FontSize="12">
+                                            <Run Text="{DynamicResource RecipeManagerCreatedTimeLabel}" />
+                                            <Run Text="{Binding SelectedRecipe.CreatedAt, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                                        </TextBlock>
+                                        <TextBlock Margin="0,6,0,0" Foreground="{StaticResource SubTextBrush}" FontSize="12">
+                                            <Run Text="{DynamicResource RecipeManagerUpdatedTimeLabel}" />
+                                            <Run Text="{Binding SelectedRecipe.ModifiedAt, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                                        </TextBlock>
+                                        <TextBlock Margin="0,6,0,0" Foreground="{StaticResource SubTextBrush}" FontSize="12">
+                                            <Run Text="{DynamicResource RecipeManagerLastModifiedByLabel}" />
+                                            <Run Text="{Binding SelectedRecipe.LastModifiedBy, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="14">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Padding="18,14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Foreground="{StaticResource TextBrush}" FontSize="16" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerParametersTitle}" />
+                                        <TextBlock Margin="0,4,0,0" Foreground="{StaticResource SubTextBrush}" FontSize="12">
+                                            <Run Text="{DynamicResource RecipeManagerCurrentEditingLabel}" />
+                                            <Run Text="{Binding SelectedRecipe.Name, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Padding="10,4" Background="{StaticResource SoftCardBrush}" CornerRadius="12">
+                                            <TextBlock Foreground="{StaticResource SubTextBrush}" FontSize="12" FontWeight="SemiBold">
+                                                <Run Text="{Binding SelectedRecipe.NodeCount, Mode=OneWay}" />
+                                                <Run Text=" " />
+                                                <Run Text="{DynamicResource RecipeManagerNodeGroupCountSuffix}" />
+                                            </TextBlock>
+                                        </Border>
+                                        <Border Margin="8,0,0,0" Padding="10,4" Background="{StaticResource PrimaryLightBrush}" CornerRadius="12">
+                                            <TextBlock Foreground="{StaticResource PrimaryBrush}" FontSize="12" FontWeight="SemiBold">
+                                                <Run Text="{Binding SelectedRecipe.ParameterCount, Mode=OneWay}" />
+                                                <Run Text=" " />
+                                                <Run Text="{DynamicResource RecipeManagerParameterCountSuffix}" />
+                                            </TextBlock>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="230" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" CornerRadius="0,0,0,14">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Padding="18,14,18,10" BorderBrush="{StaticResource SidebarDividerBrush}" BorderThickness="0,0,0,1">
+                                            <TextBlock Foreground="{StaticResource SidebarSubTextBrush}" FontSize="11" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerNodeGroups}" />
+                                        </Border>
+
+                                        <ListBox Grid.Row="1"
+                                                 ItemsSource="{Binding CurrentRecipeGroups}"
+                                                 SelectedItem="{Binding SelectedParamGroup}"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 ItemContainerStyle="{StaticResource GroupItemStyle}"
+                                                 Padding="0,6"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Foreground="{StaticResource SidebarTextBrush}" FontSize="13" FontWeight="SemiBold" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Margin="0,2,0,0" Foreground="{StaticResource SidebarSubTextBrush}" FontSize="11">
+                                                                <Run Text="{DynamicResource RecipeManagerNodeLabel}" />
+                                                                <Run Text=" " />
+                                                                <Run Text="{Binding Serial, Mode=OneWay}" />
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                        <Border Grid.Column="1" Padding="6,2" Background="{StaticResource SidebarHoverBrush}" CornerRadius="10" VerticalAlignment="Center">
+                                                            <TextBlock Foreground="{StaticResource SidebarSubTextBrush}" FontSize="11" FontWeight="SemiBold" Text="{Binding ParameterCount}" />
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Grid>
+                                </Border>
+
+                                <Grid Grid.Column="1" Background="{StaticResource PanelBrush}">
+                                    <Border Margin="16" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="10">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedParamGroup}" Value="{x:Null}">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource SubTextBrush}" FontSize="14" Text="{DynamicResource RecipeManagerSelectNodeGroupHint}" />
+                                    </Border>
+
+                                    <Grid Margin="16">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedParamGroup}" Value="{x:Null}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0" CornerRadius="10,10,0,0" Padding="16,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Foreground="{StaticResource TextBrush}" FontSize="14" FontWeight="SemiBold" Text="{Binding SelectedParamGroup.DisplayName}" />
+                                                    <TextBlock Margin="10,1,0,0" Foreground="{StaticResource SubTextBrush}" FontSize="12">
+                                                        <Run Text="{DynamicResource RecipeManagerNodeLabel}" />
+                                                        <Run Text=" " />
+                                                        <Run Text="{Binding SelectedParamGroup.Serial, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <Border Grid.Column="1" Padding="8,2" Background="{StaticResource PrimaryLightBrush}" CornerRadius="10" VerticalAlignment="Center">
+                                                    <TextBlock Foreground="{StaticResource PrimaryBrush}" FontSize="11" FontWeight="SemiBold">
+                                                        <Run Text="{Binding SelectedParamGroup.ParameterCount, Mode=OneWay}" />
+                                                        <Run Text=" " />
+                                                        <Run Text="{DynamicResource RecipeManagerParameterCountSuffix}" />
+                                                    </TextBlock>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <DataGrid Grid.Row="1"
+                                                  Style="{StaticResource DefaultDataGridStyle}"
+                                                  ItemsSource="{Binding CurrentGroupParameters}"
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  CanUserResizeRows="False"
+                                                  CanUserResizeColumns="True"
+                                                  SelectionMode="Single"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn Header="{DynamicResource Enable}" Width="60">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox HorizontalAlignment="Center"
+                                                                         VerticalAlignment="Center"
+                                                                         IsChecked="{Binding IsEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="{DynamicResource Name}" Binding="{Binding Description}" Width="150" IsReadOnly="True" />
+                                                <!--<DataGridTextColumn Header="路径" Binding="{Binding Path}" Width="220" IsReadOnly="True" />-->
+                                                <!--<DataGridTextColumn Header="类型" Binding="{Binding DisplayParameterType}" Width="90" IsReadOnly="True" />-->
+                                                <DataGridTemplateColumn Header="{DynamicResource RecipeManagerCurrentValue}" Width="160">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <TextBox x:Name="TextValueEditor"
+                                                                         Padding="4,0"
+                                                                         BorderThickness="0"
+                                                                         Background="Transparent"
+                                                                         IsEnabled="{Binding IsEnable}"
+                                                                         VerticalContentAlignment="Center"
+                                                                         Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}" />
+                                                                <ComboBox x:Name="EnumValueEditor"
+                                                                          Visibility="Collapsed"
+                                                                          Padding="4,0"
+                                                                          BorderThickness="0,0,0,1"
+                                                                          Background="Transparent"
+                                                                          IsEnabled="{Binding IsEnable}"
+                                                                          ItemsSource="{Binding EnumOptions}"
+                                                                          SelectedItem="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}" />
+                                                                <TextBlock x:Name="PageEditorValueState"
+                                                                           Visibility="Collapsed"
+                                                                           VerticalAlignment="Center"
+                                                                           Foreground="{StaticResource SubTextBrush}"
+                                                                           Text="{Binding PageEditorDisplayText}" />
+                                                            </Grid>
+                                                            <DataTemplate.Triggers>
+                                                                <DataTrigger Binding="{Binding IsEnumParameter}" Value="True">
+                                                                    <Setter TargetName="TextValueEditor" Property="Visibility" Value="Collapsed" />
+                                                                    <Setter TargetName="EnumValueEditor" Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding RequiresPageEditor}" Value="True">
+                                                                    <Setter TargetName="TextValueEditor" Property="Visibility" Value="Collapsed" />
+                                                                    <Setter TargetName="EnumValueEditor" Property="Visibility" Value="Collapsed" />
+                                                                    <Setter TargetName="PageEditorValueState" Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </DataTemplate.Triggers>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTemplateColumn Header="{DynamicResource Edit}" Width="90">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Button Height="28"
+                                                                    Padding="10,0"
+                                                                    Background="{StaticResource CardBrush}"
+                                                                    BorderBrush="{StaticResource BorderBrush}"
+                                                                    Command="{Binding DataContext.EditPageParameterCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Content="{DynamicResource Edit}"
+                                                                    Foreground="{StaticResource TextBrush}"
+                                                                    IsEnabled="{Binding IsEnable}"
+                                                                    Style="{StaticResource ToolbarButtonStyle}"
+                                                                    Visibility="{Binding RequiresPageEditor, Converter={StaticResource BoolToVis}}" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!--<DataGridTextColumn Header="单位" Binding="{Binding Unit, UpdateSourceTrigger=PropertyChanged}" Width="90" />-->
+                                                <DataGridTextColumn Header="{DynamicResource RecipeManagerDescription}" Binding="{Binding Path}" Width="*" IsReadOnly="True" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="3" Margin="16,0,16,16" Padding="16,12" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource SubTextBrush}" FontSize="12" Text="{Binding StatusMessage}" />
+                    <TextBlock Margin="20,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource SubTextBrush}" FontSize="12">
+                        <Run Text="{DynamicResource RecipeManagerStorageScopeLabel}" />
+                        <Run Text="{Binding StorageScope, Mode=OneWay}" />
+                    </TextBlock>
+                </StackPanel>
+
+                <Border Grid.Column="1" Padding="10,4" Background="{StaticResource SoftCardBrush}" CornerRadius="12" VerticalAlignment="Center">
+                    <TextBlock Foreground="{StaticResource SubTextBrush}" FontSize="12" FontWeight="SemiBold">
+                        <Run Text="{DynamicResource RecipeManagerUnsavedChangesLabel}" />
+                        <Run Text="{Binding UnsavedChangesText, Mode=OneWay}" />
+                    </TextBlock>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!--<Border Grid.RowSpan="4" Background="#AAFFFFFF" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}" FontSize="16" FontWeight="SemiBold" Text="{DynamicResource RecipeManagerProcessing}" />
+                <ProgressBar Width="220" Height="6" Margin="0,16,0,0" IsIndeterminate="True" />
+            </StackPanel>
+        </Border>-->
+    </Grid>
+</UserControl>

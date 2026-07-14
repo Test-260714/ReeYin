@@ -1,0 +1,77 @@
+<Window x:Class="PointCloud.ToolViewer.Dialogs.PointPickingMeasurementDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:model="clr-namespace:PointCloud.VTKWPF.Models;assembly=PointCloud.VTKWPF"
+        Title="&#36873;&#28857;&#27979;&#37327;"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        MinWidth="460">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Margin="0,0,18,0"
+                   VerticalAlignment="Center"
+                   Text="&#27979;&#37327;&#27169;&#24335;" />
+
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1">
+            <RadioButton x:Name="ModeNoneRadio"
+                         GroupName="PointPickingMeasurementMode"
+                         Margin="0,0,0,8"
+                         Content="&#19981;&#20351;&#29992;"
+                         Tag="{x:Static model:PointPickingMeasurementMode.None}" />
+            <RadioButton x:Name="ModePointInfoRadio"
+                         GroupName="PointPickingMeasurementMode"
+                         Margin="0,0,0,8"
+                         Content="&#21333;&#28857;&#22352;&#26631;"
+                         Tag="{x:Static model:PointPickingMeasurementMode.PointInfo}" />
+            <RadioButton x:Name="ModeDistanceRadio"
+                         GroupName="PointPickingMeasurementMode"
+                         Margin="0,0,0,8"
+                         Content="&#20004;&#28857;&#36317;&#31163;"
+                         Tag="{x:Static model:PointPickingMeasurementMode.Distance}" />
+            <RadioButton x:Name="ModeAngleRadio"
+                         GroupName="PointPickingMeasurementMode"
+                         Content="&#19977;&#28857;&#35282;&#24230; / &#38754;&#31215;"
+                         Tag="{x:Static model:PointPickingMeasurementMode.Angle}" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="0,12,0,16"
+                   Foreground="#C46A00"
+                   FontStyle="Italic"
+                   Text="&#36873;&#25321;&#27169;&#24335;&#21518;&#22312;&#28857;&#20113;&#35270;&#22270;&#20013;&#20381;&#27425;&#28857;&#20987;&#30446;&#26631;&#28857;&#12290;" />
+
+        <StackPanel Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Width="110"
+                    Margin="0,0,8,0"
+                    Content="&#28165;&#38500;&#24403;&#21069;&#27979;&#37327;"
+                    Click="ClearButton_Click" />
+            <Button Width="84"
+                    Margin="0,0,8,0"
+                    IsDefault="True"
+                    Content="&#30830;&#23450;"
+                    Click="OkButton_Click" />
+            <Button Width="84"
+                    IsCancel="True"
+                    Content="&#21462;&#28040;" />
+        </StackPanel>
+    </Grid>
+</Window>

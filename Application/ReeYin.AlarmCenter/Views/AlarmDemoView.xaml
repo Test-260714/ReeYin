@@ -1,0 +1,167 @@
+<UserControl x:Class="ReeYin.AlarmCenter.Views.AlarmDemoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:ReeYin.AlarmCenter.Models"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="False"
+             d:DesignHeight="700"
+             d:DesignWidth="1080"
+             FontSize="12"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ReeYin.AlarmCenter;component/Styles/AlarmWorkbenchResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Padding="18,14" Style="{StaticResource AlarmCommandBarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AlarmPrimaryBrush}"
+                               Text="DEBUG ALARM DEMO" />
+                    <TextBlock Margin="0,5,0,0"
+                               Style="{StaticResource SectionTitleStyle}"
+                               Text="报警测试" />
+                    <TextBlock Margin="0,6,24,0"
+                               Style="{StaticResource MutedTextStyle}"
+                               Text="此窗口为非模态窗口，打开后不会阻塞报警中心页面；可直接拖动窗口标题栏移动。" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" MinWidth="260" VerticalAlignment="Center">
+                    <ProgressBar Height="6"
+                                 Margin="0,0,0,8"
+                                 IsIndeterminate="True"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock HorizontalAlignment="Right"
+                               Style="{StaticResource MutedTextStyle}"
+                               Text="{Binding AlarmDemoLastActionText}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Margin="0,14,0,10"
+                Padding="14"
+                Background="{StaticResource AlarmPrimarySoftBrush}"
+                BorderBrush="{StaticResource AlarmBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="14">
+            <TextBlock Foreground="{StaticResource AlarmTextBrush}"
+                       Text="Demo 报警固定使用 DEMO.ALARM.*、AlarmDemo、DebugPanel，避免误清真实报警；“重复触发”用于验证活动报警去重和触发次数累加。"
+                       TextWrapping="Wrap" />
+        </Border>
+
+        <ScrollViewer Grid.Row="2"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding AlarmDemoScenarios}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel ItemWidth="300" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:AlarmDemoScenarioItem}">
+                        <Border Width="284"
+                                MinHeight="190"
+                                Margin="0,0,14,14"
+                                Padding="14"
+                                Style="{StaticResource CardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right"
+                                                Padding="8,4"
+                                                Background="{Binding LevelBadgeBrush}"
+                                                CornerRadius="12">
+                                            <TextBlock Foreground="{StaticResource AlarmOnAccentBrush}"
+                                                       Text="{Binding LevelText}" />
+                                        </Border>
+                                        <TextBlock Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource SectionTitleStyle}"
+                                                   Text="{Binding DisplayName}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </DockPanel>
+                                    <TextBlock Margin="0,8,0,0"
+                                               Foreground="{StaticResource AlarmMutedBrush}"
+                                               Text="{Binding Description}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                                    <TextBlock Foreground="{StaticResource AlarmMutedBrush}" Text="{Binding Code}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Margin="0,5,0,0" Foreground="{StaticResource AlarmMutedBrush}" Text="{Binding PopupModeText}" />
+                                    <TextBlock Margin="0,5,0,0" Foreground="{StaticResource AlarmMutedBrush}" Text="{Binding AcknowledgeText}" />
+                                    <TextBlock Margin="0,5,0,0" Foreground="{StaticResource AlarmMutedBrush}" Text="{Binding ManualClearText}" />
+                                </StackPanel>
+
+                                <Button Grid.Row="2"
+                                        Margin="0,14,0,0"
+                                        HorizontalAlignment="Right"
+                                        Command="{Binding DataContext.RaiseAlarmDemoScenarioCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"
+                                        Content="触发"
+                                        Style="{StaticResource AlarmPrimaryButtonStyle}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Border Grid.Row="3"
+                Margin="0,14,0,0"
+                Padding="14"
+                BorderBrush="{StaticResource AlarmBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="14">
+            <DockPanel LastChildFill="True">
+                <WrapPanel DockPanel.Dock="Right" Margin="16,0,0,0">
+                    <Button Margin="0,0,8,0"
+                            Command="{Binding RaiseAllAlarmDemoScenariosCommand}"
+                            Content="生成全部"
+                            Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                    <Button Margin="0,0,8,0"
+                            Command="{Binding RaiseRepeatedAlarmDemoCommand}"
+                            Content="重复触发"
+                            Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                    <Button Command="{Binding ClearAlarmDemoCommand}"
+                            Content="清除 Demo"
+                            Style="{StaticResource AlarmSecondaryButtonStyle}" />
+                </WrapPanel>
+                <TextBlock VerticalAlignment="Center"
+                           Foreground="{StaticResource AlarmMutedBrush}"
+                           Text="{Binding AlarmDemoLastActionText}"
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="Wrap" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

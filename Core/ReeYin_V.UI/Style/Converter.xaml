@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converter="clr-namespace:ReeYin_V.UI.Converter">
+    <converter:IconToImageConverter x:Key="IconToImageConverter"/>
+    <converter:ItemToStringConverter x:Key="ItemToStringConverter"/>
+    <converter:Bool2VisibilityConverter x:Key="Bool2VisibilityConverter"/>
+    <converter:ObjectToStringConverter x:Key="ObjectToStringConverter"/>
+    <converter:ScaleConverter x:Key="ScaleConverter"/>
+    <converter:ObjToListConverter x:Key="ObjToListConverter"/>
+    <converter:EmptyTextToVisibilityConverter x:Key="EmptyTextToVisibilityConverter"/>
+    <converter:Bool2ColorConverter x:Key="Bool2ColorConverter"/>
+    <converter:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
+</ResourceDictionary>

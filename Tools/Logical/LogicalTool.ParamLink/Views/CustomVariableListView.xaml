@@ -1,0 +1,449 @@
+﻿<UserControl x:Class="LogicalTool.ParamLink.Views.CustomVariableListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:LogicalTool.ParamLink.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="12"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Height="850" Width="1250"
+             d:DesignHeight="650" d:DesignWidth="950">
+
+    <UserControl.Resources>
+        <!-- 表格内 TextBox 样式：默认无边框，获得焦点时显示边框 -->
+        <Style x:Key="CellTextBoxStyle" TargetType="TextBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4 0"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                    <Setter Property="Background" Value="#F0F8FF"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="#90CAF9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 表格内 ComboBox 样式：默认无边框，获得焦点时显示边框 -->
+        <Style x:Key="CellComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="2"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                    <Setter Property="Background" Value="#F0F8FF"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="#90CAF9"/>
+                </Trigger>
+                <Trigger Property="IsDropDownOpen" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                    <Setter Property="Background" Value="#F0F8FF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGridTextColumn 居中元素样式 -->
+        <Style x:Key="CenteredCellStyle" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+        </Style>
+
+        <!-- DataGridTextColumn 文字居中样式 -->
+        <Style x:Key="CenteredTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4 0"/>
+        </Style>
+
+        <!-- DataGrid 列头居中样式 -->
+        <Style x:Key="CenteredColumnHeaderStyle" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Margin="10">
+        <TabControl Style="{DynamicResource TabControlStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <!-- 自定义全局变量 -->
+            <TabItem Header="自定义全局" Style="{DynamicResource SingleTabItemStyle}">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 工具栏 -->
+                    <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="4" Padding="10 8" Margin="0 0 0 10">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <Button Content="添加" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="70" Height="28" FontSize="12"
+                                        Command="{Binding DataOperateCommand}" CommandParameter="Add" Cursor="Hand"/>
+                                <Button Content="删除" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="70" Height="28" FontSize="12" Margin="10 0 0 0"
+                                        Command="{Binding DataOperateCommand}" CommandParameter="Delete" Cursor="Hand"/>
+                            </StackPanel>
+                            <TextBlock Text="可对自定义全局变量进行增删改操作" Foreground="#888" FontSize="11"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 数据表格 -->
+                        <DataGrid Grid.Row="1" AutoGenerateColumns="False"
+                              Style="{StaticResource DefaultDataGridStyle}"
+                            EnableColumnVirtualization="True"
+                            EnableRowVirtualization="False"
+                            VirtualizingPanel.IsVirtualizing="True"
+                              ItemsSource="{Binding ModelParam.CustomGlobalParams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding SltCustomNodeInput, Mode=TwoWay}"
+                              FontSize="12"
+                              RowHeaderWidth="0"
+                              SelectionUnit="FullRow"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="All"
+                              BorderBrush="#D0D0D0"
+                              BorderThickness="1"
+                              LoadingRow="DataGrid_LoadingRow"
+                              IsReadOnly="False" CanUserAddRows="False">
+    
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" IsReadOnly="True" Width="40"
+                                                CellStyle="{StaticResource CenteredCellStyle}"
+                                                ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                Binding="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}, Mode=FindAncestor}}"/>
+                            <DataGridTemplateColumn Header="参数名称" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 ToolTip="{Binding Name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="数据类型" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                  SelectedItem="{Binding Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <i:InvokeCommandAction
+                                                        Command="{Binding DataContext.TypeChanged,
+                                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="值" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 ToolTip="{Binding Value}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="备注" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Describe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 ToolTip="{Binding Describe}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- 底部操作栏 -->
+                    <Border Grid.Row="2" Margin="0 10 0 0">
+                        <Grid>
+                            <TextBlock Text="提示：修改后点击「保存」按钮生效" Foreground="#888" FontSize="11"
+                                       VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="取消" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="80" Height="32" FontSize="12"
+                                        Command="{Binding GeneralCommand}" CommandParameter="取消" Cursor="Hand"/>
+                                <Button Content="保存" Style="{StaticResource GeneralButtonStyle}"
+                                        Width="80" Height="32" FontSize="12" Margin="10 0 0 0"
+                                        Background="#2196F3" BorderBrush="#2196F3" Foreground="White"
+                                        Command="{Binding GeneralCommand}" CommandParameter="确认" Cursor="Hand"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- 全局变量 -->
+            <TabItem Header="全局变量" Style="{DynamicResource SingleTabItemStyle}">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 提示栏 -->
+                    <Border Grid.Row="0" Background="#E3F2FD" CornerRadius="4" Padding="10 8" Margin="0 0 0 10">
+                        <TextBlock Text="全局变量由系统自动收集，仅供查看" Foreground="#1976D2" FontSize="11"/>
+                    </Border>
+
+                    <!-- 数据表格 -->
+                    <DataGrid Grid.Row="1" AutoGenerateColumns="False"
+                              Style="{StaticResource DefaultDataGridStyle}"
+                              EnableColumnVirtualization="True"
+                              EnableRowVirtualization="True"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              ItemsSource="{Binding ModelParam.GlobalParams}"
+                              SelectedItem="{Binding SltGlobalNodeInput, Mode=TwoWay}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              FontSize="12"
+                              RowHeaderWidth="0"
+                              SelectionUnit="FullRow"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="All"
+                              BorderBrush="#D0D0D0"
+                              BorderThickness="1"
+                              IsReadOnly="True" CanUserAddRows="False">
+
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="归属" Width="100" 
+                                                ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                Binding="{Binding ResourcePath}" />
+                            <DataGridTextColumn Header="参数名称" Width="150" 
+                                                ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="数据类型" Width="100" 
+                                                ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                Binding="{Binding Type}"/>
+                            <DataGridTextColumn Header="值" Width="150" 
+                                                ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                Binding="{Binding Value}"/>
+                            <DataGridTextColumn Header="备注" Width="*" 
+                                                ElementStyle="{StaticResource CenteredTextBlockStyle}"
+                                                Binding="{Binding Describe}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- 配方管理 -->
+            <TabItem Header="配方管理" Style="{DynamicResource SingleTabItemStyle}">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左侧配方列表 -->
+                    <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- 标题 -->
+                            <Border Grid.Row="0" Background="#F5F5F5" Padding="10 8" CornerRadius="4 4 0 0">
+                                <TextBlock Text="配方列表" FontWeight="SemiBold" Foreground="#333"/>
+                            </Border>
+
+                            <!-- 配方列表 -->
+                            <ListBox Grid.Row="1"
+                                     ItemsSource="{Binding Recipes}"
+                                     SelectedItem="{Binding SltRecipe, Mode=TwoWay}"
+                                     BorderThickness="0" Margin="5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="5 3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Medium" FontSize="12"/>
+                                                <TextBlock Text="{Binding Description}" Foreground="#888" FontSize="10"
+                                                           TextTrimming="CharacterEllipsis" MaxWidth="180"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding ParamCount, StringFormat={}{0}项}"
+                                                       Foreground="#888" FontSize="10" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <!-- 操作按钮 -->
+                            <Border Grid.Row="2" Padding="8" Background="#F5F5F5" CornerRadius="0 0 4 4">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Content="新建" Style="{StaticResource GeneralButtonStyle}"
+                                            Width="60" Height="26" FontSize="11"
+                                            Command="{Binding RecipeCommand}" CommandParameter="Add" Cursor="Hand"/>
+                                    <Button Content="复制" Style="{StaticResource GeneralButtonStyle}"
+                                            Width="60" Height="26" FontSize="11" Margin="8 0"
+                                            Command="{Binding RecipeCommand}" CommandParameter="Copy" Cursor="Hand"/>
+                                    <Button Content="删除" Style="{StaticResource GeneralButtonStyle}"
+                                            Width="60" Height="26" FontSize="11"
+                                            Command="{Binding RecipeCommand}" CommandParameter="Delete" Cursor="Hand"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- 右侧配方详情 -->
+                    <Border Grid.Column="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- 标题 -->
+                            <Border Grid.Row="0" Background="#F5F5F5" Padding="10 8" CornerRadius="4 4 0 0">
+                                <Grid>
+                                    <TextBlock Text="配方详情" FontWeight="SemiBold" Foreground="#333"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="导入" Style="{StaticResource GeneralButtonStyle}"
+                                                Width="50" Height="24" FontSize="10"
+                                                Command="{Binding RecipeCommand}" CommandParameter="Import" Cursor="Hand"/>
+                                        <Button Content="导出" Style="{StaticResource GeneralButtonStyle}"
+                                                Width="50" Height="24" FontSize="10" Margin="5 0 0 0"
+                                                Command="{Binding RecipeCommand}" CommandParameter="Export" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 基本信息 -->
+                            <Grid Grid.Row="1" Margin="15 10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="名称：" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                <TextBox Grid.Row="0" Grid.Column="1"
+                                         Text="{Binding SltRecipe.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TextBoxExtend}" Height="28" Margin="0 0 15 5"/>
+
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="创建时间：" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3"
+                                           Text="{Binding SltRecipe.CreateTime, StringFormat={}{0:yyyy-MM-dd HH:mm}}"
+                                           VerticalAlignment="Center" Foreground="#666"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="描述：" VerticalAlignment="Center" Margin="0 5 5 0"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                         Text="{Binding SltRecipe.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TextBoxExtend}" Height="28" Margin="0 5 0 0"/>
+                            </Grid>
+
+                            <!-- 参数列表 -->
+                            <DataGrid Grid.Row="2" AutoGenerateColumns="False"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ItemsSource="{Binding SltRecipe.Params}"
+                                      SelectedItem="{Binding SltRecipeParam, Mode=TwoWay}"
+                                      Margin="10 0 10 10"
+                                      FontSize="11"
+                                      RowHeaderWidth="0"
+                                      SelectionUnit="FullRow"
+                                      HeadersVisibility="Column"
+                                      GridLinesVisibility="All"
+                                      BorderBrush="#D0D0D0"
+                                      BorderThickness="1"
+                                      IsReadOnly="False" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="参数名称" Width="150">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="类型" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ComboBox helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                          SelectedItem="{Binding Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="值" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- 参数操作栏 -->
+                            <Border Grid.Row="3" Padding="10" Background="#F5F5F5" CornerRadius="0 0 4 4">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Button Content="添加参数" Style="{StaticResource GeneralButtonStyle}"
+                                                Width="70" Height="26" FontSize="11"
+                                                Command="{Binding RecipeCommand}" CommandParameter="AddParam" Cursor="Hand"/>
+                                        <Button Content="删除参数" Style="{StaticResource GeneralButtonStyle}"
+                                                Width="70" Height="26" FontSize="11" Margin="8 0 0 0"
+                                                Command="{Binding RecipeCommand}" CommandParameter="DeleteParam" Cursor="Hand"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="应用配方" Style="{StaticResource GeneralButtonStyle}"
+                                                Width="80" Height="28" FontSize="11"
+                                                Background="#4CAF50" BorderBrush="#4CAF50" Foreground="White"
+                                                Command="{Binding RecipeCommand}" CommandParameter="Apply" Cursor="Hand"/>
+                                        <Button Content="保存配方" Style="{StaticResource GeneralButtonStyle}"
+                                                Width="80" Height="28" FontSize="11" Margin="8 0 0 0"
+                                                Background="#2196F3" BorderBrush="#2196F3" Foreground="White"
+                                                Command="{Binding RecipeCommand}" CommandParameter="Save" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

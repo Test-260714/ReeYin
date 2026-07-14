@@ -1,0 +1,43 @@
+<UserControl x:Class="ALGO.DeepLearning.Views.DeepLearningPreviewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:halconPreview="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             x:Name="Root"
+             Loaded="PreviewControl_Loaded"
+             Unloaded="PreviewControl_Unloaded">
+    <Border Height="500"
+            Margin="5"
+            Background="#1F1F1F"
+            CornerRadius="4"
+            ClipToBounds="True">
+        <Grid>
+            <halconPreview:VMHWindowControl x:Name="HalconPreview"
+                                            Image="{Binding Model.PreviewImageObject, ElementName=Root}"
+                                            IsStatusBarVisible="True"
+                                            IsShapeDrawingEnabled="False"/>
+
+            <ItemsControl ItemsSource="{Binding Model.PreviewResultLabels, ElementName=Root}"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Margin="12"
+                          IsHitTestVisible="False"
+                          Panel.ZIndex="1">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,0,4"
+                                Padding="8,4"
+                                Background="#B8000000"
+                                BorderBrush="#66FFFFFF"
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <TextBlock Text="{Binding}"
+                                       Foreground="#FFF6FF6B"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Border>
+</UserControl>

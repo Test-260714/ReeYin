@@ -1,0 +1,709 @@
+<UserControl x:Class="Custom.PhysicalScale.Views.PhysicalScaleSharpenPreviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:model="clr-namespace:Custom.PhysicalScale.Models"
+             mc:Ignorable="d"
+             FontFamily="Microsoft YaHei UI"
+             FontSize="13"
+             Width="1620"
+             Height="980"
+             MinWidth="1440"
+             MinHeight="860"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="#F4F0E8">
+    <UserControl.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FBFAF7"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.9*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="0.56*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="72"/>
+                        <ColumnDefinition Width="146"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock VerticalAlignment="Center"
+                               Text="模式"
+                               Foreground="#555555"/>
+                    <ComboBox Grid.Column="1"
+                              Height="32"
+                              SelectedValuePath="Tag"
+                              SelectedValue="{Binding SelectedProcessMode, Mode=TwoWay}">
+                        <ComboBoxItem Content="原图" Tag="{x:Static model:PhysicalScalePreviewProcessMode.Original}"/>
+                        <ComboBoxItem Content="锐化" Tag="{x:Static model:PhysicalScalePreviewProcessMode.Sharpen}"/>
+                        <ComboBoxItem Content="二值化" Tag="{x:Static model:PhysicalScalePreviewProcessMode.Binary}"/>
+                        <ComboBoxItem Content="边缘" Tag="{x:Static model:PhysicalScalePreviewProcessMode.Edge}"/>
+                        <ComboBoxItem Content="亚像素" Tag="{x:Static model:PhysicalScalePreviewProcessMode.SubPixel}"/>
+                    </ComboBox>
+
+                    <Grid Grid.Column="3" Visibility="{Binding SharpenOptionsVisibility}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="56"/>
+                            <ColumnDefinition Width="108"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="档位"
+                                   Foreground="#555555"/>
+                        <ComboBox Grid.Column="1"
+                                  Height="32"
+                                  SelectedValuePath="Tag"
+                                  SelectedValue="{Binding SelectedSharpenLevel, Mode=TwoWay}">
+                            <ComboBoxItem Content="弱" Tag="{x:Static model:PhysicalScaleSharpenLevel.Weak}"/>
+                            <ComboBoxItem Content="中" Tag="{x:Static model:PhysicalScaleSharpenLevel.Medium}"/>
+                            <ComboBoxItem Content="强" Tag="{x:Static model:PhysicalScaleSharpenLevel.Strong}"/>
+                        </ComboBox>
+                    </Grid>
+
+                    <Grid Grid.Column="3" Visibility="{Binding BinaryOptionsVisibility}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="56"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="48"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="阈值"
+                                   Foreground="#555555"/>
+                        <Slider Grid.Column="1"
+                                Minimum="0"
+                                Maximum="255"
+                                Value="{Binding BinaryThreshold, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="2"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Text="{Binding BinaryThreshold}"
+                                   Foreground="#23384A"
+                                   FontWeight="SemiBold"/>
+                    </Grid>
+
+                    <Grid Grid.Column="3" Visibility="{Binding EdgeOptionsVisibility}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="56"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="48"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="阈值"
+                                   Foreground="#555555"/>
+                        <Slider Grid.Column="1"
+                                Minimum="1"
+                                Maximum="255"
+                                Value="{Binding EdgeThreshold, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="2"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Text="{Binding EdgeThreshold}"
+                                   Foreground="#23384A"
+                                   FontWeight="SemiBold"/>
+                    </Grid>
+
+                    <StackPanel Grid.Column="3"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding SubPixelOptionsVisibility}">
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="Sigma"
+                                   Foreground="#555555"/>
+                        <Slider Width="112"
+                                Margin="8,0,0,0"
+                                Minimum="0.5"
+                                Maximum="5"
+                                Value="{Binding SubPixelSigma, Mode=TwoWay}"/>
+                        <TextBlock Margin="6,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding SubPixelSigma, StringFormat={}{0:F2}}"
+                                   Foreground="#23384A"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Margin="12,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="Low"
+                                   Foreground="#555555"/>
+                        <Slider Width="92"
+                                Margin="8,0,0,0"
+                                Minimum="1"
+                                Maximum="255"
+                                Value="{Binding SubPixelLowThreshold, Mode=TwoWay}"/>
+                        <TextBlock Margin="6,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding SubPixelLowThreshold}"
+                                   Foreground="#23384A"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Margin="12,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="High"
+                                   Foreground="#555555"/>
+                        <Slider Width="92"
+                                Margin="8,0,0,0"
+                                Minimum="1"
+                                Maximum="255"
+                                Value="{Binding SubPixelHighThreshold, Mode=TwoWay}"/>
+                        <TextBlock Margin="6,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding SubPixelHighThreshold}"
+                                   Foreground="#23384A"
+                                   FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="5"
+                               VerticalAlignment="Center"
+                               Text="{Binding ProcessingSummary}"
+                               Foreground="#60707D"
+                               TextTrimming="CharacterEllipsis"/>
+
+                    <Border Grid.Column="6"
+                            Background="#EDF7F2"
+                            CornerRadius="14"
+                            Padding="10,4"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PreviewZoomText, StringFormat=滚轮缩放 {0}}"
+                                   Foreground="#1F6E4B"
+                                   FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Background="#F7F8FB"
+                        BorderBrush="#D7E0EA"
+                        BorderThickness="1"
+                        CornerRadius="12">
+                    <Grid SnapsToDevicePixels="True"
+                          UseLayoutRounding="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="136"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="196"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Row="0"
+                                Grid.Column="0"
+                                Background="#1A2028"
+                                CornerRadius="10"
+                                Padding="10">
+                            <ScrollViewer x:Name="PreviewScrollViewer"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          CanContentScroll="False"
+                                          PreviewMouseWheel="PreviewScrollViewer_OnPreviewMouseWheel"
+                                          PreviewMouseDown="PreviewScrollViewer_OnPreviewMouseDown"
+                                          PreviewMouseUp="PreviewScrollViewer_OnPreviewMouseUp"
+                                          PreviewMouseMove="PreviewScrollViewer_OnPreviewMouseMove"
+                                          Background="Transparent">
+                                <Grid x:Name="PreviewSurface"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      Background="#1A2028">
+                                    <Image x:Name="PreviewImage"
+                                           Source="{Binding DisplayImage}"
+                                           Stretch="Fill"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           SnapsToDevicePixels="True"
+                                           UseLayoutRounding="True"
+                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                           RenderOptions.EdgeMode="Aliased"/>
+                                    <Canvas x:Name="PreviewGuideCanvas"
+                                            Background="Transparent"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Visibility="{Binding SampleGuideVisibility}"
+                                            MouseLeftButtonDown="PreviewGuideCanvas_OnMouseLeftButtonDown">
+                                        <Path Data="{Binding CircleFitEdgeGeometry}"
+                                              Visibility="{Binding CircleFitEdgeVisibility}"
+                                              Fill="#F59E0B"
+                                              Opacity="0.95"
+                                              IsHitTestVisible="False"/>
+                                        <Path Data="{Binding CircleFitGeometry}"
+                                              Visibility="{Binding CircleFitOverlayVisibility}"
+                                              Stroke="#27D3FF"
+                                              StrokeThickness="2"
+                                              StrokeDashArray="8,4"
+                                              Fill="{x:Null}"
+                                              IsHitTestVisible="False"/>
+                                        <Line X1="{Binding SampleVerticalLineDisplayX}"
+                                              X2="{Binding SampleVerticalLineDisplayX}"
+                                              Y1="0"
+                                              Y2="{Binding ActualHeight, ElementName=PreviewGuideCanvas}"
+                                              Stroke="#F59E0B"
+                                              StrokeThickness="1.5"
+                                              StrokeDashArray="6,3"/>
+                                        <Line X1="0"
+                                              X2="{Binding ActualWidth, ElementName=PreviewGuideCanvas}"
+                                              Y1="{Binding SampleHorizontalLineDisplayY}"
+                                              Y2="{Binding SampleHorizontalLineDisplayY}"
+                                              Stroke="#F59E0B"
+                                              StrokeThickness="1.5"
+                                              StrokeDashArray="6,3"/>
+                                    </Canvas>
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+
+                        <Border Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Padding="10"
+                                Background="#FBFCFF"
+                                BorderBrush="#D7E1F0"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Visibility="{Binding GrayProfileVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="纵向参考线灰度"
+                                           FontWeight="SemiBold"
+                                           Foreground="#23384A"/>
+                                <Grid Grid.Row="1"
+                                      Margin="0,8,0,0"
+                                      ClipToBounds="True">
+                                    <Path Data="{Binding VerticalProfileFillGeometry}"
+                                          Fill="#9FB3F7"
+                                          Stretch="Fill"
+                                          Opacity="0.82"/>
+                                    <Path Data="{Binding VerticalProfileLineGeometry}"
+                                          Stroke="#5873DF"
+                                          StrokeThickness="1.6"
+                                          Stretch="Fill"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="0,12,0,0"
+                                Padding="10"
+                                Background="#FBFCFF"
+                                BorderBrush="#D7E1F0"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Visibility="{Binding GrayProfileVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="横向参考线灰度"
+                                           FontWeight="SemiBold"
+                                           Foreground="#23384A"/>
+                                <Grid Grid.Row="1"
+                                      Margin="0,8,0,0"
+                                      ClipToBounds="True">
+                                    <Path Data="{Binding HorizontalProfileFillGeometry}"
+                                          Fill="#9FB3F7"
+                                          Stretch="Fill"
+                                          Opacity="0.82"/>
+                                    <Path Data="{Binding HorizontalProfileLineGeometry}"
+                                          Stroke="#5873DF"
+                                          StrokeThickness="1.6"
+                                          Stretch="Fill"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="10,12,0,0"
+                                Padding="10"
+                                Background="#FFFDF8"
+                                BorderBrush="#E8D9B5"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Visibility="{Binding GrayProfileVisibility}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="灰度摘要"
+                                           FontWeight="SemiBold"
+                                           Foreground="#23384A"/>
+                                <Grid Grid.Row="1" Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="最小灰度" Foreground="#6B7280"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GrayMinValue}"
+                                               FontWeight="SemiBold"
+                                               Foreground="#1F3550"/>
+                                </Grid>
+                                <Grid Grid.Row="2" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="最大灰度" Foreground="#6B7280"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GrayMaxValue}"
+                                               FontWeight="SemiBold"
+                                               Foreground="#1F3550"/>
+                                </Grid>
+                                <Grid Grid.Row="3" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="平均灰度" Foreground="#6B7280"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GrayAverageValue, StringFormat={}{0:F2}}"
+                                               FontWeight="SemiBold"
+                                               Foreground="#1F3550"/>
+                                </Grid>
+                                <Grid Grid.Row="4" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="灰度标准差" Foreground="#6B7280"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GrayStdDevValue, StringFormat={}{0:F2}}"
+                                               FontWeight="SemiBold"
+                                               Foreground="#1F3550"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.RowSpan="2"
+                                Grid.ColumnSpan="2"
+                                Background="#F7F8FB"
+                                CornerRadius="12">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DisplayImage}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="暂无局部处理图"
+                                       Foreground="#60707D"
+                                       FontSize="16"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="2"
+                Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Background="#FFF3D6"
+                        BorderBrush="#E2B652"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="{Binding ReportTitle}"
+                                   TextWrapping="Wrap"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#1F3550"/>
+                        <TextBlock Margin="0,4,0,0"
+                                   Text="{Binding ReportMeta}"
+                                   TextWrapping="Wrap"
+                                   Foreground="#8A5A00"
+                                   FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <UniformGrid Grid.Row="1"
+                             Columns="2"
+                             Margin="0,10,0,0">
+                    <Border Margin="0,0,8,0"
+                            Background="#EEF4FF"
+                            CornerRadius="10"
+                            Padding="10">
+                        <StackPanel>
+                            <TextBlock Text="缺陷名称" Foreground="#60707D"/>
+                            <TextBlock Margin="0,6,0,0"
+                                       Text="{Binding DefectName}"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1D4ED8"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="8,0,0,0"
+                            Background="#F3FBEF"
+                            CornerRadius="10"
+                            Padding="10">
+                        <StackPanel>
+                            <TextBlock Text="量测类型" Foreground="#60707D"/>
+                            <TextBlock Margin="0,6,0,0"
+                                       Text="{Binding ShapeName}"
+                                       FontWeight="SemiBold"
+                                       Foreground="#15803D"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <Border Grid.Row="2"
+                        Margin="0,10,0,0"
+                        Background="#F7FBFF"
+                        BorderBrush="#CFE3F3"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="圆边缘量化"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="#1F3550"/>
+
+                        <StackPanel Grid.Row="1"
+                                    Margin="0,10,0,0"
+                                    Visibility="{Binding CircleFitMetricsVisibility}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="拟合外径" Foreground="#60707D"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding CircleFitDiameterSummary}"
+                                           FontWeight="SemiBold"
+                                           Foreground="#0F4C81"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="外径范围" Foreground="#60707D"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding CircleFitDiameterRangeSummary}"
+                                           FontWeight="SemiBold"
+                                           Foreground="#1F3550"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="轮廓偏差" Foreground="#60707D"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding CircleFitDeviationSummary}"
+                                           FontWeight="SemiBold"
+                                           Foreground="#1F3550"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="一致性" Foreground="#60707D"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding CircleFitConsistencySummary}"
+                                           FontWeight="SemiBold"
+                                           Foreground="#1F3550"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="边缘点" Foreground="#60707D"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding CircleFitSampleSummary}"
+                                           FontWeight="SemiBold"
+                                           Foreground="#1F3550"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1"
+                                   Margin="0,10,0,0"
+                                   Text="{Binding CircleFitStatusText}"
+                                   Visibility="{Binding CircleFitEmptyVisibility}"
+                                   TextWrapping="Wrap"
+                                   Foreground="#60707D"
+                                   LineHeight="22"/>
+
+                        <Border Grid.Row="2"
+                                Margin="0,12,0,0"
+                                Padding="10"
+                                Background="#F8FBFF"
+                                BorderBrush="#D8E4F1"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Visibility="{Binding CircleFitCorrectionVisibility}">
+                            <StackPanel>
+                                <TextBlock Text="Fit Correction"
+                                           FontWeight="SemiBold"
+                                           Foreground="#1F3550"/>
+                                <TextBlock Margin="0,6,0,0"
+                                           Text="{Binding CircleFitCorrectionSummary}"
+                                           Foreground="#0F4C81"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Margin="0,6,0,0"
+                                           Text="Shift+Left Click on preview to set fit center"
+                                           TextWrapping="Wrap"
+                                           Foreground="#60707D"
+                                           FontSize="12"/>
+
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="68"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="56"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="Center X"
+                                               Foreground="#60707D"/>
+                                    <Slider Grid.Column="1"
+                                            Minimum="{Binding CircleFitCenterOffsetXMin}"
+                                            Maximum="{Binding CircleFitCenterOffsetXMax}"
+                                            Value="{Binding CircleFitCenterOffsetX, Mode=TwoWay}"/>
+                                    <TextBlock Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Text="{Binding CircleFitCenterOffsetX, StringFormat={}{0:F1}}"
+                                               Foreground="#1F3550"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="68"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="56"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="Center Y"
+                                               Foreground="#60707D"/>
+                                    <Slider Grid.Column="1"
+                                            Minimum="{Binding CircleFitCenterOffsetYMin}"
+                                            Maximum="{Binding CircleFitCenterOffsetYMax}"
+                                            Value="{Binding CircleFitCenterOffsetY, Mode=TwoWay}"/>
+                                    <TextBlock Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Text="{Binding CircleFitCenterOffsetY, StringFormat={}{0:F1}}"
+                                               Foreground="#1F3550"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="68"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="56"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="Radius"
+                                               Foreground="#60707D"/>
+                                    <Slider Grid.Column="1"
+                                            Minimum="{Binding CircleFitRadiusOffsetMin}"
+                                            Maximum="{Binding CircleFitRadiusOffsetMax}"
+                                            Value="{Binding CircleFitRadiusOffsetPx, Mode=TwoWay}"/>
+                                    <TextBlock Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Text="{Binding CircleFitRadiusOffsetPx, StringFormat={}{0:F1}}"
+                                               Foreground="#1F3550"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <StackPanel Margin="0,10,0,0"
+                                            Orientation="Horizontal">
+                                    <Button Content="Use Crosshair"
+                                            Height="30"
+                                            Padding="12,0"
+                                            Command="{Binding ApplySampleGuideAsCircleFitCenterCommand}"
+                                            Style="{StaticResource GeneralButtonStyle}"/>
+                                    <Button Content="Reset"
+                                            Height="30"
+                                            Margin="8,0,0,0"
+                                            Padding="12,0"
+                                            Command="{Binding ResetCircleFitCorrectionCommand}"
+                                            Style="{StaticResource GeneralButtonStyle}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="3"
+                        Margin="0,10,0,0"
+                        Background="#FFFDF8"
+                        BorderBrush="#E8D9B5"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="12">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock Text="{Binding ReportDetail}"
+                                   TextWrapping="Wrap"
+                                   Foreground="#1F3550"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   LineHeight="26"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="1"
+                    Grid.ColumnSpan="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,12,0,0">
+            <Button Content="关闭"
+                    Width="96"
+                    Height="34"
+                    Command="{Binding CloseCommand}"
+                    Style="{StaticResource GeneralButtonStyle}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,223 @@
+<UserControl x:Class="ReeYin.Hardware.Sensor.ChroCodile.Views.ChroCodileSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin.Hardware.Sensor.ChroCodile.Views"
+             mc:Ignorable="d" 
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:m ="clr-namespace:ReeYin.Hardware.Sensor.ChroCodile.Defines"
+             FontSize="14"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Height="880" Width="1480"
+             d:DesignHeight="800" d:DesignWidth="1280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="3"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Width="auto" >
+                <Border CornerRadius="0" Padding="5">
+                    <TabControl Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{DynamicResource TabControlStyle}" IsEnabled="{Binding ModelParam.IsCurSltCardIsNotNull,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+
+                        <TabItem Header="参数设置" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="设置参数" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <TextBox x:Name="tbOutputSignal" Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="输出信号：" hc:InfoElement.TitleWidth="120" Style="{StaticResource TextBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="10" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                                 Text="{Binding ModelParam.ChroCodileSensor.CurrentConfig.OutputSignal,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="TextChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="输出信号"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </TextBox>
+                                        <hc:NumericUpDown Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="采样频率：" hc:InfoElement.TitleWidth="120" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="10" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.SamplingFrequency,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                        <hc:NumericUpDown Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="光强：" hc:InfoElement.TitleWidth="120" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="10" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.LightIntensity,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                        <hc:NumericUpDown Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="阈值：" hc:InfoElement.TitleWidth="120" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="10" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                          Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.Threshold,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBox Width="320" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="传感器型号：" hc:InfoElement.TitleWidth="120" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" helper:ItemsControlHelper.EnumType="{x:Type m:General+PreciTecModel}" helper:ItemsControlHelper.EnumValuesToItemsSource="True" Foreground="Black" Margin="10" HorizontalContentAlignment="Center"
+                                                  SelectedItem="{Binding ModelParam.ChroCodileSensor.CurrentConfig.SensorModel,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" x:Name="CbSensorModel" SelectionChanged="CbSensorModel_SelectionChanged"/>
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="触发设定" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
+                            <StackPanel>
+                                <WxGroupBox:WxGroupBox Header="触发控制" Margin="5 5 5 10">
+                                    <StackPanel Orientation="Vertical">
+                                        <!-- 触发模式 -->
+                                        <Border Height="1" Margin="0,0,0,8" BorderBrush="Gray" BorderThickness="0,0,0,1"/>
+                                        <CheckBox x:Name="ChkTriggerMode" Content="触发模式" VerticalAlignment="Center" Margin="10,6,10,6" FontSize="16"
+                                                  IsChecked="{Binding ModelParam.ChroCodileSensor.CurrentConfig.TriggerModeEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Checked="CbTriggerMode_Checked" Unchecked="CbTriggerMode_Unchecked"/>
+
+                                        <!-- IO 触发 -->
+                                        <Border Height="1" Margin="0,4,0,8" BorderBrush="Gray" BorderThickness="0,0,0,1"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,4">
+                                            <RadioButton Content="IO" Margin="10,6" FontSize="16" GroupName="TriggerSource" VerticalAlignment="Center" Width="60" x:Name="rbIO" IsChecked="{Binding ModelParam.ChroCodileSensor.CurrentConfig.IsIOTrigger}"/>
+                                            <hc:NumericUpDown Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="采样宽度：" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="6" HorizontalContentAlignment="Center"
+                                                              Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.SamplingWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="采样高度：" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="6" HorizontalContentAlignment="Center"
+                                                              Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.SamplingHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+
+                                        <Border Height="1" Margin="0,4,0,8" BorderBrush="Gray" BorderThickness="0,0,0,1"/>
+                                        <!-- 编码器触发：左侧编码器RadioButton居中，右侧纵向排列 -->
+                                        <Grid Margin="0,4,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <RadioButton Content="编码器" Margin="5,0" FontSize="16" GroupName="TriggerSource" VerticalAlignment="Center"
+                                                         IsChecked="{Binding ModelParam.ChroCodileSensor.CurrentConfig.IsEncoderTrigger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="rbEncoder"/>
+                                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                    <ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="轴号：" hc:InfoElement.TitleWidth="100" Style="{StaticResource ComboBoxExtend}" Margin="6" HorizontalAlignment="Left"
+                                                               SelectedItem="{Binding ModelParam.ChroCodileSensor.CurrentConfig.ShaftNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" helper:ItemsControlHelper.EnumValuesToItemsSource="True"/>
+                                                    <hc:NumericUpDown Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="起始位置：" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="6" HorizontalContentAlignment="Center"
+                                                                      Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.StartPosition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                    <hc:NumericUpDown Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="结束位置：" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="6" HorizontalContentAlignment="Center"
+                                                                      Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.EndPosition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    <hc:NumericUpDown Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="行数：" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="6" HorizontalContentAlignment="Center"
+                                                                      Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.RowCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                    <hc:NumericUpDown Width="250" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="间隔：" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="6" HorizontalContentAlignment="Center"
+                                                                      Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.Interval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DecimalPlaces="2"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                    <CheckBox Content="往返触发" Margin="6" FontSize="14" VerticalAlignment="Center"
+                                                              IsChecked="{Binding ModelParam.ChroCodileSensor.CurrentConfig.IsRoundTripTrigger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    <CheckBox Content="设置起始脉冲" Margin="6" FontSize="14" VerticalAlignment="Center"
+                                                              IsChecked="{Binding ModelParam.ChroCodileSensor.CurrentConfig.SetStartPulse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    <hc:NumericUpDown Width="100" Margin="6" VerticalAlignment="Center"
+                                                                      Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.StartPulseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Border Height="1" Margin="0,4,0,8" BorderBrush="Gray" BorderThickness="0,0,0,1"/>
+                                        <!-- 底部：手动设置宽度 + 开始触发（垂直排列） -->
+                                        <StackPanel Orientation="Vertical" Margin="0,4,0,4" x:Name="SpManualWidth">
+                                            <CheckBox Content="手动设置宽度" Margin="10,6" FontSize="14" VerticalAlignment="Center"
+                                                      IsChecked="{Binding ModelParam.ChroCodileSensor.CurrentConfig.ManualWidthEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Checked="CheckBox_Checked"/>
+                                            <hc:NumericUpDown Width="280" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="宽度值--&gt;" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="10,6" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                              Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.WidthValueForward, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <hc:NumericUpDown Width="280" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="宽度值&lt;--" hc:InfoElement.TitleWidth="100" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="10,6" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
+                                                              Value="{Binding ModelParam.ChroCodileSensor.CurrentConfig.WidthValueBackward, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                        <Button Content="开始触发" Margin="10,8" Padding="12,6" FontSize="14" Style="{StaticResource GeneralButtonStyle}" Cursor="Hand" HorizontalAlignment="Left"
+                                                    Command="{Binding GeneralCommand}" CommandParameter="开启触发"/>
+                                    </StackPanel>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+            </StackPanel>
+
+            <GridSplitter Grid.Column="1" Height="730" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch"/>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="5"
+                                Margin="20,0,5,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" Text="信号控制">
+
+                        </TextBlock>
+                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="" Width="250" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Height="25"
+                                                    Value="{Binding ModelParam.HypersenSensor.ContourConfig.NUDSignalControl,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="轮廓显示"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </hc:NumericUpDown>
+                    </StackPanel>
+                </Grid>
+
+                <ContentControl Grid.Row="1" Content="{Binding SinglePointChartGrid}" />
+
+                <Grid Grid.Row="2">
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox Width="200" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="层索引:" hc:InfoElement.TitleWidth="80" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Height="25" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" helper:ItemsControlHelper.EnumValuesToItemsSource="True"
+                                                SelectedItem="{Binding ModelParam.HypersenSensor.ContourConfig.LayerIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="层索引"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ComboBox>
+
+                        <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="5"
+                                Margin="20,0,5,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                            <Run Text="单点数据:" Foreground="Black"/>
+                            <Run Text="{Binding OutlinesX}" Foreground="Black"/>
+                            <Run Text="{Binding OutlinesL1}" Foreground="Blue"/>
+                            <Run Text="," />
+                            <Run Text="{Binding OutlinesL2}" Foreground="Yellow"/>
+                            <Run Text="," />
+                            <Run Text="{Binding OutlinesL3}" Foreground="Purple"/>
+                            <Run Text="," />
+                            <Run Text="{Binding OutlinesL4}" Foreground="Green"/>
+                            <Run Text="," />
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+
+                <ContentControl Grid.Row="3" Content="{Binding OutlineChartGrid}" />
+
+            </Grid>
+        </Grid>
+        <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal"
+                                            WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Margin="0,0,15,0" FontSize="18" MinHeight="30"
+                                                Command="{Binding GeneralCommand}" CommandParameter="取消"
+                                                Width="80"
+                                                Style="{StaticResource GeneralButtonStyle}"
+                                                Content="取消"
+                                                Cursor="Hand"/>
+            <Button Margin="0,0,15,0" FontSize="18"
+                                                Command="{Binding GeneralCommand}" CommandParameter="确认"
+                                                Style="{StaticResource GeneralButtonStyle}"
+                                                Height="auto" Width="80"
+                                                Content="确认"
+                                                Cursor="Hand"/>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

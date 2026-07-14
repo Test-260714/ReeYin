@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="Custom.KBTBox.Views.HPManualView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Custom.KBTBox.Views"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="400">
+    <Grid>
+        <WxGroupBox:WxGroupBox Header="传感器手动采集操作" >
+            <ScrollViewer Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                            <Button Content="&#xe61b;" Style="{StaticResource NavOperateButtonStyle}" ToolTip="开始采集" 
+                                Command="{Binding GeneralCommand}" CommandParameter="开始" IsEnabled="{Binding IsEnabled}"/>
+
+                            <Button Content="&#xea76;" Style="{StaticResource NavOperateButtonStyle}" ToolTip="停止采集" 
+                                Command="{Binding GeneralCommand}" CommandParameter="停止" IsEnabled="{Binding IsEnabled}"/>
+
+                            <Button Content="&#xe617;" Style="{StaticResource NavOperateButtonStyle}" ToolTip="处理数据" 
+                                Command="{Binding GeneralCommand}" CommandParameter="处理数据" IsEnabled="{Binding IsEnabled}"/>
+
+                            <Button Content="&#xe64c;" Style="{StaticResource NavOperateButtonStyle}" ToolTip="重置" 
+                                Command="{Binding GeneralCommand}" CommandParameter="重置" IsEnabled="{Binding IsEnabled}"/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50 0 0 0">
+                            <TextBlock Foreground="Black" Margin="0 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Run Text="执行次数:"/>
+                                <LineBreak/>
+                                <Run Text="{Binding ModelParam.RunNum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </WxGroupBox:WxGroupBox>
+    </Grid>
+</UserControl>

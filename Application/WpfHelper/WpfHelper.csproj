@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin__V.NodifyUI\ReeYin_V.NodifyManager.csproj" />
+    <ProjectReference Include="..\..\Hardware\Camera\ReeYin_V.Hardware.Camera.IKap\ReeYin_V.Hardware.Camera.IKap.csproj" />
+    <ProjectReference Include="..\..\Hardware\Camera\ReeYin_V.Hardware.Camera\ReeYin_V.Hardware.Camera.csproj" />
+    <ProjectReference Include="..\..\Hardware\ControlCard\ReeYin_V.Hardware.ControlCard\ReeYin_V.Hardware.ControlCard.csproj" />
+    <ProjectReference Include="..\..\Hardware\PLC\ReeYin.Hardware.PLCHslGeneral\ReeYin.Hardware.PLCHslGeneral.csproj" />
+    <ProjectReference Include="..\..\Hardware\PLC\ReeYin_V.Hardware.PLC\ReeYin_V.Hardware.PLC.csproj" />
+    <ProjectReference Include="..\..\Hardware\Sensor\ReeYin.Hardware.Sensor.Hyperson\ReeYin.Hardware.Sensor.Hyperson.csproj" />
+    <ProjectReference Include="..\..\Hardware\Sensor\ReeYin.Hardware.Sensor\ReeYin.Hardware.Sensor.csproj" />
+    <ProjectReference Include="..\..\Shell\ReeYin_V.Shell.csproj" />
+    <ProjectReference Include="..\..\Tools\CSharpScript\ReeYin.CSharpScript\ReeYin.CSharpScript.csproj" />
+    <ProjectReference Include="..\..\Tools\GeneralALGO\ALGO.Calibration\ALGO.Calibration.csproj" />
+    <ProjectReference Include="..\..\Tools\GeneralALGO\ALGO.MeasureCircle\ALGO.MeasureCircle.csproj" />
+    <ProjectReference Include="..\..\Tools\GeneralALGO\ALGO.MultiCameraCalibration\ALGO.MultiCameraCalibration.csproj" />
+    <ProjectReference Include="..\..\Tools\GeneralALGO\ALGO.NPointCalibration\ALGO.NPointCalibration.csproj" />
+    <ProjectReference Include="..\..\Tools\Hardware\HardwareTool.Motion\HardwareTool.Motion.csproj" />
+    <ProjectReference Include="..\..\Tools\Hardware\HardWareTool.PLC\HardWareTool.PLC.csproj" />
+    <ProjectReference Include="..\..\Tools\Image\ImageTool.GrabImage\ImageTool.GrabImage.csproj" />
+    <ProjectReference Include="..\..\Tools\Image\ImageTool.SaveImage\ImageTool.SaveImage.csproj" />
+    <ProjectReference Include="..\..\Tools\Logical\LogicalTool.Conditional\LogicalTool.Conditional.csproj" />
+    <ProjectReference Include="..\..\Tools\Logical\LogicalTool.Finish\LogicalTool.Finish.csproj" />
+    <ProjectReference Include="..\..\Tools\Logical\LogicalTool.Loop\LogicalTool.Loop.csproj" />
+    <ProjectReference Include="..\..\Tools\Logical\LogicalTool.Merge\LogicalTool.Merge.csproj" />
+    <ProjectReference Include="..\..\Tools\Logical\LogicalTool.ParamLink\LogicalTool.ParamLink.csproj" />
+    <ProjectReference Include="..\NodifyFlow\Nodify.FlowApp\Nodify.FlowApp.csproj" />
+    <ProjectReference Include="..\ReeYin.ProjectManeger\ReeYin.ProjectManager.csproj" />
+    <ProjectReference Include="..\ReeYin.Status\ReeYin.Status.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Config\ReeYin_V.Config.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Initialize\ReeYin_V.Initialize.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Login\ReeYin_V.Login.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Main\ReeYin_V.Main.csproj" />
+    <ProjectReference Include="..\ReeYin_V.NodifySolution\ReeYin_V.NodifySolution.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Permission\ReeYin_V.Permission.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\ReeYin_V.UserManager\ReeYin_V.UserManager.csproj" />
+  </ItemGroup>
+
+</Project>

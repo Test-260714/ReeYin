@@ -1,0 +1,461 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/FontAwesome.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Converter.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/CustomBrush.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/TextBox.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- 自定义按钮样式 -->
+    <Style x:Key="GeneralButtonStyle" TargetType="Button">
+        <!-- 基础属性设置 -->
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12 6"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="FontSize" Value="{DynamicResource DefaultFontSize}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+
+        <!-- 控件模板 -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <!-- 外层容器 -->
+                    <Border x:Name="RootBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4"
+                            RenderTransformOrigin="0.5,0.5">
+
+                        <!-- 阴影效果 -->
+                        <Border.Effect>
+                            <DropShadowEffect x:Name="ButtonShadow" 
+                                           BlurRadius="8" 
+                                           Opacity="0"
+                                           ShadowDepth="2"
+                                           Color="#40000000"/>
+                        </Border.Effect>
+
+                        <!-- 缩放变换 -->
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="ButtonScale" ScaleX="1" ScaleY="1"/>
+                            </TransformGroup>
+                        </Border.RenderTransform>
+
+                        <!-- 内容容器 -->
+                        <Grid>
+                            <!-- 图标容器（请替换为您的图标） -->
+                            <Viewbox x:Name="IconContainer" 
+                                   Width="20" Height="20"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                                <Path Data="{Binding ContentPresenter}"
+                                      Fill="{TemplateBinding Foreground}"/>
+                            </Viewbox>
+
+                            <!-- 文本内容 -->
+                            <ContentPresenter x:Name="ContentHost"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Margin="6 0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 交互触发器 -->
+                    <ControlTemplate.Triggers>
+                        <!-- 鼠标悬停效果 -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 图标放大 1.2 倍 -->
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Width"
+                                                       To="24" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Height"
+                                                       To="24" Duration="0:0:0.2"/>
+                                        <!-- 阴影显示 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonShadow"
+                                                       Storyboard.TargetProperty="Opacity"
+                                                       To="0.3" Duration="0:0:0.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 恢复原始大小 -->
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Width"
+                                                       To="20" Duration="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Height"
+                                                       To="20" Duration="0:0:0.15"/>
+                                        <!-- 隐藏阴影 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonShadow"
+                                                       Storyboard.TargetProperty="Opacity"
+                                                       To="0" Duration="0:0:0.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+
+                        <!-- 点击效果 -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 按钮缩小 0.8 倍 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleX"
+                                                       To="0.8" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleY"
+                                                       To="0.8" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 恢复原始大小 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleX"
+                                                       To="1" Duration="0:0:0.1"/>
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleY"
+                                                       To="1" Duration="0:0:0.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GeneralButtonStyle2" TargetType="Button">
+        <!-- 基础属性设置 -->
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12 6"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+
+        <!-- 控件模板 -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <!-- 外层容器 -->
+                    <Border x:Name="RootBorder"
+                            CornerRadius="4"
+                            RenderTransformOrigin="0.5,0.5">
+
+                        <!-- 三层渐变背景 -->
+                        <!--<Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                -->
+                        <!--<GradientStop Color="{DynamicResource MainPrimaryTextColor}" Offset="0"/>
+                                <GradientStop Color="{DynamicResource ColorYellowish}" Offset="0.5"/>-->
+                        <!--
+                                <GradientStop Color="{DynamicResource PrimaryColor}" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>-->
+
+                        <!-- 阴影效果 -->
+                        <Border.Effect>
+                            <DropShadowEffect x:Name="ButtonShadow" 
+                                           BlurRadius="8" 
+                                           Opacity="0"
+                                           ShadowDepth="2"
+                                           Color="#40000000"/>
+                        </Border.Effect>
+
+                        <!-- 缩放变换 -->
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="ButtonScale" ScaleX="1" ScaleY="1"/>
+                            </TransformGroup>
+                        </Border.RenderTransform>
+
+                        <!-- 内容容器 -->
+                        <Grid>
+                            <!-- 图标容器（请替换为您的图标） -->
+                            <Viewbox x:Name="IconContainer" 
+                                   Width="20" Height="20"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                                <Path Data="{Binding ContentPresenter}"
+                                      Fill="{TemplateBinding Foreground}"/>
+                            </Viewbox>
+
+                            <!-- 文本内容 -->
+                            <ContentPresenter x:Name="ContentHost"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Margin="6 0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 交互触发器 -->
+                    <ControlTemplate.Triggers>
+                        <!-- 鼠标悬停效果 -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 图标放大 1.2 倍 -->
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Width"
+                                                       To="24" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Height"
+                                                       To="24" Duration="0:0:0.2"/>
+                                        <!-- 阴影显示 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonShadow"
+                                                       Storyboard.TargetProperty="Opacity"
+                                                       To="0.3" Duration="0:0:0.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 恢复原始大小 -->
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Width"
+                                                       To="20" Duration="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="IconContainer"
+                                                       Storyboard.TargetProperty="Height"
+                                                       To="20" Duration="0:0:0.15"/>
+                                        <!-- 隐藏阴影 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonShadow"
+                                                       Storyboard.TargetProperty="Opacity"
+                                                       To="0" Duration="0:0:0.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+
+                        <!-- 点击效果 -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 按钮缩小 0.8 倍 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleX"
+                                                       To="0.8" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleY"
+                                                       To="0.8" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 恢复原始大小 -->
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleX"
+                                                       To="1" Duration="0:0:0.1"/>
+                                        <DoubleAnimation Storyboard.TargetName="ButtonScale"
+                                                       Storyboard.TargetProperty="ScaleY"
+                                                       To="1" Duration="0:0:0.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NavOperateButtonStyle" TargetType="Button">
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontFamily" Value="{DynamicResource Iconfont}"/>
+        <Setter Property="ToolTipService.IsEnabled" Value="False"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Width" Value="50"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="FontSize" Value="32"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <!-- 按钮主体 -->
+                        <Border x:Name="BtnBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="5">
+                            <ContentPresenter
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- 自定义 Tooltip -->
+                        <Popup x:Name="TipPopup"
+                           Placement="Bottom"
+                           PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                           AllowsTransparency="True"
+                           IsOpen="False"
+                           PopupAnimation="Fade">
+
+                            <Border Background="{DynamicResource BtnOverColor}"
+                                CornerRadius="4"
+                                Padding="6"
+                                Margin="0,0,0,0">
+                                <TextBlock Text="{TemplateBinding ToolTip}"
+                                       Foreground="White"
+                                       FontSize="16"/>
+                            </Border>
+                        </Popup>
+                    </Grid>
+
+                    <!-- 触发器 -->
+                    <ControlTemplate.Triggers>
+
+                        <!-- 鼠标悬停 -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="TipPopup"
+                                Property="IsOpen"
+                                Value="True"/>
+                            <Setter TargetName="BtnBorder"
+                                Property="Background"
+                                Value="{DynamicResource SplitBrush}"/>
+                            <Setter Property="FontSize" Value="30"/>
+                        </Trigger>
+
+                        <!-- 鼠标按下 -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="FontSize" Value="26"/>
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--运动轴扇形按钮样式-->
+    <Style x:Key="AxisButtonStyle" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Path Stroke="LightBlue" Fill="{TemplateBinding Background}">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure StartPoint="0,100">
+                                        <LineSegment Point="100,0"/>
+                                        <ArcSegment Point="100,200" Size="300,200" SweepDirection="Clockwise"/>
+                                        <LineSegment Point="0,100"/>
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                        <TextBlock Text="➜" FontSize="50" Foreground="DarkGreen" Panel.ZIndex="99" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        </TextBlock>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="LightGreen"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="OrangeRed"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--只显示图片的按钮-->
+    <Style x:Key="ImgHomeBtn" TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{StaticResource RegionBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BtnOverColor}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="border" CornerRadius="19" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                        <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Foreground" Value="{DynamicResource BtnOverColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource BtnPressedColor}"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Foreground" Value="{DynamicResource BtnOverColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Foreground" Value="{DynamicResource BtnOverColor}"/>
+                        </Trigger>
+                        <!--<Trigger Property="is" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#3F85FF"/>
+                        </Trigger>-->
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+    <Style x:Key="ImgOpBtn" TargetType="ToggleButton">
+        <Setter Property="Width" Value="68"/>
+        <Setter Property="Height" Value="68"/>
+        <Setter Property="FontSize" Value="55"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="#CCCCCC"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="border" CornerRadius="16" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                        <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#8BB987"/>
+                            <Setter Property="Width" Value="70"/>
+                            <Setter Property="Height" Value="70"/>
+                            <Setter Property="FontSize" Value="60"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#F1F1F1"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#37AD27"/>
+                            <Setter Property="Width" Value="70"/>
+                            <Setter Property="Height" Value="70"/>
+                            <Setter Property="FontSize" Value="60"/>
+                        </Trigger>
+                        <!--<Trigger Property="is" Value="True">
+                        <Setter TargetName="border" Property="Background" Value="#3F85FF"/>
+                    </Trigger>-->
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+</ResourceDictionary>

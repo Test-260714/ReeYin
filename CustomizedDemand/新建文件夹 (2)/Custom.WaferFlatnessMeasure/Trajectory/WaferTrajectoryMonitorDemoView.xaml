@@ -1,0 +1,40 @@
+<UserControl x:Class="Custom.WaferFlatnessMeasure.Views.WaferTrajectoryMonitorDemoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:monitor="clr-namespace:ReeYin_V.UI.UserControls.AxisMotionTrajectoryMonitor;assembly=ReeYin_V.UI"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignWidth="1280"
+             d:DesignHeight="720">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Background="#FFEFF3F8">
+        <Border Margin="14"
+                Padding="8"
+                Background="#FFFBFCFE"
+                BorderBrush="#FFD8E2EE"
+                BorderThickness="1"
+                CornerRadius="8">
+            <monitor:AxisMotionTrajectoryMonitorView MinWidth="0" 
+                                                     MinHeight="0"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch"
+                                                     MonitorTitle="晶圆 XY 轨迹监控"
+                                                     Trajectories="{Binding PreviewTrajectories}"
+                                                     CurrentPosition="{Binding CurrentAxisPosition}"
+                                                     TargetPosition="{Binding PreviewTargetPosition}"
+                                                     XMinimum="{Binding XMinimum, Mode=TwoWay}"
+                                                     XMaximum="{Binding XMaximum, Mode=TwoWay}"
+                                                     YMinimum="{Binding YMinimum, Mode=TwoWay}"
+                                                     YMaximum="{Binding YMaximum, Mode=TwoWay}" />
+        </Border>
+    </Grid>
+</UserControl>

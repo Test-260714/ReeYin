@@ -1,0 +1,453 @@
+﻿<UserControl x:Class="Custom.KCJC.Views.OtherConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="14"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="400" d:DesignWidth="600">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16*"/>
+            <RowDefinition Height="61*"/>
+        </Grid.RowDefinitions>
+
+        <WxGroupBox:WxGroupBox Header="操作">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Button FontSize="14"
+                        Command="{Binding GeneralCommand}" CommandParameter="打开标定页面"
+                        Style="{StaticResource GeneralButtonStyle}"
+                        Height="35" Padding="10,0"
+                        Content="打开标定页面" Cursor="Hand"/>
+                <Button FontSize="14"
+                        Command="{Binding GeneralCommand}" CommandParameter="信息配置"
+                        Style="{StaticResource GeneralButtonStyle}"
+                        Height="35" Padding="10,0"
+                        Margin="10,0,0,0"
+                        Content="输出配置" Cursor="Hand"/>
+            </StackPanel>
+        </WxGroupBox:WxGroupBox>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Margin="0,10,0,0" Grid.RowSpan="2">
+            <StackPanel>
+                <WxGroupBox:WxGroupBox Header="采集配置">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <hc:NumericUpDown Grid.Row="0"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          Minimum="0"
+                                          hc:InfoElement.Title="曝光时间："
+                                          Width="250"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1"
+                                          Foreground="Black"
+                                          Margin="5 3 0 0"
+                                          HorizontalContentAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          Value="{Binding Model.ExposureTime,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="曝光时间"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </hc:NumericUpDown>
+
+                        <hc:ComboBox Grid.Row="1"
+                                     Width="250"
+                                     Height="30"
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:InfoElement.Title="检测方式："
+                                     hc:InfoElement.TitleWidth="100"
+                                     Style="{StaticResource ComboBoxExtend}"
+                                     BorderThickness="0 0 0 1"
+                                     Foreground="Black"
+                                     Margin="5 8 0 0"
+                                     HorizontalContentAlignment="Center"
+                                     HorizontalAlignment="Left"
+                                     SelectedIndex="{Binding MeasureParam.AlgorithmType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <ComboBoxItem Content="刻槽检测"/>
+                            <ComboBoxItem Content="压花检测"/>
+                            <ComboBoxItem Content="刻槽+压花"/>
+                        </hc:ComboBox>
+
+                        <TextBox Grid.Row="2"
+                                 Width="250"
+                                 Height="30"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="型号："
+                                 hc:InfoElement.TitleWidth="100"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 BorderThickness="0 0 0 1"
+                                 Foreground="Black"
+                                 Margin="5 8 0 0"
+                                 VerticalContentAlignment="Center"
+                                 HorizontalContentAlignment="Center"
+                                 HorizontalAlignment="Left"
+                                 Text="{Binding Model.ProductModelName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBox Grid.Row="3"
+                                 Width="250"
+                                 Height="30"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="批次号："
+                                 hc:InfoElement.TitleWidth="100"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 BorderThickness="0 0 0 1"
+                                 Foreground="Black"
+                                 Margin="5 8 0 0"
+                                 VerticalContentAlignment="Center"
+                                 HorizontalContentAlignment="Center"
+                                 HorizontalAlignment="Left"
+                                 Text="{Binding Model.BatchNo,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <hc:NumericUpDown Grid.Row="4"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          Minimum="0"
+                                          Maximum="32767"
+                                          hc:InfoElement.Title="总次数："
+                                          Width="250"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1"
+                                          Foreground="Black"
+                                          Margin="5 8 0 0"
+                                          HorizontalContentAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          Value="{Binding Model.PlcTotalCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <hc:NumericUpDown Grid.Row="5"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          Minimum="-1"
+                                          Maximum="32767"
+                                          hc:InfoElement.Title="循环次数："
+                                          Width="250"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1"
+                                          Foreground="Black"
+                                          Margin="5 8 0 0"
+                                          HorizontalContentAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          IsEnabled="{Binding HasStartTheCycleModel}"
+                                          Value="{Binding StartTheCycleLoopNum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <i:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="循环次数"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </hc:NumericUpDown>
+
+                        <hc:NumericUpDown Grid.Row="6"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="4"
+                                          Minimum="0"
+                                          hc:InfoElement.Title="材料长度："
+                                          Width="250"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          hc:InfoElement.TitleWidth="100"
+                                          BorderThickness="0 0 0 1"
+                                          Foreground="Black"
+                                          Margin="5 8 0 0"
+                                          HorizontalContentAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          Value="{Binding Model.PlcMaterialLength,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <hc:NumericUpDown Grid.Row="7"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          Minimum="1"
+                                          Maximum="32767"
+                                          hc:InfoElement.Title="刻槽分区数："
+                                          Width="250"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          hc:InfoElement.TitleWidth="110"
+                                          BorderThickness="0 0 0 1"
+                                          Foreground="Black"
+                                          Margin="5 8 0 0"
+                                          HorizontalContentAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          Value="{Binding MeasureParam.SamplePointNum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <hc:NumericUpDown Grid.Row="8"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          DecimalPlaces="0"
+                                          Minimum="1"
+                                          Maximum="32767"
+                                          hc:InfoElement.Title="分区内最大刻槽条数："
+                                          Width="250"
+                                          Style="{StaticResource NumericUpDownExtendGlobal}"
+                                          hc:InfoElement.TitleWidth="170"
+                                          BorderThickness="0 0 0 1"
+                                          Foreground="Black"
+                                          Margin="5 8 0 0"
+                                          HorizontalContentAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          Value="{Binding MeasureParam.EtchingLineNumMax,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="规格限设置" Margin="0,10,0,0">
+                    <Grid Margin="10,8,10,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="5,0,10,0" Text="槽深上下限（um）：" />
+                            <hc:NumericUpDown Grid.Column="1"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.EtchingLineDepthLowerLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="-" />
+                            <hc:NumericUpDown Grid.Column="3"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.EtchingLineDepthUpperLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="5,0,10,0" Text="槽宽上下限（um）：" />
+                            <hc:NumericUpDown Grid.Column="1"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.EtchingLineWidthLowerLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="-" />
+                            <hc:NumericUpDown Grid.Column="3"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.EtchingLineWidthUpperLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                        </Grid>
+
+                        <Grid Grid.Row="2" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="5,0,10,0" Text="槽间距上下限（um）：" />
+                            <hc:NumericUpDown Grid.Column="1"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.EtchingPointDistLowerLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="-" />
+                            <hc:NumericUpDown Grid.Column="3"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.EtchingPointDistUpperLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                        </Grid>
+
+                        <Grid Grid.Row="3" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="5,0,10,0" Text="凸点高度上下限（um）：" />
+                            <hc:NumericUpDown Grid.Column="1"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.PointHeightLowerLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="-" />
+                            <hc:NumericUpDown Grid.Column="3"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.PointHeightUpperLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                        </Grid>
+
+                        <Grid Grid.Row="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="5,0,10,0" Text="凸点直径上下限（um）：" />
+                            <hc:NumericUpDown Grid.Column="1"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.PointDiameterLowerLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="-" />
+                            <hc:NumericUpDown Grid.Column="3"
+                                              DecimalPlaces="4"
+                                              Minimum="0"
+                                              Width="120"
+                                              Style="{StaticResource NumericUpDownExtendGlobal}"
+                                              BorderThickness="0 0 0 1"
+                                              Foreground="Black"
+                                              HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              Value="{Binding Model.PointDiameterUpperLimit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ValueChanged">
+                                        <i:InvokeCommandAction Command="{Binding LimitValueChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </hc:NumericUpDown>
+                        </Grid>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <Button FontSize="14"
+                        Command="{Binding GeneralCommand}" CommandParameter="保存"
+                        Style="{StaticResource GeneralButtonStyle}"
+                        Height="35"
+                        Width="100"
+                        Padding="10,0"
+                        Content="保存"
+                        Cursor="Hand"
+                        HorizontalAlignment="Left"
+                        Margin="5 15 0 5"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

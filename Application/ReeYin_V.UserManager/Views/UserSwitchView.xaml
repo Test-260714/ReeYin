@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="ReeYin_V.UserManager.Views.UserSwitchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.UserManager.Views"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d" 
+             Width="400" Height="250"
+             d:DesignWidth="300" d:DesignHeight="300">
+    <Border BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition />
+                <RowDefinition Height="70" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row ="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="10"></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="用户名  " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="20"></TextBlock>
+                    <ComboBox IsEditable="True" Text="{Binding UserName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding ModelParam}" Width="200" Height="35" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"></ComboBox>
+                   
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="密码  " HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="20"></TextBlock>
+                    <hc:PasswordBox IsSafeEnabled="False" UnsafePassword ="{Binding Password,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"   Width="200" Height="35" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"  hc:InfoElement.Placeholder="请输入密码"></hc:PasswordBox>
+
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Row="3">
+                <StackPanel  HorizontalAlignment="Center"  Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Margin="0,0,50,0" FontSize="20"
+                    Command="{Binding GeneralRoleCommand}" CommandParameter="取消" Height="35" Width="80" Style="{StaticResource GeneralButtonStyle}" Content="取消"
+                    Cursor="Hand"/>
+                    <Button  FontSize="20" Command="{Binding LoginCommand}" CommandParameter="确认" Style="{StaticResource GeneralButtonStyle}"
+                    Height="35" Width="80" Content="确认" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

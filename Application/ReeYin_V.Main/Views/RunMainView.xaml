@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="ReeYin_V.Main.Views.RunMainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.Main.Views"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:UC="clr-namespace:ReeYin_V.Main.UC.Views"
+             xmlns:Chart="clr-namespace:ReeYin_V.UI.UserControls.GrayAndHeightChart;assembly=ReeYin_V.UI"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" Background="DarkGray" IsEnabled="{Binding IsEnable}"
+             d:DesignHeight="1071" d:DesignWidth="1920">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <!--<UC:DynamicLayoutGrid />-->
+    <!--改成可以自定义设置行列数量的样式-->
+    <Grid>
+        <UC:DynamicRegionControl/>
+    </Grid>
+</UserControl>

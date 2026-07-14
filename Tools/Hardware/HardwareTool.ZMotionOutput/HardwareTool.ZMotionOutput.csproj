@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\..\Hardware\ControlCard\ReeYin_V.Hardware.ControlCard\ReeYin_V.Hardware.ControlCard.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyModuleToOutput" AfterTargets="Build" Condition="'$(SkipCopyModuleToOutput)' != 'true'">
+    <PropertyGroup>
+      <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\'))</RepoRoot>
+      <ModuleOutputDir>$(RepoRoot)OutputExe\$(Configuration)\net8.0-windows\Modules\</ModuleOutputDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(ModuleOutputDir)" />
+
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFolder="$(ModuleOutputDir)"
+      SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

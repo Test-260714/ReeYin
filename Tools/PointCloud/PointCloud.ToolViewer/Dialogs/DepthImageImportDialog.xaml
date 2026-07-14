@@ -1,0 +1,89 @@
+<Window x:Class="PointCloud.ToolViewer.Dialogs.DepthImageImportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        Title="Depth image import"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="140" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock VerticalAlignment="Center" Text="Spacing X" />
+            <hc:NumericUpDown Grid.Column="1"
+                              DecimalPlaces="8"
+                              Minimum="0.00000001"
+                              Maximum="1000000000000"
+                              Value="{Binding Parameters.SpacingX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="Spacing Y" />
+            <hc:NumericUpDown Grid.Column="4"
+                              DecimalPlaces="8"
+                              Minimum="0.00000001"
+                              Maximum="1000000000000"
+                              Value="{Binding Parameters.SpacingY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Grid.Column="6" VerticalAlignment="Center" Text="Spacing Z" />
+            <hc:NumericUpDown Grid.Column="7"
+                              DecimalPlaces="8"
+                              Minimum="0.00000001"
+                              Maximum="1000000000000"
+                              Value="{Binding Parameters.SpacingZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock VerticalAlignment="Center" Text="Invalid sentinel" />
+            <hc:NumericUpDown x:Name="InvalidValueNumeric"
+                              Grid.Column="1"
+                              DecimalPlaces="8"
+                              Minimum="-1000000000000"
+                              Maximum="1000000000000"
+                              Value="{Binding Parameters.InvalidValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <CheckBox x:Name="UseInvalidValueCheckBox"
+                      Grid.Column="3"
+                      VerticalAlignment="Center"
+                      Content="Use invalid sentinel"
+                      IsChecked="{Binding Parameters.UseInvalidValue, Mode=TwoWay}"
+                      Checked="UseInvalidValueCheckBox_CheckedChanged"
+                      Unchecked="UseInvalidValueCheckBox_CheckedChanged" />
+        </Grid>
+
+        <StackPanel Grid.Row="2"
+                    Margin="0,16,0,0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Width="90"
+                    Margin="0,0,8,0"
+                    IsDefault="True"
+                    Content="OK"
+                    Click="OkButton_Click" />
+            <Button Width="90"
+                    IsCancel="True"
+                    Content="Cancel" />
+        </StackPanel>
+    </Grid>
+</Window>

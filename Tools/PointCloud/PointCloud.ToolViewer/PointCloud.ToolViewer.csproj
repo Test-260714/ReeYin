@@ -1,0 +1,104 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Remove="halcondotnet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\PointCloud.Interop\PointCloud.Interop.csproj" />
+    <ProjectReference Include="..\PointCloud.Algorithms\PointCloud.Algorithms.csproj" />
+    <ProjectReference Include="..\PointCloud.VTKWPF\PointCloud.VTKWPF.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Dialogs\DepthImageImportDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Dialogs\DepthImageImportDialog.xaml.cs">
+      <DependentUpon>DepthImageImportDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Update="Dialogs\SetScalarFieldDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Dialogs\SetScalarFieldDialog.xaml.cs">
+      <DependentUpon>SetScalarFieldDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Update="Dialogs\PointPickingMeasurementDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Dialogs\PointPickingMeasurementDialog.xaml.cs">
+      <DependentUpon>PointPickingMeasurementDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Update="Dialogs\ScalarFieldDisplayParamsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Dialogs\ScalarFieldDisplayParamsDialog.xaml.cs">
+      <DependentUpon>ScalarFieldDisplayParamsDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Update="Dialogs\ScalePointCloudDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Dialogs\ScalePointCloudDialog.xaml.cs">
+      <DependentUpon>ScalePointCloudDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Update="Views\PointCloudViewerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Views\PointCloudViewerView.xaml.cs">
+      <DependentUpon>PointCloudViewerView.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(RunLegacyPointCloudToolViewerPostBuild)' == 'true'">
+    <Exec Command="set SOURCE_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_DEBUG=&quot;$(SolutionDir)\OutputExe\Debug\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;set SOURCE_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_RELEASE=&quot;$(SolutionDir)\OutputExe\Release\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;:: 检查Debug配置文件&#xD;&#xA;IF EXIST %25SOURCE_DEBUG%25 (&#xD;&#xA;    echo 找到Debug源文件: %25SOURCE_DEBUG%25&#xD;&#xA;    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    echo Debug文件复制成功！&#xD;&#xA;) ELSE (&#xD;&#xA;    echo 警告：Debug源文件不存在 - %25SOURCE_DEBUG%25&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:: 检查Release配置文件&#xD;&#xA;IF EXIST %25SOURCE_RELEASE%25 (&#xD;&#xA;    echo 找到Release源文件: %25SOURCE_RELEASE%25&#xD;&#xA;    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    echo Release文件复制成功！&#xD;&#xA;) ELSE (&#xD;&#xA;    echo 警告：Release源文件不存在 - %25SOURCE_RELEASE%25&#xD;&#xA;)&#xD;&#xA;" />
+  </Target>
+
+  <Target Name="CopyModuleToOutput" AfterTargets="Build" Condition="'$(SkipCopyModuleToOutput)' != 'true'">
+    <PropertyGroup>
+      <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\'))</RepoRoot>
+      <ModuleOutputDir>$(RepoRoot)OutputExe\$(Configuration)\net8.0-windows\Modules\</ModuleOutputDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <StalePointCloudRuntimeDependency Include="$(ModuleOutputDir)PointCloud.Interop.*" />
+      <StalePointCloudRuntimeDependency Include="$(ModuleOutputDir)PointCloud.Algorithms.*" />
+      <StalePointCloudRuntimeDependency Include="$(ModuleOutputDir)PointCloud.VTKWPF.*" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(ModuleOutputDir)" />
+    <!-- Keep the Prism module folder module-only; stale dependencies here can be loaded before base-dir copies. -->
+    <Delete
+      Files="@(StalePointCloudRuntimeDependency)"
+      TreatErrorsAsWarnings="true" />
+
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFolder="$(ModuleOutputDir)"
+      SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

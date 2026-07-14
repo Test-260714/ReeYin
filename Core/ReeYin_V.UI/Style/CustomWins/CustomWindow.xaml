@@ -1,0 +1,788 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vision="clr-namespace:ReeYin_V.UI.Style.CustomWins"
+                    xmlns:Shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+                     xmlns:sys="clr-namespace:System;assembly=netstandard">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/CustomBrush.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <FontFamily x:Key="Iconfont">pack://application:,,,/ReeYin_V.UI;component/Font/#iconfont</FontFamily>
+    <Style x:Key="buttonStyle" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Rectangle
+                      x:Name="backRectangle"
+                      Fill="{TemplateBinding Background}"
+                      Opacity="0"/>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                      Storyboard.TargetName="backRectangle"
+                                      Storyboard.TargetProperty="(UIElement.Opacity)"
+                                      To="0"
+                                      Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                      Storyboard.TargetName="backRectangle"
+                                      Storyboard.TargetProperty="(UIElement.Opacity)"
+                                      To="0.15"
+                                      Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                      Storyboard.TargetName="backRectangle"
+                                      Storyboard.TargetProperty="(UIElement.Opacity)"
+                                      To="0.05"
+                                      Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!--当鼠标在元素控件上时-->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" Value="#6d6e70" TargetName="backRectangle"/>
+                        </Trigger>
+                        <!--当鼠标按下时-->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" Value="#9f9fa3" TargetName="backRectangle"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="btnClons" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Rectangle x:Name="backRectangle" Fill="{TemplateBinding Background}" Opacity="0"/>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                              Storyboard.TargetName="backRectangle"
+                                              Storyboard.TargetProperty="(UIElement.Opacity)"
+                                              To="0"
+                                              Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                              Storyboard.TargetName="backRectangle"
+                                              Storyboard.TargetProperty="(UIElement.Opacity)"
+                                              To="0.15"
+                                              Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                              Storyboard.TargetName="backRectangle"
+                                              Storyboard.TargetProperty="(UIElement.Opacity)"
+                                              To="0.05"
+                                              Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!--当鼠标在元素控件上时-->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" Value="#ff0000" TargetName="backRectangle"/>
+                        </Trigger>
+                        <!--当鼠标按下时-->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" Value="Red" TargetName="backRectangle"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="alarmButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Width" Value="45" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4">
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#1FFFFFFF" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="#33FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#33FFFFFF" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="#66FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ContextMenu x:Key="PART_SettingMenu" Width="auto">
+        <MenuItem Header="{DynamicResource UserManagement}" Tag="UserManager">
+            <MenuItem.Icon>
+                <TextBlock Text="&#xe6aa;"
+                       FontFamily="{StaticResource Iconfont}"
+                       Foreground="{DynamicResource MenuIconBrush}"/>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{DynamicResource LanguageSettings}" Tag="LanguageSwitch">
+            <MenuItem.Icon>
+                <TextBlock Text="&#xe65a;"
+                       FontFamily="{StaticResource Iconfont}"
+                       Foreground="{DynamicResource MenuIconBrush}"/>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{DynamicResource StyleConfiguration}" Tag="StyleSwitch">
+            <MenuItem.Icon>
+                <TextBlock Text="&#xe62f;"
+                       FontFamily="{StaticResource Iconfont}"
+                       Foreground="{DynamicResource MenuIconBrush}"/>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{DynamicResource LicenseActivation}" Tag="LicenseActivation">
+            <MenuItem.Icon>
+                <TextBlock Text="&#xe659;"
+                       FontFamily="{StaticResource Iconfont}"
+                       Foreground="{DynamicResource MenuIconBrush}"/>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{DynamicResource ModuleSwitching}" Tag="ModuleSwitch">
+            <MenuItem.Icon>
+                <TextBlock Text="&#xe659;"
+                       FontFamily="{StaticResource Iconfont}"
+                       Foreground="{DynamicResource MenuIconBrush}"/>
+            </MenuItem.Icon>
+        </MenuItem>
+    </ContextMenu>
+    <!--#region 注释代码-->
+    <!--<Style TargetType="{x:Type vision:VisionWindow}" x:Key="MianWindow">
+        -->
+    <!--禁用焦点样式-->
+    <!--
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        -->
+    <!--像素对齐-->
+    <!--
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        -->
+    <!--背景颜色-->
+    <!--
+        <Setter Property="Background" Value="Transparent" />
+        -->
+    <!--窗口样式-->
+    <!--
+        <Setter Property="WindowStyle" Value="SingleBorderWindow" />
+        -->
+    <!--边框颜色-->
+    <!--
+        <Setter Property="BorderBrush" Value="Transparent" />
+ 
+        <Setter Property="Foreground" Value="#FF000000" />
+        -->
+    <!--标题文字颜色-->
+    <!--
+        <Setter Property="TitleForeground" Value="#ffffff" />
+        -->
+    <!--系统按钮颜色-->
+    <!--
+        <Setter Property="SysButtonColor" Value="#ffffff" />
+        
+        -->
+    <!--图标-->
+    <!--<Setter Property="Icon" Value="/AduSkin;component/Resources/logo.ico" />-->
+    <!--边框厚度-->
+    <!--
+        <Setter Property="BorderThickness" Value="0" />
+        -->
+    <!--字体大小-->
+    <!--
+        <Setter Property="FontSize" Value="12" />
+        -->
+    <!--文本渲染-->
+    <!--
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality" />
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased" />
+        <Setter Property="Shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+                <Shell:WindowChrome CaptionHeight="70"
+                           CornerRadius="11" GlassFrameThickness="0" NonClientFrameEdges="None" ResizeBorderThickness="5" UseAeroCaptionButtons="False" />
+            </Setter.Value>
+        </Setter>
+        -->
+    <!--设置窗体模板样式-->
+    <!--
+        <Setter Property="Template">
+            <Setter.Value>
+                -->
+    <!--"{StaticResource DefaultWhiteBrush}"-->
+    <!--
+                <ControlTemplate TargetType="{x:Type vision:VisionWindow}">
+                    <Border x:Name="PART_WindowBorder" Background="{TemplateBinding Background}" CornerRadius="5" ClipToBounds="True"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" >
+                        <Grid Background="#000000" x:Name="WindowGrid" >
+                            <Border Margin="-1" BorderBrush="#000000"  Opacity="0.15" />
+                            <Grid x:Name="WIdowGrid" Background="#000000" DataContext="{x:Static hedMode:HeaderViewModel.Ins }">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="4"/>
+                                    -->
+    <!--标题栏-->
+    <!--
+                                    <RowDefinition x:Name="TitleHeight" Height="70" />
+                                    -->
+    <!--内容区-->
+    <!--
+                                    <RowDefinition />
+                                    <RowDefinition Height="0.8"/>
+                                    <RowDefinition Height="23"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0.2,0" EndPoint="1,1">
+                                            <GradientStop Color="#FE582D" Offset="-0.1"/>
+                                            <GradientStop Color="#F1961A" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                </Border>
+                                
+                                -->
+    <!--标题栏区域-->
+    <!--
+                                <Grid x:Name="PART_Title" Background="{TemplateBinding TitleBrush}" Grid.Row="1">
+                                    <Grid Margin="15,1,0,1.5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        -->
+    <!--标题栏区域分割1-->
+    <!--
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="1,5,8,2">
+                                            <Image Source="/BaseStyle;component/Image/VSol.png"  HorizontalAlignment="Left"  Stretch="Fill" Width="60" Height="60"/>
+                                            <StackPanel VerticalAlignment="Center" Margin="1,0,0,0">
+                                                -->
+    <!-- Vision 文字 -->
+    <!--
+                                                <TextBlock FontSize="20"  FontWeight="ExtraBold" Text="VisionSolution">-->
+    <!--Foreground="#F2F2F2"-->
+    <!--
+                                                    <TextBlock.Foreground>
+                                                        <LinearGradientBrush StartPoint="0.2,0" EndPoint="1,1">
+                                                            <GradientStop Color="#EF3B36" Offset="-0.1"/>
+                                                            <GradientStop Color="#ffffff" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </TextBlock.Foreground>
+                                                    <TextBlock.LayoutTransform>
+                                                        <SkewTransform AngleX="-19" />
+                                                    </TextBlock.LayoutTransform>
+                                                </TextBlock>
+                                                -->
+    <!-- Master 文字 -->
+    <!--
+                                                <TextBlock Text="&#xe75e;" FontFamily="{StaticResource Icons2}"   FontSize="15" Margin="5,0,2,0">
+                                                    <TextBlock.LayoutTransform>
+                                                        <SkewTransform AngleX="-10" />
+                                                    </TextBlock.LayoutTransform>
+                                                    <TextBlock.Foreground>
+                                                        <LinearGradientBrush StartPoint="0.2,0" EndPoint="1,1">
+                                                            <GradientStop Color="#EF3B36" Offset="-0.1"/>
+                                                            <GradientStop Color="#ffffff" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </TextBlock.Foreground>
+                                                        <TextBlock FontSize="15" Foreground="#F2F2F2" Text="V3.0">
+                                                        <TextBlock.LayoutTransform>
+                                                            <SkewTransform AngleX="-19" />
+                                                        </TextBlock.LayoutTransform>
+                                                        </TextBlock>
+                                                    </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        
+                                        -->
+    <!--标题栏分割区域2-->
+    <!--
+                                        <StackPanel HorizontalAlignment="Stretch" Grid.Column="1" >
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="1"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                -->
+    <!--<layout:HeaderViews/>-->
+    <!--
+                                                <Border Background="Gray" Grid.Row="1"/>
+                                                <Grid Background="Transparent">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,10,1">
+                                                        <ContentPresenter Content="{TemplateBinding Menu}" />
+                                                    </StackPanel>
+ 
+                                                    <StackPanel  Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,0" Grid.Row="0">
+ 
+                                                        <Border BorderBrush="#DADADA" BorderThickness="1" Height="18" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                        <ToggleButton Content="&#xe60c;" Foreground="#769BF7" VerticalAlignment="Center" Margin="15 0 0 0" FontSize="22" FontFamily="{StaticResource Icons2}" Background="Transparent" BorderThickness="0"/>
+                                                        <Button Content="{DynamicResource 未登录}" VerticalAlignment="Center" Margin="10 0 16 0" Foreground="#F2F2F2" Background="Transparent" BorderThickness="0" Command="{Binding UserLoad}"/>
+                                                        <Border BorderBrush="#DADADA" BorderThickness="1" Height="18" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0"/>
+                                                        <TextBlock Text="&#xe8bd;" FontFamily="{StaticResource Icons}" VerticalAlignment="Center" FontSize="18" Foreground="#F2F2F2" Margin="0,0,20,0"/>
+                                                        -->
+    <!--获取外部的资源,进行图标显示-->
+    <!--
+                                                        <TextBlock Text="&#xe8bd;" FontFamily="{StaticResource Icons}" VerticalAlignment="Center" FontSize="18" Foreground="#F2F2F2" Margin="0,0,20,0"/>
+                                                        -->
+    <!--获取外部的资源,进行图标显示-->
+    <!--
+ 
+ 
+                                                        <Button x:Name="PART_MinimizedButton" Style="{StaticResource buttonStyle}" Width="45" Foreground="{TemplateBinding TitleForeground}"
+                                                                Content="&#xe65b;" FontFamily="{StaticResource Icons2}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                                        <Button x:Name="PART_MaximizedButton" Foreground="{TemplateBinding TitleForeground}" Style="{StaticResource buttonStyle}" Width="45" 
+                                                                Content="&#xe65d;" FontFamily="{StaticResource Icons2}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                                        <Button x:Name="PART_NormalButton" Foreground="{TemplateBinding TitleForeground}"  Style="{StaticResource buttonStyle}" Width="45"
+                                                                Content="&#xe692;" FontFamily="{StaticResource Icons2}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                                        <Button x:Name="PART_CloseButton" Foreground="{TemplateBinding TitleForeground}" Style="{StaticResource btnClons}"
+                                                                Content="&#xe6e2;" FontFamily="{StaticResource Icons2}" Width="45" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Grid Grid.Row="2">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,10,1">
+                                                        <Button Width="45" Height="25" Content="&#xe7aa;" FontFamily="{StaticResource Icons2}"  Style="{StaticResource ControlButtonStyle}"  Command="{Binding Create}" ToolTip="{DynamicResource 新建解决方案}"
+                                                                Foreground="#F2F2F2" Margin="5,2" Padding="7,0" HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" />
+                                                        <Button Width="45" Height="25" Content="&#xe677;" FontFamily="{StaticResource Icons2}"  Style="{StaticResource ControlButtonStyle}"  ToolTip="{DynamicResource 保存(Ctrl+S)}"
+                                                                Foreground="#F2F2F2" Margin="5,2" Padding="7,0" HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" Command="{Binding SolutionSave}"
+                                                                CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}"   Tag="{x:Static local:FlowEditorView.Ins}"/>
+                                                        -->
+    <!--Tag="{x:Static local:FlowEditorView.Ins}"-->
+    <!--
+                                                        <Button Width="45" Height="25" Content="&#xe633;" FontFamily="{StaticResource Icons2}" Style="{StaticResource ControlButtonStyle}"  ToolTip="{DynamicResource 全部保存(Ctrl+Shift+S)}"
+                                                                Foreground="#F2F2F2" Margin="5,2,0,2" Padding="7,0"  HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" />
+                                                        <TextBlock Text="&#xe601;" FontFamily="{StaticResource Icons2}"  Foreground="#FFA4A2A2" Width="11"   HorizontalAlignment="Left" FontSize="19" VerticalAlignment="Center"/>
+                                                        <Button Width="45" Height="25" Content="&#xe61c;" FontFamily="{StaticResource Icons2}" Style="{StaticResource ControlButtonStyle}"  ToolTip="{DynamicResource 相机配置}"
+                                                                Foreground="#F2F2F2" Margin="1,2,5,2" Padding="7,0"  HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" />
+                                                        <Button Width="45" Height="25" Content="&#xeac5;" FontFamily="{StaticResource Icons2}" Style="{StaticResource ControlButtonStyle}" ToolTip="{DynamicResource 打开文件(Ctrl+O)}"
+                                                                Foreground="#F2F2F2" Margin="5,2,0,2" Padding="7,0"  HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" />
+                                                        <TextBlock Text="&#xe601;" FontFamily="{StaticResource Icons2}"  Foreground="#FFA4A2A2" Width="11" Background="Transparent"   HorizontalAlignment="Center" FontSize="19" VerticalAlignment="Center" />
+                                                        <Button Width="45" Height="25" Content="&#xe639;" FontFamily="{StaticResource Icons2}" Style="{StaticResource ControlButtonStyle}" ToolTip="{DynamicResource 界面锁定}"
+                                                                Foreground="#F2F2F2" Margin="1,2,5,2" Padding="7,0"  HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" Background="#FF7C7272" />
+                                                        <Button Width="45" Height="25" Content="&#xe636;" FontFamily="{StaticResource Icons2}" Style="{StaticResource ControlButtonStyle}" ToolTip="{DynamicResource 关闭VisiSloution}"
+                                                                Foreground="#F2F2F2" Margin="1,2,5,2" Padding="7,0"  HorizontalContentAlignment="Center" FontSize="19" VerticalContentAlignment="Center" Command="{Binding Close}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                
+                                -->
+    <!--内容区域-->
+    <!--
+                                <Grid x:Name="PART_Content" Grid.Row="2" Background="{TemplateBinding Background}" >
+                                    <AdornerDecorator>
+                                        <ContentPresenter/>
+                                    </AdornerDecorator>
+                                </Grid>
+                                
+                                <Border Grid.Row="3" Background="Gray" Margin="0.3,0"/>
+                                <Grid Grid.Row="4" Background="#FF6345C0">-->
+    <!---->
+    <!--
+                                    <Grid.Triggers>
+                                        <EventTrigger RoutedEvent="UserControl.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Duration="0:0:2"  Storyboard.TargetName="tb_datetime"
+                                                        Storyboard.TargetProperty="DataContext" RepeatBehavior="Forever">
+                                                        <DiscreteObjectKeyFrame Value="{x:Static sys:DateTime.Now}" KeyTime="0:0:0"/>
+                                                        <DiscreteObjectKeyFrame Value="{x:Static sys:DateTime.Now}" KeyTime="0:0:1"/>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Grid.Triggers>
+                                    <StackPanel Orientation="Horizontal" TextBlock.FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                        -->
+    <!--Exploitation:开发,Application:应用,Maintenance:维护,,Owner:First-->
+    <!--
+                                        <TextBlock Text="Owner" Style="{StaticResource Foreground_this}" Margin="6 0 4 0"  Foreground="White"/>
+                                        <Border Width="1" Background="White" Margin="4,0"/>
+                                        <TextBlock Text="{DynamicResource 当前用户}" Style="{StaticResource Foreground_this}"  Margin="4,0,0,0"  Foreground="White"/>
+                                        <TextBlock Text="{TemplateBinding ThisUser}" Style="{StaticResource Foreground_this}"  Margin="1,0,4,0"  Foreground="White"/>
+                                        <Border Width="1" Background="White" Margin="4,0"/>
+                                        <TextBlock Text="{DynamicResource 当前解决方案}" Style="{StaticResource Foreground_this}"  Margin="4,0,0,0" Foreground="White"/>
+                                        <TextBlock Text="{TemplateBinding Formulation}"  Style="{StaticResource Foreground_this}" Foreground="White" Margin="0,0,4,0"/>
+                                        <Border Width="1" Background="White" Margin="4,0"/>
+                                        <TextBlock Text="{DynamicResource 加密狗}" Foreground="White" Margin="4,0,0,0" />
+                                        <TextBlock Text="{TemplateBinding Dongle}" Foreground="White" Margin="0,0,4,0" />
+                                        <Border Width="1" Background="White" Margin="4,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Center">
+                                        <Border Width="1" Background="White" Margin="4,0"/>
+                                        <TextBlock Text="123.8H" Margin="4,0" VerticalAlignment="Center" Foreground="White" FontFamily="{StaticResource DigitalDisplay}" FontSize="15"/>
+                                        <Border Width="1" Background="White" Margin="4,0"/>
+                                        <TextBlock Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" 
+                                                   DataContext="{x:Static sys:DateTime.Now}"
+                                                   VerticalAlignment="Center" Name="tb_datetime" Margin="6,0" Foreground="White">
+                                            <Run Text="{Binding Now,Mode=OneWay,StringFormat='yyyy-MM-dd HH:mm:ss'}" FontSize="16"
+                                                 FontFamily="{StaticResource DigitalDisplay}"/>
+                                            
+                                            <Run Text=" "/>
+                                            -->
+    <!--<Run Text="{Binding Now,Mode=OneWay,StringFormat='dddd',ConverterCulture=zh-CN}" FontFamily="{StaticResource DigitalDisplay}"
+                                                 FontSize="13" FontWeight="Bold"/>-->
+    <!--
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                                <Rectangle x:Name="disableRectangle" Grid.RowSpan="2" Fill="#FF000000" IsHitTestVisible="False" Opacity="0" />
+                            </Grid>
+                        </Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup>
+                                <VisualState x:Name="Enabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="disableRectangle" Storyboard.TargetProperty="(UIElement.Opacity)" To="0.5" Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disable">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="disableRectangle" Storyboard.TargetProperty="(UIElement.Opacity)" To="0" Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Border>
+                    -->
+    <!--模板触发器-->
+    <!--
+                    <ControlTemplate.Triggers>
+                        -->
+    <!--当窗口ResizeMode属性设置为NoResize时，窗口不能呗用户调整大小-->
+    <!--
+                        <Trigger Property="ResizeMode" Value="NoResize">
+                            -->
+    <!--最小化按钮-->
+    <!--
+                            <Setter TargetName="PART_MinimizedButton" Property="Visibility" Value="Collapsed" />
+                            -->
+    <!--最大化按钮-->
+    <!--
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            -->
+    <!--窗口还原按钮-->
+    <!--
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        -->
+    <!--仅允许最小化-->
+    <!--
+                        <Trigger Property="ResizeMode" Value="CanMinimize">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        -->
+    <!--窗口最大化状态-->
+    <!--
+                        <Trigger Property="WindowState" Value="Maximized">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_WindowBorder" Property="BorderThickness" Value="6" />
+                        </Trigger>
+                        -->
+    <!--窗口正常状态-->
+    <!--
+                        <Trigger Property="WindowState" Value="Normal">
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        -->
+    <!--隐藏图标-->
+    <!--<Trigger Property="Icon" Value="{x:Null}">
+                            <Setter TargetName="iconSize" Property="Width" Value="0" />
+                            <Setter Property="MinWidth" Value="120" />
+                        </Trigger>-->
+    <!--工具窗口样式-->
+    <!--
+                        <Trigger Property="WindowStyle" Value="ToolWindow">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_MinimizedButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        -->
+    <!--无边框窗口-->
+    <!--
+                        <Trigger Property="WindowStyle" Value="None">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_MinimizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_CloseButton" Property="Visibility" Value="Collapsed" />
+                            -->
+    <!--<Setter TargetName="PART_SysButton" Property="Visibility" Value="Collapsed" />-->
+    <!--
+                            <Setter TargetName="PART_Title" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_Content" Property="Grid.Row" Value="0" />
+                            <Setter TargetName="PART_Content" Property="Grid.RowSpan" Value="2" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
+    <!--#endregion-->
+
+    <Style TargetType="{x:Type vision:VisionWindow}" x:Key="WPFWindow" >
+        <!--自定义窗体添加 WindowChrome.IsHitTestVisibleInChrome="True" 后，窗体无法拖拽是因为该属性会使元素接收鼠标事件-->
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="true"/>
+        <!--禁用焦点样式-->
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <!--像素对齐-->
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <!--背景颜色-->
+        <Setter Property="Background" Value="{DynamicResource BackgroudBrush}" />
+        <!--窗口样式-->
+        <Setter Property="WindowStyle" Value="SingleBorderWindow" />
+        <!--边框颜色-->
+        <Setter Property="BorderBrush" Value="Brown" />
+        <Setter Property="TitleBrush" Value="{DynamicResource TitleBarBrush}"/>
+
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <!--标题文字颜色-->
+        <Setter Property="TitleForeground" Value="{DynamicResource TextBrush}" />
+        <!--系统按钮颜色-->
+        <Setter Property="SysButtonColor" Value="{DynamicResource TextBrush}" />
+        <Setter Property="WindowHeight" Value="25"/>
+
+        <!--图标-->
+        <!--<Setter Property="Icon" Value="/AduSkin;component/Resources/logo.ico" />-->
+        <!--边框厚度-->
+        <Setter Property="BorderThickness" Value="0" />
+        <!--字体大小-->
+        <Setter Property="FontSize" Value="12" />
+        <!--文本渲染-->
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality" />
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+                <Shell:WindowChrome CaptionHeight="25" 
+                          CornerRadius="0" GlassFrameThickness="0" NonClientFrameEdges="None" ResizeBorderThickness="5" UseAeroCaptionButtons="False" />
+            </Setter.Value>
+        </Setter>
+        <!--设置窗体模板样式-->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type vision:VisionWindow}">
+                    <Border x:Name="PART_WindowBorder" Background="{TemplateBinding Background}"  BorderBrush="{TemplateBinding BorderBrush}" Panel.ZIndex="2"
+                            BorderThickness="{TemplateBinding BorderThickness}"  ClipToBounds="True">
+                        <Grid Background="Transparent" x:Name="WindowGrid"  >
+                            <Border Margin="-1" BorderBrush="Transparent" Opacity="0.15" />
+                            <Grid x:Name="WIdowGrid" Background="Transparent"  WindowChrome.IsHitTestVisibleInChrome="False">
+                                <Grid.RowDefinitions>
+                                    <!--标题栏-->
+                                    <RowDefinition x:Name="TitleHeight" Height="40" MaxHeight="70" MinHeight="30"/>
+                                    <!--内容区-->
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid x:Name="PART_Title" Background="{TemplateBinding TitleBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition x:Name="iconSize" Width="36" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <!--图标-->
+                                    <Grid x:Name="icon" Grid.Column="0" Margin="7,0,0,0">
+                                        <Image Source="{TemplateBinding Icon}" />
+                                        <Rectangle Fill="{TemplateBinding TitleForeground}" Opacity="0" />
+                                    </Grid>
+                                    <!--标题-->
+                                    <Grid Grid.Column="1" x:Name="title">
+                                        <TextBlock Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="{TemplateBinding TitleForeground}" 
+                                                   FontSize="{TemplateBinding TitleFontSize}" Text="" />
+                                    </Grid>
+                                    <Grid Grid.Column="2" x:Name="menu">
+                                        <ContentPresenter Content="{TemplateBinding Menu}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <!--系统按钮-->
+                                    <Grid Grid.Column="3" x:Name="PART_SysButton" WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <StackPanel  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            
+                                            <!--模式切换按钮-->
+                                            <Button x:Name="PART_ModeSwitch" Width="auto" FontSize="20" Background="{DynamicResource PrimaryBrush}" BorderThickness="0"
+                                                      Visibility="{TemplateBinding CustomButtonsVisibility}"
+                                                      Foreground="{TemplateBinding TitleForeground}">
+                                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <Run Text="&#xe621;" FontSize="12" FontFamily="{StaticResource Iconfont}"/>
+                                                    <Run Text="{TemplateBinding ModeName}" FontSize="12" />
+                                                </TextBlock>
+                                            </Button>
+                                            <Button x:Name="PART_AlarmButton"
+                                                    Style="{StaticResource alarmButtonStyle}"
+                                                    FontSize="20"
+                                                    FontFamily="{StaticResource Iconfont}"
+                                                    Visibility="{TemplateBinding CustomButtonsVisibility}"
+                                                    Foreground="{TemplateBinding TitleForeground}"
+                                                    Content="&#xe602;"
+                                                    ToolTip="{TemplateBinding AlarmButtonText}" />
+                                            <!--设置按钮-->
+                                            <Button x:Name="PART_SettingButton" Style="{StaticResource buttonStyle}" Width="45" FontSize="20"
+                                                    Visibility="{TemplateBinding CustomButtonsVisibility}"
+                                                    Content="&#xe61c;" FontFamily="{StaticResource Iconfont}" Foreground="{TemplateBinding TitleForeground}" ToolTip="设置">
+                                            </Button>
+                                            <Button x:Name="PART_SwitchUserButton" Style="{StaticResource buttonStyle}" Width="45" FontSize="20"
+                                                    Visibility="{TemplateBinding CustomButtonsVisibility}"
+                                                    Content="&#xe6c6;" FontFamily="{StaticResource Iconfont}" Foreground="{TemplateBinding TitleForeground}" ToolTip="切换用户">
+                                            </Button>
+                                            <Button x:Name="PART_MinimizedButton" Style="{StaticResource buttonStyle}" Width="45" FontSize="20"
+                                                    Content="&#xe676;" FontFamily="{StaticResource Iconfont}" Foreground="{TemplateBinding TitleForeground}"/>
+                                            <Button x:Name="PART_MaximizedButton" Foreground="{TemplateBinding TitleForeground}" Style="{StaticResource buttonStyle}" Width="45" FontSize="20"
+                                                    Content="&#xe65b;" FontFamily="{StaticResource Iconfont}"/>
+                                            <Button x:Name="PART_NormalButton" Foreground="{TemplateBinding TitleForeground}"  Style="{StaticResource buttonStyle}" Width="45" FontSize="20"
+                                                    Content="&#xe692;" FontFamily="{StaticResource Iconfont}"/>
+                                            <Button x:Name="PART_CloseButton" Foreground="{TemplateBinding TitleForeground}" Style="{StaticResource btnClons}" FontSize="20"
+                                                    Content="&#xe632;" FontFamily="{StaticResource Iconfont}" Width="45" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                <Border x:Name="PART_Content" Grid.Row="1" Background="Transparent" CornerRadius="5">
+                                    <AdornerDecorator >
+                                        <ContentPresenter />
+                                    </AdornerDecorator>
+                                </Border>
+                                <Rectangle x:Name="disableRectangle" Grid.RowSpan="2" Fill="#FF000000" IsHitTestVisible="False" Opacity="0" />
+                            </Grid>
+                        </Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup>
+                                <VisualState x:Name="Enabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="disableRectangle" Storyboard.TargetProperty="(UIElement.Opacity)" To="0.5" Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disable">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="disableRectangle" Storyboard.TargetProperty="(UIElement.Opacity)" To="0" Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Border>
+                    <!--模板触发器-->
+                    <ControlTemplate.Triggers>
+                        <!--当窗口ResizeMode属性设置为NoResize时，窗口不能呗用户调整大小-->
+                        <Trigger Property="ResizeMode" Value="NoResize">
+                            <!--最小化按钮-->
+                            <Setter TargetName="PART_MinimizedButton" Property="Visibility" Value="Collapsed" />
+                            <!--最大化按钮-->
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <!--窗口还原按钮-->
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <!--仅允许最小化-->
+                        <Trigger Property="ResizeMode" Value="CanMinimize">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <!--窗口最大化状态-->
+                        <Trigger Property="WindowState" Value="Maximized">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_WindowBorder" Property="BorderThickness" Value="6" />
+                        </Trigger>
+                        <!--窗口正常状态-->
+                        <Trigger Property="WindowState" Value="Normal">
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <!--隐藏图标-->
+                        <Trigger Property="Icon" Value="{x:Null}">
+                            <Setter TargetName="iconSize" Property="Width" Value="0" />
+                            <Setter Property="MinWidth" Value="120" />
+                        </Trigger>
+                        <!--工具窗口样式-->
+                        <Trigger Property="WindowStyle" Value="ToolWindow">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_MinimizedButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <!--无边框窗口-->
+                        <Trigger Property="WindowStyle" Value="None">
+                            <Setter TargetName="PART_MaximizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NormalButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_MinimizedButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_CloseButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_SysButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_Title" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_Content" Property="Grid.Row" Value="0" />
+                            <Setter TargetName="PART_Content" Property="Grid.RowSpan" Value="2" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+</ResourceDictionary>

@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <PackageReference Include="System.IO.Ports" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Base\" />
+    <Folder Include="Iinterface\" />
+    <Folder Include="Models\ControlCard\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.Logger\ReeYin_V.Logger.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\Tools\Image\ImageTool.Halcon\ImageTool.Halcon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="halcondotnet">
+      <HintPath>..\..\packages\halcondotnet.dll</HintPath>
+    </Reference>
+    <Reference Include="HslCommunication">
+      <HintPath>..\..\packages\HslCommunication.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

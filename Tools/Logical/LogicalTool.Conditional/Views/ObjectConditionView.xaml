@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="LogicalTool.Conditional.Views.ObjectConditionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LogicalTool.Conditional.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:behaviors="clr-namespace:ReeYin_V.UI.Helper;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="14"
+             Height="600" Width="600"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="600" d:DesignWidth="600">
+    <Grid>
+        <TextBlock Text="Object操作页面"/>
+    </Grid>
+</UserControl>

@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="ForegroundColor">White</Color>
+    <Color x:Key="DisabledForegroundColor">Gray</Color>
+
+    <StaticResource x:Key="BackgroundColor" ResourceKey="PrimaryColor" />
+    <StaticResource x:Key="ContrastBackgroundColor" ResourceKey="PrimaryColor" />
+    <StaticResource x:Key="HighlightedBackgroundColor" ResourceKey="PrimaryColor" />
+
+    <StaticResource x:Key="BorderColor" ResourceKey="PrimaryColor" />
+    <Color x:Key="DisabledBorderColor">Gray</Color>
+    <StaticResource x:Key="HighlightedBorderColor" ResourceKey="PrimaryColor" />
+    <StaticResource x:Key="FocusedBorderColor" ResourceKey="PrimaryColor" />
+
+    <StaticResource x:Key="GridLinesColor" ResourceKey="PrimaryColor" />
+    <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SecondaryColor}"/>
+
+    <Color x:Key="PanelBackgroundColor">#2A1B47</Color>
+
+    <Color x:Key="ActiveStateColor">#A6D99C</Color>
+    <StaticResource x:Key="ReadOnlyStateColor" ResourceKey="PrimaryColor" />
+    <StaticResource x:Key="LineConnection.StrokeColor" ResourceKey="PrimaryColor" />
+</ResourceDictionary>

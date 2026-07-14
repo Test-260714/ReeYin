@@ -1,0 +1,104 @@
+﻿<Window x:Class="Custom.WaferFlatnessMeasure.Views.TrajectoryCoordinateSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="坐标设置"
+        Width="360"
+        Height="420"
+        MinHeight="300"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterOwner">
+    <Border Padding="16"
+            Background="#FFFBFCFE"
+            BorderBrush="#FFD8E2EE"
+            BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <TextBlock FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="#FF243547"
+                           Text="XY 坐标范围" />
+                <TextBlock Margin="0,6,0,12"
+                           Foreground="#FF586D81"
+                           TextWrapping="Wrap"
+                           Text="整张绘制区域对应坐标范围：左下角为起点，右上角为终点。" />
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          Margin="0,0,0,12"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="96" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="起点 X" />
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Margin="0,0,0,8"
+                         Text="{Binding CoordinateStartX, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+
+                <TextBlock Grid.Row="1" Margin="0,0,8,8" VerticalAlignment="Center" Text="起点 Y" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Margin="0,0,0,8"
+                         Text="{Binding CoordinateStartY, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+
+                <TextBlock Grid.Row="2" Margin="0,0,8,8" VerticalAlignment="Center" Text="终点 X" />
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Margin="0,0,0,8"
+                         Text="{Binding CoordinateEndX, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+
+                <TextBlock Grid.Row="3" Margin="0,0,8,14" VerticalAlignment="Center" Text="终点 Y" />
+                <TextBox Grid.Row="3"
+                         Grid.Column="1"
+                         Margin="0,0,0,14"
+                         Text="{Binding CoordinateEndY, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+
+                <TextBlock Grid.Row="4" Margin="0,0,8,8" VerticalAlignment="Center" Text="中心 X" />
+                <TextBox Grid.Row="4"
+                         Grid.Column="1"
+                         Margin="0,0,0,8"
+                         Text="{Binding DefaultCenterX, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+
+                <TextBlock Grid.Row="5" Margin="0,0,8,0" VerticalAlignment="Center" Text="中心 Y" />
+                <TextBox Grid.Row="5"
+                         Grid.Column="1"
+                         Text="{Binding DefaultCenterY, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                </Grid>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="2"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Width="82"
+                        Height="30"
+                        Margin="0,0,8,0"
+                        Click="CancelButton_Click"
+                        Content="取消"
+                        Style="{StaticResource GeneralButtonStyle}" />
+                <Button Width="82"
+                        Height="30"
+                        Click="ConfirmButton_Click"
+                        Content="确定"
+                        Style="{StaticResource GeneralButtonStyle}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

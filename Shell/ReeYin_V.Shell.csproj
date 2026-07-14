@@ -1,0 +1,154 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+	  <!-- 将本机库包含在单个 .exe 文件中。这会增加 .exe 文件的大小，但减少了发布目录中的文件数量 -->
+	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	  <!--尝试将所有内容（包括资源文件等）打包进单个 .exe 文件 -->
+	  <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <BaseOutputPath>..\OutputExe</BaseOutputPath>
+    <ApplicationIcon>reech_icon.ico</ApplicationIcon>
+    <PackageId>$(AssemblyName)</PackageId>
+    <AssemblyName>ReeYin</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="bin\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <None Remove="bin\**" />
+    <Page Remove="bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="reech_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nodify" Version="7.0.4" />
+    <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
+    <PackageReference Include="OpenCvSharp4.Extensions" Version="4.11.0.20250507" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
+    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.193" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\Core\ReeYin__V.NodifyUI\ReeYin_V.NodifyManager.csproj" />
+    <ProjectReference Include="..\Tools\Image\ImageTool.Halcon\ImageTool.Halcon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  	  <!-- 这些 DLL 要打包进单文件 -->
+	  <None Include="..\packages\A_ThirdParty\Halcon\hcanvas.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\A_ThirdParty\Halcon\halconxl.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <!--<None Include="..\packages\ALGO\cublas64_11.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\cublasLt64_11.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\cudart64_110.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\cudnn64_8.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\cufft64_10.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\nvinfer_10.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  
+	  --><!--<None Include="..\packages\ALGO\nvinfer_builder_resource_10.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>--><!--
+	  <None Include="..\packages\ALGO\nvinfer_plugin_10.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\nvonnxparser_10.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\opencv_world481.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  
+	  <None Include="..\packages\ALGO\openvino.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\openvino_intel_cpu_plugin.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\openvino_intel_gpu_plugin.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\openvino_onnx_frontend.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\packages\ALGO\tbb12.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>-->
+	  
+
+    <Reference Include="Arction.DirectX">
+      <HintPath>..\packages\LightingChartOld\Arction.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingDefinitions">
+      <HintPath>..\packages\LightingChartOld\Arction.RenderingDefinitions.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.Charting.LightningChart">
+      <HintPath>..\packages\LightingChartOld\Arction.Wpf.Charting.LightningChart.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.ChartingMVVM.LightningChart">
+      <HintPath>..\packages\LightingChartOld\Arction.Wpf.ChartingMVVM.LightningChart.dll</HintPath>
+    </Reference>
+    <Reference Include="Basler.Pylon">
+      <HintPath>..\packages\Basler.Pylon.dll</HintPath>
+    </Reference>
+    <Reference Include="GxIAPINET">
+      <HintPath>..\packages\GxIAPINET.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HslCommunication">
+      <HintPath>..\packages\HslCommunication.dll</HintPath>
+    </Reference>
+    <Reference Include="IKapBoardDotNet2">
+      <HintPath>..\packages\A_ThirdParty\HardAPI\IKap\IKapBoardDotNet2.dll</HintPath>
+    </Reference>
+    <Reference Include="IKapCDotNet2">
+      <HintPath>..\packages\A_ThirdParty\HardAPI\IKap\IKapCDotNet2.dll</HintPath>
+    </Reference>
+    <Reference Include="MvCameraControl.Net">
+      <HintPath>..\packages\A_ThirdParty\HardAPI\Hikvision\MvCameraControl.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="MVSDK">
+      <HintPath>..\packages\A_ThirdParty\HardAPI\Hikvision\MVSDK.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="halcon.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Resource\Config\DB_ReeYin.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resource\Icon\Default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resource\Icon\Defualt.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+  </ItemGroup>
+
+</Project>

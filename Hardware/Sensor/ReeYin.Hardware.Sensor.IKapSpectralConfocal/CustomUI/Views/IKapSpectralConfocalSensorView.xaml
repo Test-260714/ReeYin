@@ -1,0 +1,82 @@
+﻿<UserControl x:Class="ReeYin.Hardware.Sensor.IKapSpectralConfocal.CustomUI.Views.IKapSpectralConfocalSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             FontSize="14"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Height="880"
+             Width="1480"
+             d:DesignHeight="800"
+             d:DesignWidth="1280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="3" />
+                <ColumnDefinition Width="0.5*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Vertical" Width="auto">
+                <Border CornerRadius="0" Padding="5">
+                    <TabControl Width="auto"
+                                Height="auto"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Style="{DynamicResource TabControlStyle}">
+                        <TabItem Header="CMOS配置" Width="110" FontSize="16" Style="{DynamicResource SingleTabItemStyle}" />
+                        <TabItem Header="触发设定" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}" />
+                        <TabItem Header="扫描设定" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}" />
+                        <TabItem Header="其他" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}" />
+                    </TabControl>
+                </Border>
+            </StackPanel>
+
+            <GridSplitter Grid.Column="1"
+                          Height="730"
+                          Background="{DynamicResource BtnOverColor}"
+                          HorizontalAlignment="Stretch" />
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60" />
+                    <RowDefinition />
+                    <RowDefinition Height="60" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Margin="0,0,15,0"
+                    FontSize="18"
+                    MinHeight="30"
+                    Command="{Binding GeneralCommand}"
+                    CommandParameter="Cancel"
+                    Width="80"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Content="取消"
+                    Cursor="Hand" />
+            <Button Margin="0,0,15,0"
+                    FontSize="18"
+                    Command="{Binding GeneralCommand}"
+                    CommandParameter="Confirm"
+                    Style="{StaticResource GeneralButtonStyle}"
+                    Height="auto"
+                    Width="80"
+                    Content="确认"
+                    Cursor="Hand" />
+        </StackPanel>
+    </Grid>
+</UserControl>

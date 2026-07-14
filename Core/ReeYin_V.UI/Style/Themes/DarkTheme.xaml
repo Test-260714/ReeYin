@@ -1,0 +1,92 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ==================== 主题色 (Theme Colors) ==================== -->
+    <Color x:Key="ReeYinPrimaryColor">#BF9000</Color>
+    <Color x:Key="PrimaryColor">#BF9000</Color>
+    <Color x:Key="TitleBarColor">#BF9000</Color>
+    <Color x:Key="DarkPrimaryColor">#BF9000</Color>
+    <Color x:Key="SecondaryColor">#ffffff</Color>
+    <Color x:Key="ColorYellowish">#DFC798</Color>
+
+    <!-- ==================== 文字颜色 (Text Colors) ==================== -->
+    <Color x:Key="TitleForegroundColor">#ffffff</Color>
+    <Color x:Key="TextColor">#ffffff</Color>
+    <Color x:Key="MainTopTextBlockColor">#3B3B3B</Color>
+    <Color x:Key="MainPrimaryTextColor">#323232</Color>
+    <Color x:Key="MainPrimaryTextIconColor">#A2A4B1</Color>
+
+    <!-- ==================== 背景颜色 (Background Colors) ==================== -->
+    <Color x:Key="BackgroudColor">Transparent</Color>
+    <Color x:Key="MainBackgroundColor">#1A1C24</Color>
+    <Color x:Key="RegionBackgroundColor">#323232</Color>
+    <Color x:Key="MenuBackgroundColor">#eeeeee</Color>
+    <Color x:Key="ExpanderHeaderBackgroundColor">#262626</Color>
+    <Color x:Key="ExpanderPanelBackgroundColor">#323232</Color>
+
+    <!-- ==================== 边框/分割线颜色 (Border Colors) ==================== -->
+    <Color x:Key="MainBorderColor">#3B3B3B</Color>
+    <Color x:Key="ChartBorderColor">#1A1C24</Color>
+    <Color x:Key="RegionSideColor">#262626</Color>
+
+    <!-- ==================== 交互状态颜色 (Interactive State Colors) ==================== -->
+    <Color x:Key="HoverColor">#E8E8E8</Color>
+    <Color x:Key="SplitColor">#E8E8E8</Color>
+    <Color x:Key="SelectedColor">#BF9000</Color>
+
+    <!-- ==================== 字体大小 (Font Sizes) ==================== -->
+    <sys:Double x:Key="HeaderFontSize">20</sys:Double>
+    <sys:Double x:Key="TitleFontSize">18</sys:Double>
+    <sys:Double x:Key="SubTitleFontSize">16</sys:Double>
+    <sys:Double x:Key="DefaultFontSize">14</sys:Double>
+    <sys:Double x:Key="SmallFontSize">12</sys:Double>
+    <sys:Double x:Key="IconFontSize">18</sys:Double>
+
+    <!-- ==================== 主题色画笔 (Theme Brushes) ==================== -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="CPrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="TitleBarBrush" Color="{StaticResource TitleBarColor}" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity08" Color="{DynamicResource PrimaryColor}" Opacity="0.08" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity13" Color="{DynamicResource PrimaryColor}" Opacity="0.13" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity14" Color="{DynamicResource PrimaryColor}" Opacity="0.14" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity20" Color="{DynamicResource PrimaryColor}" Opacity="0.20" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity53" Color="{DynamicResource PrimaryColor}" Opacity="0.53" />
+    <SolidColorBrush x:Key="PrimaryBrushOpacity80" Color="{DynamicResource PrimaryColor}" Opacity="0.80" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}" />
+    <SolidColorBrush x:Key="BrushYellowish" Color="{StaticResource ColorYellowish}" />
+    <SolidColorBrush x:Key="BrushTransparent">#22FFFFFF</SolidColorBrush>
+
+    <!-- ==================== 文字画笔 (Text Brushes) ==================== -->
+    <SolidColorBrush x:Key="TitleForegroundBrush" Color="{StaticResource TitleForegroundColor}" />
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}" />
+    <SolidColorBrush x:Key="MainPrimaryTextBrush" Color="{StaticResource MainPrimaryTextColor}" />
+    <SolidColorBrush x:Key="MainPrimaryTextIconBrush" Color="{StaticResource MainPrimaryTextIconColor}" />
+    <SolidColorBrush x:Key="ExpanderHeaderForegroundBrush">#FFFFFF</SolidColorBrush>
+
+    <!-- ==================== 背景画笔 (Background Brushes) ==================== -->
+    <SolidColorBrush x:Key="BackgroudBrush" Color="{StaticResource BackgroudColor}" />
+    <SolidColorBrush x:Key="MainBackgroundBrush" Color="{StaticResource MainBackgroundColor}" />
+    <SolidColorBrush x:Key="RegionBackgroundBrush" Color="{StaticResource RegionBackgroundColor}" />
+    <SolidColorBrush x:Key="MenuBackgroundBrush" Color="{StaticResource MenuBackgroundColor}" />
+    <SolidColorBrush x:Key="ExpanderHeaderBackgroundBrush" Color="{StaticResource ExpanderHeaderBackgroundColor}" />
+    <SolidColorBrush x:Key="ExpanderPanelBackgroundBrush" Color="{StaticResource ExpanderPanelBackgroundColor}" />
+    <ImageBrush x:Key="DialogTitleImageBrush" ImageSource="{DynamicResource Icon_Login_BG}"/>
+
+    <!-- ==================== 边框/分割线画笔 (Border Brushes) ==================== -->
+    <SolidColorBrush x:Key="MainTopSepBrush" Color="{StaticResource MainBorderColor}" />
+    <SolidColorBrush x:Key="RegionSideBrush" Color="{StaticResource RegionSideColor}" />
+
+    <!-- ==================== 交互状态画笔 (Interactive State Brushes) ==================== -->
+    <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
+    <SolidColorBrush x:Key="SplitBrush">#E8E8E8</SolidColorBrush>
+    <SolidColorBrush x:Key="SelectedBrush" Color="{DynamicResource PrimaryColor}" />
+
+    <!-- ==================== 按钮状态画笔 (Button State Brushes) ==================== -->
+    <!-- 注意: 以下Key虽以Color结尾，但类型为SolidColorBrush，已被大量引用，保持兼容 -->
+    <SolidColorBrush x:Key="BtnOverColor" Color="{DynamicResource PrimaryColor}" />
+    <SolidColorBrush x:Key="BtnCheckedColor" Color="{DynamicResource PrimaryColor}" />
+    <SolidColorBrush x:Key="BtnPressedColor">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="BtnBackgroundColor">#A2A4B1</SolidColorBrush>
+
+</ResourceDictionary>

@@ -1,0 +1,183 @@
+<Window x:Class="ReeYin_V.Hardware.ControlCard.Views.IOManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.Hardware.ControlCard.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:models="clr-namespace:ReeYin_V.Hardware.ControlCard.Models"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1100">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="关闭">
+            </i:InvokeCommandAction>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Border Grid.Row="1" BorderThickness="5" BorderBrush="#d3d3d3" Background="#d3d3d3" Margin="5" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Margin="5,2,5,0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <ComboBox Width="150" ItemsSource="{Binding AllCards}" hc:InfoElement.TitlePlacement="Left" DisplayMemberPath="DisplayName" 
+              hc:InfoElement.Placeholder="拓展卡" hc:InfoElement.Title="拓展卡" Style="{StaticResource ComboBoxExtend}"  SelectedValue="{Binding CardsValue}"/>
+            </StackPanel>
+
+            <TextBlock Text="输入" FontWeight="Black" Grid.Row="1" HorizontalAlignment="Center" FontSize="16" Margin="5,5,0,0" Foreground="#666666"/>
+            <TextBlock Text="输出" Grid.Column="1" FontWeight="Black" Grid.Row="1"  HorizontalAlignment="Center" FontSize="16" Margin="5,5,0,0" Foreground="#666666"/>
+            <DataGrid ScrollViewer.CanContentScroll="True" ItemsSource="{Binding ModelParam.AllInput,IsAsync=True}"  SelectedItem="{Binding ModelParam.SltIO,Mode=TwoWay}" Grid.Column="0" Grid.Row="2" 
+                      Background="LightGray" AutoGenerateColumns="False" HorizontalAlignment="Center">
+                <DataGrid.ContextMenu>
+                    <ContextMenu IsEnabled="True">
+                        <MenuItem Header="预留" Command="{Binding GeneralCommand}" CommandParameter="预留" />
+                        <Separator/>
+                        <!-- 分隔线 -->
+                        <MenuItem Header="添加新项" Command="{Binding GeneralCommand}" CommandParameter="输入添加新项" />
+                        <MenuItem Header="删除选中项" Command="{Binding GeneralCommand}" CommandParameter="输入删除选中项" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <!-- 全局表头样式：所有列的表头统一居中 -->
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="1 0 0 0" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <!-- CanUserReorderColumns 可以移动列-->
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="状态/模拟量"  Width="100">
+                        <DataGridTemplateColumn.CellTemplate >
+                            <DataTemplate >
+                                <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <ToggleButton Grid.Column="0" IsChecked="{Binding State,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsEnabled="False" Style="{StaticResource ToggleButtonSwitch}" HorizontalAlignment="Center" Visibility="{Binding DIO, Mode=OneWay}"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding Analog, Mode=OneWay}" IsEnabled="False" HorizontalAlignment="Center" Visibility="{Binding AIO, Mode=OneWay}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="隶属" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Width="100" HorizontalAlignment="Center" BorderThickness="0 0 0 1" Background="Transparent" IsReadOnly="false" HorizontalContentAlignment="Center"
+                                                          Text="{Binding Subjection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Subjection}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="名称" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Width="100" HorizontalAlignment="Center" BorderThickness="0 0 0 1" Background="Transparent" IsReadOnly="false" HorizontalContentAlignment="Center"
+                                                          Text="{Binding Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Name}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="描述" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Width="100" HorizontalAlignment="Center" BorderThickness="0 0 0 1" Background="Transparent" IsReadOnly="false" HorizontalContentAlignment="Center"
+                                                          Text="{Binding Describe,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Describe}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="端口号" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <hc:NumericUpDown Style="{StaticResource NumericUpDownPlus}" Increment="1" HorizontalContentAlignment="Center" Minimum="0" Maximum="30"
+                                      BorderThickness="0 0 0 1" BorderBrush="{DynamicResource PrimaryBrush}" Value="{Binding Port,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <DataGrid ScrollViewer.CanContentScroll="False" AutoGenerateColumns="False" HorizontalAlignment="Center"
+                       VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding ModelParam.SltIO,Mode=TwoWay}"
+                       ItemsSource="{Binding ModelParam.AllOutput,IsAsync=True}" Grid.Column="1"  Grid.Row="2" Background="Transparent">
+                <DataGrid.ContextMenu>
+                    <ContextMenu IsEnabled="True">
+                        <MenuItem Header="预留" Command="{Binding GeneralCommand}" CommandParameter="预留" />
+                        <Separator/>
+                        <!-- 分隔线 -->
+                        <MenuItem Header="添加新项" Command="{Binding GeneralCommand}" CommandParameter="输出添加新项" />
+                        <MenuItem Header="删除选中项" Command="{Binding GeneralCommand}" CommandParameter="输出删除选中项" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <!-- 全局表头样式：所有列的表头统一居中 -->
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="1 0 0 0" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <!-- CanUserReorderColumns 可以移动列-->
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="状态/模拟量"  Width="100">
+                        <DataGridTemplateColumn.CellTemplate >
+                            <DataTemplate >
+                                <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <ToggleButton Grid.Column="0" IsChecked="{Binding State, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ToggleButtonSwitch}" HorizontalAlignment="Center" 
+                                                  Command="{Binding GeneralCommand}" CommandParameter="切换状态">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <i:InvokeCommandAction Command="{Binding DataContext.GeneralCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}" CommandParameter="切换状态"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </ToggleButton>
+                                    <TextBlock Grid.Column="0" Text="{Binding Analog, Mode=OneWay}" IsEnabled="False" HorizontalAlignment="Center" Visibility="{Binding AIO, Mode=OneWay}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="隶属" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Width="100" HorizontalAlignment="Center" BorderThickness="0 0 0 1" Background="Transparent" IsReadOnly="false" HorizontalContentAlignment="Center"
+                                                          Text="{Binding Subjection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Subjection}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="名称" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Width="100" HorizontalAlignment="Center" BorderThickness="0 0 0 1" Background="Transparent" IsReadOnly="false" HorizontalContentAlignment="Center"
+                                                          Text="{Binding Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Name}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="描述" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Width="100" HorizontalAlignment="Center" BorderThickness="0 0 0 1" Background="Transparent" IsReadOnly="false" HorizontalContentAlignment="Center"
+                                                          Text="{Binding Describe,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Describe}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="端口号" IsReadOnly="True" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <hc:NumericUpDown Style="{StaticResource NumericUpDownPlus}" Increment="1" HorizontalContentAlignment="Center" Minimum="0" Maximum="30"
+                                      BorderThickness="0 0 0 1" BorderBrush="{DynamicResource PrimaryBrush}" Value="{Binding Port,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</Window>

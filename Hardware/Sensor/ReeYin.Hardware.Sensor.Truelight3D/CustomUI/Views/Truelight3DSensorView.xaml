@@ -1,0 +1,1094 @@
+﻿<UserControl x:Class="ReeYin.Hardware.Sensor.Truelight3D.CustomUI.Views.Truelight3DSensorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:api="clr-namespace:ReeYin.Hardware.Sensor.Truelight3D.API"
+             xmlns:mainViews="clr-namespace:ReeYin_V.Main.UC.Views;assembly=ReeYin_V.Main"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             FontSize="14"
+             Background="#F5F5F5"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Height="1000"
+             Width="1840"
+             MinHeight="940"
+             MinWidth="1700"
+             d:DesignHeight="1000"
+             d:DesignWidth="1840">
+    <UserControl.Resources>
+        <Style x:Key="PanelBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="8"
+                                      ShadowDepth="1"
+                                      Color="#FF000000"
+                                      Opacity="0.1" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="InfoCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="BorderBrush" Value="#D8E1EA" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="10" />
+        </Style>
+
+        <Style x:Key="AccentInfoCardStyle" TargetType="Border" BasedOn="{StaticResource InfoCardStyle}">
+            <Setter Property="Background" Value="#FFF2F7FF" />
+            <Setter Property="BorderBrush" Value="#FFCADBF7" />
+        </Style>
+
+        <Style x:Key="CardCaptionTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="#FF6B7280" />
+        </Style>
+
+        <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="#FF5B6574" />
+        </Style>
+
+        <Style x:Key="SummaryValueTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#FF111827" />
+        </Style>
+
+        <Style x:Key="StatusValueTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SummaryValueTextStyle}">
+            <Setter Property="Foreground" Value="#FF4B5563" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.IsConnected}" Value="True">
+                    <Setter Property="Foreground" Value="#FF15803D" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ModuleButtonStyle" TargetType="Button" BasedOn="{StaticResource GeneralButtonStyle}">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="76" />
+            <Setter Property="Padding" Value="10,3" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style x:Key="CompactModuleButtonStyle" TargetType="Button" BasedOn="{StaticResource ModuleButtonStyle}">
+            <Setter Property="Height" Value="26" />
+            <Setter Property="MinWidth" Value="64" />
+            <Setter Property="Padding" Value="8,2" />
+        </Style>
+
+        <Style x:Key="StatusDotStyle" TargetType="Ellipse">
+            <Setter Property="Fill" Value="#D32F2F" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.IsConnected}" Value="True">
+                    <Setter Property="Fill" Value="#388E3C" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="WhiteLightModeRadioStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type RadioButton}}">
+            <Setter Property="IsChecked" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseWhiteLightMode}" Value="True">
+                    <Setter Property="IsChecked" Value="True" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SingleLightModeRadioStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type RadioButton}}">
+            <Setter Property="IsChecked" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseWhiteLightMode}" Value="False">
+                    <Setter Property="IsChecked" Value="True" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ScanStartModeRadioStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type RadioButton}}">
+            <Setter Property="IsChecked" Value="False" />
+            <Setter Property="IsEnabled" Value="True" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseScanRange}" Value="False">
+                    <Setter Property="IsChecked" Value="True" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.ScanType}" Value="{x:Static api:Truelight3DScanType.Confocal}">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ScanRangeModeRadioStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type RadioButton}}">
+            <Setter Property="IsChecked" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseScanRange}" Value="True">
+                    <Setter Property="IsChecked" Value="True" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="WhiteLightInputStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="IsEnabled" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseWhiteLightMode}" Value="True">
+                    <Setter Property="IsEnabled" Value="True" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SingleLightInputStyle" TargetType="Grid">
+            <Setter Property="IsEnabled" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseWhiteLightMode}" Value="False">
+                    <Setter Property="IsEnabled" Value="True" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ScanStartInputStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="IsEnabled" Value="True" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseScanRange}" Value="True">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ScanRangeInputStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="IsEnabled" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseScanRange}" Value="True">
+                    <Setter Property="IsEnabled" Value="True" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ScanStartModeVisibleStyle" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseScanRange}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ScanRangeModeVisibleStyle" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ModelParam.Sensor.UseScanRange}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F5F5F5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="58" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="48" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Grid.RowSpan="3"
+                Style="{StaticResource PanelBorderStyle}"
+                Padding="14">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Margin="0,0,18,0"
+                                   VerticalAlignment="Center"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#333333"
+                                   Text="Truelight3D Am 10" />
+                        <Border Margin="0,0,10,0"
+                                Padding="12,5"
+                                Background="#F6F8FB"
+                                BorderBrush="#D8E1EA"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                          <TextBlock FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#333333"
+                                       Text="{Binding ModelParam.Sensor.VenderName}" /> 
+                        </Border>
+                        <Border Margin="0,0,14,0"
+                                Padding="12,5"
+                                Background="#F6F8FB"
+                                BorderBrush="#D8E1EA"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                            <TextBlock FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#555555">
+                                <Run Text="{Binding ModelParam.Sensor.IP}" />
+                                <Run Text=":" />
+                                <Run Text="{Binding ModelParam.Sensor.Port}" />
+                            </TextBlock>
+                        </Border>
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Ellipse Width="10"
+                                     Height="10"
+                                     Margin="0,0,6,0"
+                                     Style="{StaticResource StatusDotStyle}" />
+                            <TextBlock FontSize="12"
+                                       Foreground="#555555"
+                                       Text="{Binding ModelParam.Sensor.State}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="980" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="508" MinWidth="488" MaxWidth="520" />
+                </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="260" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0"
+                          VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="410" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <UniformGrid Columns="5"
+                                     HorizontalAlignment="Left">
+                            <Button Margin="2,0"
+                                    Style="{StaticResource CompactModuleButtonStyle}"
+                                    Content="连接"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="Connect" />
+                            <Button Margin="2,0"
+                                    Style="{StaticResource CompactModuleButtonStyle}"
+                                    Content="断开"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="Disconnect" />
+                            <Button Margin="2,0"
+                                    Style="{StaticResource CompactModuleButtonStyle}"
+                                    Content="开始采集"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="StartCollect" />
+                            <Button Margin="2,0"
+                                    Style="{StaticResource CompactModuleButtonStyle}"
+                                    Content="停止采集"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="StopCollect" />
+                            <Button Margin="2,0"
+                                    Style="{StaticResource CompactModuleButtonStyle}"
+                                    Content="读取单帧"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="ReadFrame" />
+                        </UniformGrid>
+
+                        <Grid Grid.Column="2"
+                              VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Style="{StaticResource CardCaptionTextStyle}"
+                                       VerticalAlignment="Center"
+                                       Text="最近返回" />
+                            <TextBlock Grid.Column="2"
+                                       VerticalAlignment="Center"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1976D2"
+                                       Text="{Binding ModelParam.Sensor.LastApiMessage}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding ModelParam.Sensor.LastApiMessage}" />
+                        </Grid>
+                    </Grid>
+
+                    <Border Grid.Column="2"
+                            MinWidth="260"
+                            Padding="14,10"
+                            Style="{StaticResource AccentInfoCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Style="{StaticResource CardCaptionTextStyle}"
+                                       Text="Z 轴实时位置" />
+                            <TextBlock Grid.Row="1"
+                                       Margin="0,4,0,0"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       Foreground="#0F172A"
+                                       Text="{Binding ModelParam.Sensor.ZAxisCurrentPositionMm, StringFormat={}{0:F3} mm}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="2"
+                        Background="#0F172A"
+                        BorderBrush="#1E293B"
+                        BorderThickness="1"
+                        CornerRadius="12">
+                    <Grid Margin="16">
+                        <Image Source="{Binding ModelParam.PreviewImage}"
+                               Stretch="Uniform"
+                               StretchDirection="Both"
+                               SnapsToDevicePixels="True"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ModelParam.HasPreviewImage}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock HorizontalAlignment="Center"
+                                       FontSize="22"
+                                       FontWeight="SemiBold"
+                                       Foreground="#E5E7EB"
+                                       Text="等待图像接入" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+            </Grid>
+
+            <Border Grid.Column="2" Padding="0">
+                <Grid Margin="8">
+                    <TabControl
+                                  Padding="12"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  VerticalContentAlignment="Stretch"
+                                  TabStripPlacement="Top"
+                                  Style="{DynamicResource TabControlStyle}">
+                        <TabItem Header="连接" Width="80" FontSize="13" Style="{DynamicResource SingleTabItemStyle}">
+                            <Grid Margin="16,12" MinHeight="580">
+                                <WxGroupBox:WxGroupBox Header="连接参数">
+                                    <Border Margin="10" Style="{StaticResource InfoCardStyle}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock VerticalAlignment="Center" Foreground="#555555" Text="IP 地址" />
+                                            <TextBox Grid.Column="1" Height="28" VerticalContentAlignment="Center" Text="{Binding ModelParam.Sensor.IP, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Grid.Row="2" VerticalAlignment="Center" Foreground="#555555" Text="端口" />
+                                            <TextBox Grid.Row="2" Grid.Column="1" Height="28" VerticalContentAlignment="Center" Text="{Binding ModelParam.Sensor.Port, UpdateSourceTrigger=LostFocus}" />
+                                        </Grid>
+                                    </Border>
+                                </WxGroupBox:WxGroupBox>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="光源" Width="80" FontSize="13" Style="{DynamicResource SingleTabItemStyle}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <Grid Margin="16,12" MinHeight="580">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="12" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="12" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <WxGroupBox:WxGroupBox Header="预览参数">
+                                        <Border Margin="10" Style="{StaticResource InfoCardStyle}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock VerticalAlignment="Center" Foreground="#555555" Text="物镜倍率" />
+                                                <ComboBox Grid.Column="1"
+                                                          Height="28"
+                                                          SelectedValue="{Binding ModelParam.Sensor.ObjectiveMagnification, UpdateSourceTrigger=PropertyChanged}"
+                                                          SelectedValuePath="Tag">
+                                                    <ComboBoxItem Content="2X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification2}" />
+                                                    <ComboBoxItem Content="5X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification5}" />
+                                                    <ComboBoxItem Content="10X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification10}" />
+                                                    <ComboBoxItem Content="20X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification20}" />
+                                                    <ComboBoxItem Content="50X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification50}" />
+                                                    <ComboBoxItem Content="100X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification100}" />
+                                                    <ComboBoxItem Content="150X" Tag="{x:Static api:Truelight3DObjectiveMagnification.Magnification150}" />
+                                                </ComboBox>
+
+                                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Foreground="#555555" Text="曝光(us)" />
+                                                <TextBox Grid.Row="2"
+                                                         Grid.Column="1"
+                                                         Height="28"
+                                                         VerticalContentAlignment="Center"
+                                                         Text="{Binding ModelParam.Sensor.ExposureTimeUs, UpdateSourceTrigger=LostFocus}" />
+
+                                                <CheckBox Grid.Row="4"
+                                                          Grid.ColumnSpan="2"
+                                                          Content="连接后自动下发预览参数"
+                                                          IsChecked="{Binding ModelParam.Sensor.ApplyPreviewSettingsOnConnect, UpdateSourceTrigger=PropertyChanged}" />
+
+                                                <Button Grid.Row="6"
+                                                        Grid.ColumnSpan="2"
+                                                        Style="{StaticResource ModuleButtonStyle}"
+                                                        Content="应用预览参数"
+                                                        Command="{Binding GeneralCommand}"
+                                                        CommandParameter="ApplyPreviewSettings" />
+                                            </Grid>
+                                        </Border>
+                                    </WxGroupBox:WxGroupBox>
+
+                                    <WxGroupBox:WxGroupBox Grid.Row="2" Header="光源参数">
+                                        <Border Margin="10" Style="{StaticResource InfoCardStyle}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock VerticalAlignment="Center" Foreground="#555555" Text="光源模式" />
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton Content="白光"
+                                                                 GroupName="LightMode"
+                                                                 Style="{StaticResource WhiteLightModeRadioStyle}"
+                                                                 Command="{Binding GeneralCommand}"
+                                                                 CommandParameter="UseWhiteLightMode" />
+                                                    <RadioButton Margin="20,0,0,0"
+                                                                 Content="单色"
+                                                                 GroupName="LightMode"
+                                                                 Style="{StaticResource SingleLightModeRadioStyle}"
+                                                                 Command="{Binding GeneralCommand}"
+                                                                 CommandParameter="UseSingleLightMode" />
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Foreground="#555555" Text="白色" />
+                                                <TextBox Grid.Row="2"
+                                                         Grid.Column="1"
+                                                         Height="28"
+                                                         VerticalContentAlignment="Center"
+                                                         Style="{StaticResource WhiteLightInputStyle}"
+                                                         Text="{Binding ModelParam.Sensor.WhiteLightValue, UpdateSourceTrigger=LostFocus}" />
+
+                                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Foreground="#555555" Text="红/绿/蓝" />
+                                                <Grid Grid.Row="4" Grid.Column="1" Style="{StaticResource SingleLightInputStyle}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="60" />
+                                                        <ColumnDefinition Width="12" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="60" />
+                                                        <ColumnDefinition Width="12" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="60" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock VerticalAlignment="Center" Foreground="#666666" Text="R" />
+                                                    <TextBox Grid.Column="1" Height="28" VerticalContentAlignment="Center" Text="{Binding ModelParam.Sensor.LightRed, UpdateSourceTrigger=LostFocus}" />
+                                                    <TextBlock Grid.Column="3" VerticalAlignment="Center" Foreground="#666666" Text="G" />
+                                                    <TextBox Grid.Column="4" Height="28" VerticalContentAlignment="Center" Text="{Binding ModelParam.Sensor.LightGreen, UpdateSourceTrigger=LostFocus}" />
+                                                    <TextBlock Grid.Column="6" VerticalAlignment="Center" Foreground="#666666" Text="B" />
+                                                    <TextBox Grid.Column="7" Height="28" VerticalContentAlignment="Center" Text="{Binding ModelParam.Sensor.LightBlue, UpdateSourceTrigger=LostFocus}" />
+                                                </Grid>
+
+                                   
+                                            </Grid>
+                                        </Border>
+                                    </WxGroupBox:WxGroupBox>
+                                </Grid>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <TabItem Header="采集" Width="80" FontSize="13" Style="{DynamicResource SingleTabItemStyle}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <Grid Margin="16,12" MinHeight="580">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="12" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                <WxGroupBox:WxGroupBox Header="扫描参数">
+                                    <Border Margin="10" Style="{StaticResource InfoCardStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="8" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Margin="0,0,2,0" VerticalAlignment="Center" Foreground="#555555" Text="扫描方式" />
+                                            <ComboBox Grid.Column="1"
+                                                      MinWidth="120"
+                                                      Height="28"
+                                                      SelectedValue="{Binding ModelParam.Sensor.ScanType, UpdateSourceTrigger=PropertyChanged}"
+                                                      SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="共焦" Tag="{x:Static api:Truelight3DScanType.Confocal}" />
+                                                <ComboBoxItem Content="变焦" Tag="{x:Static api:Truelight3DScanType.Variation}" />
+                                            </ComboBox>
+
+                                            <TextBlock Grid.Row="2"
+                                                       Margin="0,0,2,0"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#555555"
+                                                       Text="扫描位置" />
+                                            <StackPanel Grid.Row="2"
+                                                        Grid.Column="1"
+                                                        Grid.ColumnSpan="4"
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+                                                <RadioButton Content="起始位置"
+                                                             GroupName="ScanMode"
+                                                             Style="{StaticResource ScanStartModeRadioStyle}"
+                                                             Command="{Binding GeneralCommand}"
+                                                             CommandParameter="UseScanStartMode" />
+                                                <RadioButton Margin="14,0,0,0"
+                                                              Content="范围位置"
+                                                              GroupName="ScanMode"
+                                                              Style="{StaticResource ScanRangeModeRadioStyle}"
+                                                              Command="{Binding GeneralCommand}"
+                                                              CommandParameter="UseScanRangeMode" />
+                                            </StackPanel>
+
+                                            <Grid Grid.Row="4"
+                                                  Grid.ColumnSpan="5"
+                                                  Style="{StaticResource ScanStartModeVisibleStyle}">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="6" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="8" />
+                                                    <ColumnDefinition Width="72" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,2,0"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#555555"
+                                                           Text="开始位置" />
+                                                <TextBox Grid.Column="1"
+                                                          Height="28"
+                                                          MinWidth="180"
+                                                          VerticalContentAlignment="Center"
+                                                          Text="{Binding ModelParam.Sensor.ScanStartPositionMm, UpdateSourceTrigger=LostFocus}" />
+                                                <Button Grid.Column="3"
+                                                        MinWidth="72"
+                                                        Style="{StaticResource CompactModuleButtonStyle}"
+                                                        Content="取当前"
+                                                        Command="{Binding GeneralCommand}"
+                                                        CommandParameter="UseCurrentZAsScanStart" />
+
+                                                <TextBlock Grid.Row="2"
+                                                           Margin="0,0,2,0"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#555555"
+                                                           Text="结束位置" />
+                                                <TextBox Grid.Row="2"
+                                                         Grid.Column="1"
+                                                         Height="28"
+                                                         MinWidth="180"
+                                                         VerticalContentAlignment="Center"
+                                                         Text="{Binding ModelParam.Sensor.ScanEndPositionMm, UpdateSourceTrigger=LostFocus}" />
+                                                <Button Grid.Row="2"
+                                                        Grid.Column="3"
+                                                        MinWidth="72"
+                                                        Style="{StaticResource CompactModuleButtonStyle}"
+                                                        Content="取当前"
+                                                        Command="{Binding GeneralCommand}"
+                                                        CommandParameter="UseCurrentZAsScanEnd" />
+                                            </Grid>
+
+                                            <TextBlock Grid.Row="4"
+                                                        Margin="0,0,2,0"
+                                                        VerticalAlignment="Center"
+                                                        Foreground="#555555"
+                                                        Style="{StaticResource ScanRangeModeVisibleStyle}"
+                                                        Text="范围(um)" />
+                                            <TextBox Grid.Row="4"
+                                                     Grid.Column="1"
+                                                     MinWidth="120"
+                                                     Height="28"
+                                                     VerticalContentAlignment="Center"
+                                                     Style="{StaticResource ScanRangeModeVisibleStyle}"
+                                                     Text="{Binding ModelParam.Sensor.ScanRangeUm, UpdateSourceTrigger=LostFocus}" />
+
+                                            <TextBlock Grid.Row="6"
+                                                       Margin="0,0,2,0"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#555555"
+                                                       Text="步距(um)" />
+                                            <TextBox Grid.Row="6"
+                                                     Grid.Column="1"
+                                                     MinWidth="120"
+                                                     Height="28"
+                                                     VerticalContentAlignment="Center"
+                                                     Text="{Binding ModelParam.Sensor.ScanStepUm, UpdateSourceTrigger=LostFocus}" />
+
+                                            <TextBlock Grid.Row="8" Margin="0,0,2,0" VerticalAlignment="Center" Foreground="#555555" Text="窗口" />
+                                            <TextBox Grid.Row="8"
+                                                     Grid.Column="1"
+                                                     MinWidth="120"
+                                                     Height="28"
+                                                     VerticalContentAlignment="Center"
+                                                     Text="{Binding ModelParam.Sensor.WindowSize, UpdateSourceTrigger=LostFocus}" />
+
+                                            <TextBlock Grid.Row="10" Margin="0,0,2,0" VerticalAlignment="Center" Foreground="#555555" Text="Z滤波" />
+                                            <TextBox Grid.Row="10"
+                                                     Grid.Column="1"
+                                                     MinWidth="120"
+                                                     Height="28"
+                                                     VerticalContentAlignment="Center"
+                                                     Text="{Binding ModelParam.Sensor.ZFilter, UpdateSourceTrigger=LostFocus}" />
+
+                                            <TextBlock Grid.Row="12" Margin="0,0,2,0" VerticalAlignment="Center" Foreground="#555555" Text="速度(mm/s)" />
+                                            <TextBox Grid.Row="12"
+                                                     Grid.Column="1"
+                                                     MinWidth="120"
+                                                     Height="28"
+                                                     VerticalContentAlignment="Center"
+                                                     Text="{Binding ModelParam.Sensor.ZAxisSpeedMmPerSec, UpdateSourceTrigger=LostFocus}" />
+
+                                            <TextBlock Grid.Row="14"
+                                                       Grid.ColumnSpan="5"
+                                                       Foreground="#1976D2"
+                                                       FontWeight="SemiBold"
+                                                       Text="每次扫描默认输出点云，无需重复勾选。"
+                                                       TextWrapping="Wrap" />
+
+                                            <StackPanel Grid.Row="16"
+                                                        Grid.ColumnSpan="5">
+                                                <TextBlock Foreground="#6B7280"
+                                                           Text="起始位置模式使用 开始/结束位置；范围位置模式使用 范围(um)；共焦步距最小 0.01 um，变焦步距最小 0.1 um，共焦固定使用范围位置。"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,4,0,0"
+                                                           Foreground="#1976D2"
+                                                           FontWeight="SemiBold"
+                                                           Text="{Binding ModelParam.Sensor.LastScanPointCloudStatus}"
+                                                           TextWrapping="Wrap" />
+                                                <Grid Margin="0,8,0,0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="8" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="8" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Button Grid.Row="0"
+                                                            Grid.Column="0"
+                                                            Height="30"
+                                                            Style="{StaticResource ModuleButtonStyle}"
+                                                            Content="显示点云"
+                                                            Command="{Binding GeneralCommand}"
+                                                            CommandParameter="ShowPointCloudViewer" />
+                                                    <Button Grid.Row="0"
+                                                            Grid.Column="2"
+                                                            Height="30"
+                                                            Style="{StaticResource ModuleButtonStyle}"
+                                                            Content="保存点云图"
+                                                            Command="{Binding GeneralCommand}"
+                                                            CommandParameter="SavePointCloudFile" />
+                                                    <Button Grid.Row="2"
+                                                            Grid.Column="0"
+                                                            Height="30"
+                                                            Style="{StaticResource ModuleButtonStyle}"
+                                                            Content="显示纹理 2D 图"
+                                                            IsEnabled="{Binding ModelParam.HasScanTextureImage}"
+                                                            Command="{Binding GeneralCommand}"
+                                                            CommandParameter="ShowScanTexture2D" />
+                                                    <Button Grid.Row="2"
+                                                            Grid.Column="2"
+                                                            Height="30"
+                                                            Style="{StaticResource ModuleButtonStyle}"
+                                                            Content="保存 2D 图"
+                                                            IsEnabled="{Binding ModelParam.HasAny2DImage}"
+                                                            Command="{Binding GeneralCommand}"
+                                                            CommandParameter="SaveLatest2DImage" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </WxGroupBox:WxGroupBox>
+
+                                <WxGroupBox:WxGroupBox Grid.Row="2" Header="Z 轴控制">
+                                    <Border Margin="10" Style="{StaticResource InfoCardStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="10" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Border Grid.Row="0"
+                                                    Style="{StaticResource AccentInfoCardStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel>
+                                                        <TextBlock Style="{StaticResource CardCaptionTextStyle}"
+                                                                   Text="Z 轴实时位置" />
+                                                        <TextBlock Margin="0,4,0,0"
+                                                                   FontSize="30"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#0F172A"
+                                                                   Text="{Binding ModelParam.Sensor.ZAxisCurrentPositionMm, StringFormat={}{0:F3} mm}" />
+                                                    </StackPanel>
+
+                                                    <Button Grid.Column="1"
+                                                            MinWidth="72"
+                                                            Style="{StaticResource CompactModuleButtonStyle}"
+                                                            Content="刷新位置"
+                                                            Command="{Binding GeneralCommand}"
+                                                            CommandParameter="ReadZPosition" />
+                                                </Grid>
+                                            </Border>
+
+                                            <Button Grid.Row="2"
+                                                    Height="30"
+                                                    Style="{StaticResource ModuleButtonStyle}"
+                                                    Content="点动上">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                        <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="MoveZPositive" />
+                                                    </i:EventTrigger>
+                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                        <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="StopZ" />
+                                                    </i:EventTrigger>
+                                                    <i:EventTrigger EventName="MouseLeave">
+                                                        <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="StopZ" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+
+                                            <Button Grid.Row="4"
+                                                    Height="30"
+                                                    Style="{StaticResource ModuleButtonStyle}"
+                                                    Content="点动下">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                        <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="MoveZNegative" />
+                                                    </i:EventTrigger>
+                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                        <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="StopZ" />
+                                                    </i:EventTrigger>
+                                                    <i:EventTrigger EventName="MouseLeave">
+                                                        <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="StopZ" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+
+                                            <Grid Grid.Row="6">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           Foreground="#555555"
+                                                           Text="速度(mm/s):" />
+                                                <Slider Grid.Column="1"
+                                                        Margin="8,0"
+                                                        Minimum="0.1"
+                                                        Maximum="3"
+                                                        SmallChange="0.1"
+                                                        LargeChange="0.5"
+                                                        TickFrequency="0.1"
+                                                        IsSnapToTickEnabled="False"
+                                                        Value="{Binding ModelParam.Sensor.ZAxisSpeedMmPerSec, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Column="2"
+                                                           Width="90"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#555555"
+                                                           Text="{Binding ModelParam.Sensor.ZAxisSpeedMmPerSec, StringFormat=设定 {0:F1}}" />
+                                                <TextBlock Grid.Row="1"
+                                                           Grid.ColumnSpan="3"
+                                                           Margin="0,4,0,0"
+                                                           Foreground="#6B7280"
+                                                           Text="{Binding ModelParam.Sensor.ZAxisAppliedSpeedMmPerSec, StringFormat=速度回读: {0:F1} mm/s}" />
+                                            </Grid>
+
+                                            <Button Grid.Row="8"
+                                                    Height="30"
+                                                    Style="{StaticResource ModuleButtonStyle}"
+                                                    Content="步进上"
+                                                    Command="{Binding GeneralCommand}"
+                                                    CommandParameter="MoveZStepPositive" />
+
+                                            <Grid Grid.Row="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Height="28"
+                                                         VerticalContentAlignment="Center"
+                                                         Text="{Binding ModelParam.Sensor.ZAxisRelativeOffsetMm, UpdateSourceTrigger=LostFocus}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Margin="8,0,0,0"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#555555"
+                                                           Text="mm" />
+                                            </Grid>
+
+                                            <Button Grid.Row="12"
+                                                    Height="30"
+                                                    Style="{StaticResource ModuleButtonStyle}"
+                                                    Content="步进下"
+                                                    Command="{Binding GeneralCommand}"
+                                                    CommandParameter="MoveZStepNegative" />
+
+                                            <Grid Grid.Row="14">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0"
+                                                        Height="28"
+                                                        Style="{StaticResource CompactModuleButtonStyle}"
+                                                        Content="停止"
+                                                        Command="{Binding GeneralCommand}"
+                                                        CommandParameter="StopZ" />
+                                                <Button Grid.Column="2"
+                                                        Height="28"
+                                                        Style="{StaticResource CompactModuleButtonStyle}"
+                                                        Content="回原点"
+                                                        Command="{Binding GeneralCommand}"
+                                                        CommandParameter="MoveZHome" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </WxGroupBox:WxGroupBox>
+
+                                </Grid>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <TabItem Header="反馈" Width="80" FontSize="13" Style="{DynamicResource SingleTabItemStyle}">
+                            <Grid Margin="16,12" MinHeight="580">
+                                <mainViews:LogView/>
+                            </Grid>
+                        </TabItem>
+
+                    </TabControl>
+                </Grid>
+            </Border>
+                </Grid>
+
+                <Grid Grid.Row="4">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Margin="0,0,8,0"
+                                Command="{Binding GeneralCommand}"
+                                CommandParameter="Cancel"
+                                Content="取消"
+                                Style="{StaticResource CompactModuleButtonStyle}" />
+                        <Button Command="{Binding GeneralCommand}"
+                                CommandParameter="Confirm"
+                                Content="确认"
+                                Style="{StaticResource CompactModuleButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Border Grid.RowSpan="3"
+                Background="#88000000">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsScanTextureViewerOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Grid Margin="120,80">
+                <Border Background="White"
+                        BorderBrush="#D8E1EA"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="#111827"
+                                           Text="扫描纹理 2D 图" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="#6B7280"
+                                           Text="这里显示最近一次扫描结果返回的 TextureData。"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Width="72"
+                                    Height="28"
+                                    Style="{StaticResource CompactModuleButtonStyle}"
+                                    Content="关闭"
+                                    Command="{Binding GeneralCommand}"
+                                    CommandParameter="HideScanTexture2D" />
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Background="#0F172A"
+                                BorderBrush="#1E293B"
+                                BorderThickness="1"
+                                CornerRadius="10">
+                            <Grid Margin="12">
+                                <Image Source="{Binding ModelParam.ScanTextureImage}"
+                                       Stretch="Uniform"
+                                       StretchDirection="Both"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                                <StackPanel HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            IsHitTestVisible="False">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ModelParam.HasScanTextureImage}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock HorizontalAlignment="Center"
+                                               FontSize="20"
+                                               FontWeight="SemiBold"
+                                               Foreground="#E5E7EB"
+                                               Text="当前没有可显示的纹理图" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

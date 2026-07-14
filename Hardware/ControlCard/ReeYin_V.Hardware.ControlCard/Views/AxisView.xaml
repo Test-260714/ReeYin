@@ -1,0 +1,704 @@
+﻿<Window x:Class="ReeYin_V.Hardware.ControlCard.Views.AxisView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.Hardware.ControlCard.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:models="clr-namespace:ReeYin_V.Hardware.ControlCard.Models"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="关闭">
+            </i:InvokeCommandAction>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.Resources>
+
+    </Window.Resources>
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition/>
+                <RowDefinition Height="20"/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <CheckBox Margin="10 2 10 0 " BorderBrush="{DynamicResource PrimaryBrush}" IsChecked="{Binding ModelParam.IsInching,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                    <hc:NumericUpDown Maximum="100" DecimalPlaces="4" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="65" hc:InfoElement.Title="点动步长:" Style="{StaticResource NumericUpDownPlus}" Increment="0.1"
+                                      BorderThickness="0 0 0 1" BorderBrush="{DynamicResource PrimaryBrush}" IsEnabled="{Binding ModelParam.IsInching}" Value="{Binding ModelParam.StepLenght,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Grid.Column="1" Grid.Row="1" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Run Text="mm/s"/>
+                    </TextBlock>
+                    <GridSplitter Background="{DynamicResource PrimaryBrush}" Height="30" Width="2" Margin="8 0 0 0"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="1" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Run Text="目标位置[X/Y/Z/...]:"/>
+                    </TextBlock>
+                    <WxLink:WxLink Width="350" Order="OpenPosParam" OutputParam="{Binding ModelParam.MoveTargetPos,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  
+                                            Text="{Binding ModelParam.MoveTargetPos.Describe,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Button Grid.Column="0" Grid.Row="0" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Background="Transparent" Height="25"
+                Command="{Binding GeneralCommand}" CommandParameter="移动至指定位置" >
+                        <Button.ContentTemplate>
+                            <DataTemplate >
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="移动" TextWrapping="NoWrap" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Button.ContentTemplate>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" BorderThickness="0 2 0 2" BorderBrush="{DynamicResource SplitBrush}">
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="3"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="3"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--XY轴移动-->
+                    <Grid Grid.Column="0" Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <!--示教按钮-->
+                        <UniformGrid  Columns="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid Width="80" Height="80">
+
+                            </Grid>
+                            <Grid Width="80" Height="80">
+                                <Button Grid.Column="0" Grid.Row="0" FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        IsEnabled="{Binding IsYAxisConfigured}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="Y" Direction="正向" MouseOrder="Down"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="Y" Direction="正向" MouseOrder="Up"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="Y" Direction="正向" MouseOrder="Leave"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xe795;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="Y+" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </Grid>
+                            <Grid Width="80" Height="80">
+
+                            </Grid>
+
+                            <Grid Width="80" Height="80">
+                                <Button Grid.Column="0" Grid.Row="0" FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        IsEnabled="{Binding IsXAxisConfigured}"
+                >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="X" Direction="反向" MouseOrder="Down"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="X" Direction="反向" MouseOrder="Up"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="X" Direction="反向" MouseOrder="Leave"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xe63d;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="X-" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </Grid>
+                            <Grid Width="80" Height="80">
+                                <Border Width="70" Height="70" Background="{DynamicResource PrimaryBrush}" CornerRadius="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock  FontSize="24" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                        Text="{Binding ModelParam.CurSpeedType, FallbackValue='低速'}"
+                                        Foreground="White">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                <prism:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="切换速度"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </TextBlock>
+                                </Border>
+
+                            </Grid>
+                            <Grid Width="80" Height="80">
+                                <Button Grid.Column="0" Grid.Row="0" FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        IsEnabled="{Binding IsXAxisConfigured}"
+                >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="X" Direction="正向" MouseOrder="Down"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="X" Direction="正向" MouseOrder="Up"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="X" Direction="正向" MouseOrder="Leave"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xe63f;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="X+" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </Grid>
+
+                            <Grid Width="80" Height="80">
+
+                            </Grid>
+                            <Grid Width="80" Height="80">
+                                <Button Grid.Column="0" Grid.Row="0" FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        IsEnabled="{Binding IsYAxisConfigured}"
+                >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="Y" Direction="反向" MouseOrder="Down"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="Y" Direction="反向" MouseOrder="Up"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <models:AxisMoveParameter AxisType="Y" Direction="反向" MouseOrder="Leave"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xe796;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="Y-" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </Grid>
+                            <Grid Width="80" Height="80">
+
+                            </Grid>
+
+                        </UniformGrid>
+
+                    </Grid>
+                    <GridSplitter Background="{DynamicResource PrimaryBrush}" Height="auto" Width="2" Grid.Column="1"/>
+                    <!--Z轴移动-->
+                    <Grid Grid.Column="2" Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.3*"/>
+                            <RowDefinition Height="0.3*"/>
+                            <RowDefinition Height="0.3*"/>
+                            <RowDefinition Height="0.3*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.2*"/>
+                            <ColumnDefinition Width="0.2*"/>
+                            <ColumnDefinition Width="0.2*"/>
+                            <ColumnDefinition Width="0.2*"/>
+                            <ColumnDefinition Width="0.2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Grid.Row="0" FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                IsEnabled="{Binding IsZAxisConfigured}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z" Direction="反向" MouseOrder="Down"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z" Direction="反向" MouseOrder="Up"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z" Direction="反向" MouseOrder="Leave"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Button.ContentTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xe795;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                        <TextBlock Text="上移" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <TextBlock Grid.Column="0" Grid.Row="1" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Run Text="ZPos:"/>
+                            <LineBreak/>
+                            <Run Text="{Binding ModelParam.CurPosInfos[2],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <LineBreak/>
+                            <Run Text="mm"/>
+                        </TextBlock>
+                        <Button Grid.Column="0" Grid.Row="2" FontSize="18" Content="&#xe796;" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        IsEnabled="{Binding IsZAxisConfigured}"
+                                        >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z" Direction="正向" MouseOrder="Down"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z" Direction="正向" MouseOrder="Up"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z" Direction="正向" MouseOrder="Leave"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Button.ContentTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xe796;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" />
+                                        <TextBlock Text="下移" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <Button Grid.Column="1" Grid.Row="0" FontSize="18" Content="&#xe795;" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                       IsEnabled="{Binding IsZ1AxisConfigured}"
+                                       >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z1" Direction="反向" MouseOrder="Down"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z1" Direction="反向" MouseOrder="Up"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z1" Direction="反向" MouseOrder="Leave"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Button.ContentTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xe795;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}"  FontSize="24"/>
+                                        <TextBlock Text="上移" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <TextBlock Grid.Column="1" Grid.Row="1" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Run Text="Z1Pos:"/>
+                            <LineBreak/>
+                            <Run Text="{Binding ModelParam.CurPosInfos[3],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <LineBreak/>
+                            <Run Text="mm"/>
+                        </TextBlock>
+                        <Button Grid.Column="1" Grid.Row="2" FontSize="18" Content="&#xe796;" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        IsEnabled="{Binding IsZ1AxisConfigured}"
+                                        >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z1" Direction="正向" MouseOrder="Down"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z1" Direction="正向" MouseOrder="Up"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z1" Direction="正向" MouseOrder="Leave"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Button.ContentTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xe796;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" />
+                                        <TextBlock Text="下移" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <Button  Grid.Column="2" Grid.Row="0" FontSize="18" Content="&#xe795;" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                 IsEnabled="{Binding IsZ2AxisConfigured}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z2" Direction="反向" MouseOrder="Down"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z2" Direction="反向" MouseOrder="Up"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z2" Direction="反向" MouseOrder="Leave"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Button.ContentTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xe795;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}"  FontSize="24"/>
+                                        <TextBlock Text="上移" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <TextBlock Grid.Column="2" Grid.Row="1" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Run Text="Z2Pos:"/>
+                            <LineBreak/>
+                            <Run Text="{Binding ModelParam.CurPosInfos[4],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <LineBreak/>
+                            <Run Text="mm"/>
+                        </TextBlock>
+                        <Button Grid.Column="2" Grid.Row="2" FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                IsEnabled="{Binding IsZ2AxisConfigured}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z2" Direction="正向" MouseOrder="Down"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z2" Direction="正向" MouseOrder="Up"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding MovingCommand }" PassEventArgsToCommand="True">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <models:AxisMoveParameter AxisType="Z2" Direction="正向" MouseOrder="Leave"/>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Button.ContentTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xe796;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" />
+                                        <TextBlock Text="下移" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+
+                        <StackPanel Grid.Column="0" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="使能" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ToggleButton IsChecked="{Binding AllAxisStatus[2]}" 
+                                          IsEnabled="{Binding IsZAxisConfigured}" Style="{StaticResource ToggleButtonSwitch}"
+                                          Command="{Binding GeneralCommand}" CommandParameter="Z轴使能"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="使能" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ToggleButton IsChecked="{Binding AllAxisStatus[3]}" IsEnabled="{Binding IsZ1AxisConfigured}" Style="{StaticResource ToggleButtonSwitch}"
+                                          Command="{Binding GeneralCommand}" CommandParameter="Z1轴使能"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="使能" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ToggleButton IsChecked="{Binding AllAxisStatus[4]}" IsEnabled="{Binding IsZ2AxisConfigured}" Style="{StaticResource ToggleButtonSwitch}"
+                                          Command="{Binding GeneralCommand}" CommandParameter="Z2轴使能"/>
+                        </StackPanel>
+
+
+
+                        <StackPanel Grid.Column="4" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+
+                        </StackPanel>
+                    </Grid>
+                    <GridSplitter Background="{DynamicResource PrimaryBrush}" Height="auto" Width="3" Grid.Column="3"/>
+                    <!--其他相关操作-->
+                    <Grid Grid.Column="4" Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="3"/>
+                            <RowDefinition />
+                            <RowDefinition Height="3"/>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center"  Margin="0 0 10 0">
+                                <Button FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        Command="{Binding GeneralCommand}" CommandParameter="暂停" >
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xe61b;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="暂停" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center"  Margin="0 0 10 0">
+                                <Button FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        Command="{Binding GeneralCommand}" CommandParameter="复位" >
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xe601;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="复位" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 10 0">
+                                <Button FontSize="18" Cursor="Hand" Style="{StaticResource GeneralButtonStyle}" Width="50" Height="50"
+                                        Command="{Binding GeneralCommand}" CommandParameter="停止" >
+                                    <Button.ContentTemplate>
+                                        <DataTemplate >
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xea91;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" FontSize="24"/>
+                                                <TextBlock Text="停止" TextWrapping="NoWrap" FontSize="12" Margin="0,5,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+
+
+                                        </DataTemplate>
+                                    </Button.ContentTemplate>
+                                </Button>
+                            </StackPanel>
+
+                        </StackPanel>
+                        <GridSplitter Background="{DynamicResource BtnOverColor}" Grid.Row="1" Height="3" Width="auto" HorizontalAlignment="Stretch"/>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock FontSize="12" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Run Text="当前速度："/>
+                                <Run Text="XVel:"/>
+                                <Run Text="{Binding ModelParam.CurSpeedInfos[0],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                                <Run Text="mm/s"/>
+                                <Run Text=" YVel:"/>
+                                <Run Text="{Binding ModelParam.CurSpeedInfos[1],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                                <Run Text="mm/s"/>
+                                <LineBreak/>
+                                <Run Text="ZVel:"/>
+                                <Run Text="{Binding ModelParam.CurSpeedInfos[2],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                                <Run Text="mm/s"/>
+                                <Run Text=" Z1Vel:"/>
+                                <Run Text="{Binding ModelParam.CurSpeedInfos[3],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                                <Run Text="mm/s"/>
+                                <Run Text=" Z2Vel:"/>
+                                <Run Text="{Binding ModelParam.CurSpeedInfos[4],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                                <Run Text="mm/s"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <GridSplitter Background="{DynamicResource BtnOverColor}" Grid.Row="3" Height="3" Width="auto" HorizontalAlignment="Stretch"/>
+
+                        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                            <Run Text="核1位置(位置要保持同步)："/>
+                            
+                            <LineBreak/>
+                            
+                            <Run Text="XPos:"/>
+                            <Run Text="{Binding ModelParam.CurCore1PosInfos[0],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+                            
+                            <Run Text="YPos:"/>
+                            <Run Text="{Binding ModelParam.CurCore1PosInfos[1],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+
+                            <LineBreak/>
+                                
+                            <Run Text="ZPos:"/>
+                            <Run Text="{Binding ModelParam.CurCore1PosInfos[2],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+                                
+                            <Run Text="Z1Pos:"/>
+                            <Run Text="{Binding ModelParam.CurCore1PosInfos[3],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+                            <LineBreak/>
+                            <Run Text="Z2Pos:"/>
+                            <Run Text="{Binding ModelParam.CurCore1PosInfos[4],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2" VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                            <Run Text="当前核2位置："/>
+                            <Run Text="XPos:"/>
+                            <Run Text="{Binding ModelParam.CurPosInfos[0],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+                    
+                            <Run Text="YPos:"/>
+                            <Run Text="{Binding ModelParam.CurPosInfos[1],FallbackValue='--', StringFormat=:{0:F2}}"/>
+                            <Run Text="mm"/>
+                    </TextBlock>
+
+                    <GridSplitter Background="{DynamicResource PrimaryBrush}" Height="auto" Width="2" Margin="8 0 0 0"/>
+
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                            <Run Text="当前运动状态："/>
+                            <Run Text="{Binding Param.AxisInfo}"/>
+                    </TextBlock>
+
+                    <GridSplitter Background="{DynamicResource PrimaryBrush}" Height="auto" Width="2" Margin="8 0 0 0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                        <Run Text="轴状态："/>
+                    </TextBlock>
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                        <Run Text="X:"/>
+                    </TextBlock>
+                    <WxLED:WxLED Width="10" Height="10" BreathingDuration="1" 
+                                 IsActive="{Binding AllAxisStatus[0],Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" />
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                        <Run Text="Y:"/>
+                    </TextBlock>
+                    <WxLED:WxLED Width="10" Height="10" BreathingDuration="1" 
+                                 IsActive="{Binding AllAxisStatus[1],Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" />
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                        <Run Text="Z:"/>
+                    </TextBlock>
+                    <WxLED:WxLED Width="10" Height="10" BreathingDuration="1" 
+                                 IsActive="{Binding AllAxisStatus[2],Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" />
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                        <Run Text="Z1:"/>
+                    </TextBlock>
+                    <WxLED:WxLED Width="10" Height="10" BreathingDuration="1"
+                                 IsActive="{Binding AllAxisStatus[3],Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" />
+                    <TextBlock FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                        <Run Text="Z2:"/>
+                    </TextBlock>
+                    <WxLED:WxLED Width="10" Height="10" BreathingDuration="1" 
+                                 IsActive="{Binding AllAxisStatus[4],Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</Window>

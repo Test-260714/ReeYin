@@ -1,0 +1,652 @@
+﻿
+using Custom.WaferRoutePlan.ViewModels;
+using HalconDotNet;
+using HandyControl.Controls;
+using HandyControl.Data;
+using OpenCvSharp;
+using ReeYin_V.Core.Calibration;
+using ReeYin_V.Core.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using static Custom.WaferRoutePlan.ViewModels.WaferRoutePlanViewModel;
+using static ReeYin_V.Core.Calibration.CameraCalibrationSdk;
+
+namespace Custom.WaferRoutePlan
+{
+    public class RoutePlan_Algorithm
+    {
+        private RoutePlanningParam _routePlanningParam;
+        private CameraCalibrationSdk _cameraCalib = new CameraCalibrationSdk();
+        private readonly PixelToActualCoordinate_Algorithm _pixelToActualCoordinateAlgorithm;
+        private string _cameraId;
+        private double[] _circleCenterXY;
+        private double[] _circleEdgeRows;
+        private double[] _circleEdgeCols;
+        private double[] _laserCtIJ;
+        private HTuple _homMat2D = new HTuple(new double[] { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 });
+        private bool _ifNPointCalib = false;
+
+        public RoutePlan_Algorithm(RoutePlanningParam RoutePlanningParam)
+        {
+            _routePlanningParam = RoutePlanningParam;
+            _circleCenterXY = RoutePlanningParam.CircleCenterIJ;
+            _circleEdgeRows = RoutePlanningParam.CircleEdgeRows;
+            _circleEdgeCols = RoutePlanningParam.CircleEdgeCols;
+            _laserCtIJ = RoutePlanningParam.LaserCtIJ;
+            _pixelToActualCoordinateAlgorithm = new PixelToActualCoordinate_Algorithm(
+                _routePlanningParam.CalibFilePath,
+                _routePlanningParam.NPointCalibFilePath);
+
+            InitCameraCalib();
+            if (_routePlanningParam.NPointCalibFilePath != null && _routePlanningParam.NPointCalibFilePath != "")
+            {
+                InitNPointCalib();
+                _ifNPointCalib = true;
+            }
+        }
+
+        private void InitCameraCalib()
+        {
+            CalibrationBoardParams calibBoardParams = new CalibrationBoardParams();
+            CameraParams cameraParams = new CameraParams();
+
+            _cameraCalib.loadCalibrationFile(_routePlanningParam.CalibFilePath);
+            _cameraCalib.getCalibrationBoardParams(ref calibBoardParams);
+            _cameraCalib.getCameraParams(ref cameraParams);
+
+            _cameraId = cameraParams.cameraId;
+        }
+
+        private void InitNPointCalib()
+        {
+            FileStorage fs = new FileStorage(_routePlanningParam.NPointCalibFilePath, FileStorage.Modes.Read);
+            Mat homographyMatrix = fs["homographyMatrix"].ToMat();
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    _homMat2D.Append(homographyMatrix.At<double>(i, j));
+                }
+            }
+        }
+
+        public bool TryCalculateCircleCenterActualCoordinate(out double[] circleCenterActualXY)
+        {
+            circleCenterActualXY = new double[2];
+
+            if (_routePlanningParam.ImageSize == null || _routePlanningParam.ImageSize.Length < 2)
+            {
+                return false;
+            }
+
+            if (_circleCenterXY == null || _circleCenterXY.Length < 2)
+            {
+                return false;
+            }
+
+            circleCenterActualXY = _pixelToActualCoordinateAlgorithm.CalculateFromImageCenter(
+                _routePlanningParam.ImgGetPLCXY,
+                _routePlanningParam.ImageSize,
+                _circleCenterXY);
+
+            return true;
+        }
+
+
+        public bool PlanRoute(out List<Geometry2D> StEdPointXY, out HObject ResultXld, out double[] IdealGetPicXY, out double[] LaserCenterPos)
+        {
+
+
+            LaserCenterPos = new double[2];
+            IdealGetPicXY = new double[2];
+            List<Dictionary<string, dynamic>> paintElementLists = new List<Dictionary<string, dynamic>> { };
+
+            StEdPointXY = new List<Geometry2D>();
+            ResultXld = new HObject();
+
+            HTuple centerPlcWX = new HTuple();
+            HTuple centerPlcWY = new HTuple();
+
+            _cameraCalib.pixelToWorld(_cameraId, _circleCenterXY[0], _circleCenterXY[1], out double centerWX, out double centerWY, out double cz);
+            _cameraCalib.pixelToWorld(_cameraId, _circleEdgeCols[0], _circleEdgeRows[0], out double edgeWX, out double edgeWY, out double ez);
+
+            if (_ifNPointCalib) HOperatorSet.AffineTransPoint2d(_homMat2D, new HTuple(centerWX), new HTuple(centerWY), out centerPlcWX, out centerPlcWY);
+
+            double waferWorldRadius = Math.Sqrt(Math.Pow(centerWX - edgeWX, 2) + Math.Pow(centerWY - edgeWY, 2));
+
+
+            double innerRadius = waferWorldRadius + _routePlanningParam.IndentWidth;
+            return TryCalculateCircleCenterActualCoordinate(out IdealGetPicXY);
+            if (_routePlanningParam.ScanType == ScanTypes.旋转线扫)
+            {
+
+                double angleStep = 2 * Math.PI / _routePlanningParam.LineScanSectorNum;
+
+                for (int i = 0; i < _routePlanningParam.LineScanSectorNum; i++)
+                {
+                    double theta = i * angleStep;
+
+                    double xStart = centerWX + innerRadius * Math.Cos(theta);
+                    double yStart = centerWY + innerRadius * Math.Sin(theta);
+
+                    double xEnd = centerWX - innerRadius * Math.Cos(theta);
+                    double yEnd = centerWY - innerRadius * Math.Sin(theta);
+
+                    StEdPointXY.Add(new Geometry2D(xStart, yStart, xEnd, yEnd));
+
+                }
+            }
+
+            else if (_routePlanningParam.ScanType == ScanTypes.水平线扫)
+            {
+                int minRowIdx = Array.IndexOf(_circleEdgeRows, _circleEdgeRows.Min());
+                int maxRowIdx = Array.IndexOf(_circleEdgeRows, _circleEdgeRows.Max());
+
+                double minRowY = _circleEdgeRows[minRowIdx];
+                double minRowX = _circleEdgeCols[minRowIdx];
+
+                double maxRowY = _circleEdgeRows[maxRowIdx];
+                double maxRowX = _circleEdgeCols[maxRowIdx];
+
+                _cameraCalib.pixelToWorld(_cameraId, minRowX, minRowY, out double minRowWX, out double minRowWY, out double minrz);
+                _cameraCalib.pixelToWorld(_cameraId, maxRowX, maxRowY, out double maxRowWX, out double maxRowWY, out double maxrz);
+
+
+                double rowStep = (Math.Abs(maxRowWY - minRowWY) + 2 * _routePlanningParam.IndentWidth) / (_routePlanningParam.LineScannLineNum + 1);
+                int dk = (minRowWY > maxRowWY) ? -1 : 1;
+
+                for (int i = 1; i < _routePlanningParam.LineScannLineNum + 1; i++)
+                {
+                    double row = minRowWY + dk * i * rowStep + _routePlanningParam.IndentWidth;
+
+                    double xStart = centerWX - Math.Sqrt(Math.Pow(innerRadius, 2) - Math.Pow((innerRadius - i * rowStep), 2));
+                    double yStart = row;
+                    double xEnd = centerWX + Math.Sqrt(Math.Pow(innerRadius, 2) - Math.Pow((innerRadius - i * rowStep), 2));
+                    double yEnd = row;
+
+                    StEdPointXY.Add(new Geometry2D(xStart, yStart, xEnd, yEnd));
+                }
+            }
+
+            else if (_routePlanningParam.ScanType == ScanTypes.点扫)
+            {
+                int pointNum = (int)(innerRadius / _routePlanningParam.PointScanInterval);
+
+                for (int i = -pointNum; i < pointNum + 1; i++)
+                {
+                    for (int j = -pointNum; j < pointNum + 1; j++)
+                    {
+                        double ptX = centerWX + i * _routePlanningParam.PointScanInterval;
+                        double ptY = centerWY + j * _routePlanningParam.PointScanInterval;
+
+                        if (Math.Sqrt(Math.Pow(i * _routePlanningParam.PointScanInterval, 2) + Math.Pow(j * _routePlanningParam.PointScanInterval, 2)) < innerRadius)
+                        {
+                            StEdPointXY.Add(new Geometry2D(ptX, ptY));
+                        }
+                    }
+                }
+            }
+
+            else if (_routePlanningParam.ScanType == ScanTypes.相切圆点扫)
+            {
+                int k = 1;
+
+                while (true)
+                {
+                    double tangentRadius = _routePlanningParam.PointScanTangentRadius * k * 2;
+                    if (tangentRadius + _routePlanningParam.PointScanTangentRadius > innerRadius) break;
+
+                    int n = (int)Math.Floor(Math.PI * tangentRadius / _routePlanningParam.PointScanTangentRadius);
+                    if (n < 1) break;
+
+                    double deltaTheta = 2 * Math.PI / n;
+
+                    for (int i = 0; i < n; i++)
+                    {
+                        double angle = i * deltaTheta;
+                        double ptX = centerWX + tangentRadius * Math.Cos(angle);
+                        double ptY = centerWY + tangentRadius * Math.Sin(angle);
+
+                        StEdPointXY.Add(new Geometry2D(ptX, ptY));
+                    }
+
+                    k++;
+                }
+            }
+
+            else if (_routePlanningParam.ScanType == ScanTypes.圆环扫描)
+            {
+                StEdPointXY.Add(new Geometry2D(centerWX, centerWY, _routePlanningParam.CircleScanRadius));
+            }
+
+            else
+            {
+                return TryCalculateCircleCenterActualCoordinate(out IdealGetPicXY);
+
+            }
+
+            //if (StEdPointXY.Count > 1 && StEdPointXY.All(g => g.IsLine))
+            //{
+            //    StEdPointXY = StEdPointXY.OptimizeLineRoute();
+            //}
+
+            if (StEdPointXY.Count > 0)
+            {
+                double[] pixelX = new double[StEdPointXY.Count];
+                double[] pixelY = new double[StEdPointXY.Count];
+
+                double[] startX = new double[StEdPointXY.Count];
+                double[] startY = new double[StEdPointXY.Count];
+                double[] endX = new double[StEdPointXY.Count];
+                double[] endY = new double[StEdPointXY.Count];
+
+                HOperatorSet.GenEmptyObj(out ResultXld);
+
+                if (StEdPointXY[0].IsPoint)
+                {
+                    for (int i = 0; i < StEdPointXY.Count; i++)
+                    {
+                        _cameraCalib.worldToPixel(_cameraId, StEdPointXY[i].X1, StEdPointXY[i].Y1, 0, out pixelX[i], out pixelY[i]);
+                    }
+                    HOperatorSet.GenCircleContourXld(out ResultXld, pixelY, pixelX, 10, 0, 6.28, "positive", 1.0);
+
+                }
+                else if (StEdPointXY[0].IsLine)
+                {
+                    for (int i = 0; i < StEdPointXY.Count; i++)
+                    {
+                        _cameraCalib.worldToPixel(_cameraId, StEdPointXY[i].X1, StEdPointXY[i].Y1, 0, out startX[i], out startY[i]);
+                        _cameraCalib.worldToPixel(_cameraId, (double)StEdPointXY[i].X2, (double)StEdPointXY[i].Y2, 0, out endX[i], out endY[i]);
+
+                        HTuple rows = new HTuple(new double[] { startY[i], endY[i] });
+                        HTuple cols = new HTuple(new double[] { startX[i], endX[i] });
+
+                        HOperatorSet.GenContourPolygonXld(out HObject singleLine, rows, cols);
+
+                        // 拼到总的 XLD 里
+                        HOperatorSet.ConcatObj(ResultXld, singleLine, out ResultXld);
+
+                        singleLine.Dispose();
+                        rows.Dispose();
+                        cols.Dispose();
+                    }
+                }
+                else
+                {
+                    double[] rows = new double[360];
+                    double[] cols = new double[360];
+
+                    for (int i = 0; i < 360; i++)
+                    {
+                        double theta = 2.0 * Math.PI * i / 360;
+
+                        rows[i] = centerWY + _routePlanningParam.CircleScanRadius * Math.Sin(theta);
+                        cols[i] = centerWX + _routePlanningParam.CircleScanRadius * Math.Cos(theta);
+
+                        _cameraCalib.worldToPixel(_cameraId, cols[i], rows[i], 0, out cols[i], out rows[i]);
+                    }
+
+                    HOperatorSet.GenContourPolygonXld(out HObject scanCircle, rows, cols);
+                    HOperatorSet.ConcatObj(ResultXld, scanCircle, out ResultXld);
+                }
+
+
+                // 计算激光到晶圆中心的偏移（经过NP点标定的实际偏差）
+                _cameraCalib.pixelToWorld(_cameraId, _laserCtIJ[0], _laserCtIJ[1], out double laserWX, out double laserWY, out double lz);
+                double laserOffsetX = 0;
+                double laserOffsetY = 0;
+                HTuple laserPlcWX = new HTuple();
+                HTuple laserPlcWY = new HTuple();
+
+                if (_ifNPointCalib)
+                {
+                    HOperatorSet.AffineTransPoint2d(_homMat2D, new HTuple(laserWX), new HTuple(laserWY), out laserPlcWX, out laserPlcWY);
+
+                    laserOffsetX = laserPlcWX.D - centerPlcWX.D;
+                    laserOffsetY = laserPlcWY.D - centerPlcWY.D;
+
+                    StEdPointXY = StEdPointXY.ApplyOffset(
+                        -centerWX + _routePlanningParam.ImgGetPLCXY[0] + laserOffsetX,
+                        -centerWY + _routePlanningParam.ImgGetPLCXY[1] - laserOffsetY, false);
+                }
+                else
+                {
+                    laserOffsetX = laserWX - centerWX;
+                    laserOffsetY = laserWY - centerWY;
+
+                    StEdPointXY = StEdPointXY.ApplyOffset(
+                        -centerWX + _routePlanningParam.ImgGetPLCXY[0] + laserOffsetX,
+                        -centerWY + _routePlanningParam.ImgGetPLCXY[1] - laserOffsetY, false);
+                }
+
+                LaserCenterPos[0] = _routePlanningParam.ImgGetPLCXY[0] + laserOffsetX;
+                LaserCenterPos[1] = _routePlanningParam.ImgGetPLCXY[1] - laserOffsetY;
+
+                centerPlcWX.Dispose();
+                centerPlcWY.Dispose();
+                laserPlcWX.Dispose();
+                laserPlcWY.Dispose();
+            }
+            else
+            {
+                StEdPointXY = new List<Geometry2D> { };
+            }
+
+            return true;
+        }
+    }
+
+    public class RoutePlanningParam
+    {
+        /// <summary>
+        /// 获取图像时PLC位置XY
+        /// </summary>
+        public double[] ImgGetPLCXY { get; set; } = new double[2];
+        /// <summary>
+        /// 激光中心列坐标IJ
+        /// </summary>
+        public double[] LaserCtIJ { get; set; } = new double[2];
+        /// <summary>
+        /// 晶圆图像
+        /// </summary>
+        public HObject WaferImage { get; set; } = new HObject();
+        /// <summary>
+        /// 标注文件路径
+        /// </summary>
+        public string CalibFilePath { get; set; } = "";
+        /// <summary>
+        /// N点标注文件路径
+        /// </summary>
+        public string NPointCalibFilePath { get; set; } = "";
+        /// <summary>
+        /// 晶圆轮廓行
+        /// </summary>
+        public double[] CircleEdgeRows { get; set; } = new double[0];
+        /// <summary>
+        /// 晶圆轮廓列
+        /// </summary>
+        public double[] CircleEdgeCols { get; set; } = new double[0];
+        /// <summary>
+        /// 晶圆中心坐标
+        /// </summary>
+        public double[] CircleCenterIJ { get; set; } = new double[0];
+        /// <summary>
+        /// 缩进宽度mm
+        /// </summary>
+        public double IndentWidth { get; set; } = 10.0;
+        /// <summary>
+        /// 扫描类型
+        /// </summary>
+        public ScanTypes ScanType { get; set; } = ScanTypes.旋转线扫;
+        /// <summary>
+        /// 点扫时的扫描间隔
+        /// </summary>
+        public double PointScanInterval { get; set; }
+        /// <summary>
+        /// 点扫时的相切圆半径
+        /// </summary>
+        public double PointScanTangentRadius { get; set; }
+        /// <summary>
+        /// 线扫时的扫描行数
+        /// </summary>
+        public double LineScannLineNum { get; set; }
+        /// <summary>
+        /// 旋转线扫时的扫描格数
+        /// </summary>
+        public double LineScanSectorNum { get; set; }
+        /// <summary>
+        /// 圆环扫码半径
+        /// </summary>
+        public double CircleScanRadius { get; set; }
+        /// <summary>
+        /// 图像大小
+        /// </summary>
+        public int[] ImageSize { get; set; }
+    }
+
+    public enum GeometryType
+    {
+        Point,
+        Line,
+        Circle
+    }
+
+    public struct Geometry2D
+    {
+        public GeometryType Type { get; }
+
+        // 通用 / 点 / 线 / 圆心
+        public double X1 { get; }
+        public double Y1 { get; }
+
+        // 线段
+        public double X2 { get; }
+        public double Y2 { get; }
+
+        // 圆
+        public double Radius { get; }
+
+        // 点
+        public Geometry2D(double x, double y)
+        {
+            Type = GeometryType.Point;
+            X1 = x;
+            Y1 = y;
+            X2 = Y2 = Radius = 0;
+        }
+
+        // 线
+        public Geometry2D(double x1, double y1, double x2, double y2)
+        {
+            Type = GeometryType.Line;
+            X1 = x1;
+            Y1 = y1;
+            X2 = x2;
+            Y2 = y2;
+            Radius = 0;
+        }
+
+        // 圆
+        public Geometry2D(double cx, double cy, double radius)
+        {
+            Type = GeometryType.Circle;
+            X1 = cx;
+            Y1 = cy;
+            Radius = radius;
+            X2 = Y2 = 0;
+        }
+
+        public bool IsPoint => Type == GeometryType.Point;
+        public bool IsLine => Type == GeometryType.Line;
+        public bool IsCircle => Type == GeometryType.Circle;
+    }
+
+    public static class Geometry2DExtensions
+    {
+        public static List<Geometry2D> ApplyOffset(
+            this IEnumerable<Geometry2D> items,
+            double offsetX,
+            double offsetY,
+            bool subtract = false)
+        {
+            double sx = subtract ? -offsetX : offsetX;
+            double sy = subtract ? -offsetY : offsetY;
+
+            return items.Select(g =>
+            {
+                switch (g.Type)
+                {
+                    case GeometryType.Point:
+                        return new Geometry2D(
+                            g.X1 + sx,
+                            g.Y1 + sy);
+
+                    case GeometryType.Line:
+                        return new Geometry2D(
+                            g.X1 + sx,
+                            g.Y1 + sy,
+                            g.X2 + sx,
+                            g.Y2 + sy);
+
+                    case GeometryType.Circle:
+                        return new Geometry2D(
+                            g.X1 + sx,
+                            g.Y1 + sy,
+                            g.Radius);
+
+                    default:
+                        throw new NotSupportedException($"Unsupported geometry type: {g.Type}");
+                }
+            }).ToList();
+        }
+
+        public static List<Geometry2D> OptimizeLineRoute(this IEnumerable<Geometry2D> items)
+        {
+            if (items == null)
+                return new List<Geometry2D>();
+
+            var list = items.ToList();
+            if (list.Count <= 1)
+                return list;
+
+            if (list.Any(g => !g.IsLine))
+                return list;
+
+            int count = list.Count;
+            var lines = new LineInfo[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                var g = list[i];
+                lines[i] = new LineInfo(g.X1, g.Y1, g.X2, g.Y2);
+            }
+
+            double bestCost = double.PositiveInfinity;
+            (int index, bool reversed)[] bestPath = null;
+
+            for (int start = 0; start < count; start++)
+            {
+                for (int startReverse = 0; startReverse < 2; startReverse++)
+                {
+                    var used = new bool[count];
+                    var path = new (int index, bool reversed)[count];
+
+                    used[start] = true;
+                    bool startReversed = startReverse == 1;
+                    path[0] = (start, startReversed);
+
+                    lines[start].GetEnd(startReversed, out double curX, out double curY);
+                    double totalCost = 0;
+                    int filled = 1;
+
+                    for (int step = 1; step < count; step++)
+                    {
+                        int nextIndex = -1;
+                        bool nextReversed = false;
+                        double bestStep = double.PositiveInfinity;
+
+                        for (int i = 0; i < count; i++)
+                        {
+                            if (used[i]) continue;
+
+                            double distToA = Distance(curX, curY, lines[i].Ax, lines[i].Ay);
+                            double distToB = Distance(curX, curY, lines[i].Bx, lines[i].By);
+
+                            if (distToA <= distToB)
+                            {
+                                if (distToA < bestStep)
+                                {
+                                    bestStep = distToA;
+                                    nextIndex = i;
+                                    nextReversed = false;
+                                }
+                            }
+                            else
+                            {
+                                if (distToB < bestStep)
+                                {
+                                    bestStep = distToB;
+                                    nextIndex = i;
+                                    nextReversed = true;
+                                }
+                            }
+                        }
+
+                        if (nextIndex < 0)
+                            break;
+
+                        used[nextIndex] = true;
+                        path[filled++] = (nextIndex, nextReversed);
+                        totalCost += bestStep;
+
+                        lines[nextIndex].GetEnd(nextReversed, out curX, out curY);
+                    }
+
+                    if (filled == count && totalCost < bestCost)
+                    {
+                        bestCost = totalCost;
+                        bestPath = path;
+                    }
+                }
+            }
+
+            if (bestPath == null)
+                return list;
+
+            var result = new List<Geometry2D>(count);
+            for (int i = 0; i < count; i++)
+            {
+                var (index, reversed) = bestPath[i];
+                var line = lines[index];
+
+                result.Add(reversed
+                    ? new Geometry2D(line.Bx, line.By, line.Ax, line.Ay)
+                    : new Geometry2D(line.Ax, line.Ay, line.Bx, line.By));
+            }
+
+            return result;
+        }
+
+        private static double Distance(double x1, double y1, double x2, double y2)
+        {
+            double dx = x1 - x2;
+            double dy = y1 - y2;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        private struct LineInfo
+        {
+            public double Ax;
+            public double Ay;
+            public double Bx;
+            public double By;
+
+            public LineInfo(double ax, double ay, double bx, double by)
+            {
+                Ax = ax;
+                Ay = ay;
+                Bx = bx;
+                By = by;
+            }
+
+            public void GetEnd(bool reversed, out double x, out double y)
+            {
+                if (reversed)
+                {
+                    x = Ax;
+                    y = Ay;
+                    return;
+                }
+
+                x = Bx;
+                y = By;
+            }
+        }
+    }
+}

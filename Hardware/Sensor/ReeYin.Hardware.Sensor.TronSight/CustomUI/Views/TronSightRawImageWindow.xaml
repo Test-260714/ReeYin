@@ -1,0 +1,354 @@
+<UserControl x:Class="ReeYin.Hardware.Sensor.TronSight.CustomUI.Views.TronSightRawImageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:prism="http://prismlibrary.com/"
+        Width="1180"
+        Height="760"
+        MinWidth="980"
+        MinHeight="640"
+        Background="#F4F4F4"
+        FontSize="14"
+        Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded"
+        prism:ViewModelLocator.AutoWireViewModel="True">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <WxGroupBox:WxGroupBox Header="光谱设置" Margin="0 0 0 8">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="图像通道" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <ComboBox x:Name="SensorChannelComboBox" Grid.Row="0" Grid.Column="1" Height="30" Margin="0 0 0 8"
+                                  ItemsSource="{Binding SensorChannelOptions}"
+                                  DisplayMemberPath="DisplayName"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding RawImageConfig.SensorChannelIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionChanged="SensorChannelComboBox_SelectionChanged"
+                                  Style="{StaticResource ComboBoxExtend}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="图像类型" VerticalAlignment="Center" Margin="0 0 6 0"/>
+                        <ComboBox x:Name="FrameDataSourceComboBox" Grid.Row="1" Grid.Column="1" Height="30"
+                                  ItemsSource="{Binding FrameDataSourceOptions}"
+                                  DisplayMemberPath="DisplayName"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding RawImageConfig.FrameDataSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionChanged="FrameDataSourceComboBox_SelectionChanged"
+                                  Style="{StaticResource ComboBoxExtend}"/>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="通道光源控制" Margin="0 0 0 8">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="光源开关" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <CheckBox x:Name="LightSourceCheckBox" Grid.Row="0" Grid.Column="1" Content="开" VerticalAlignment="Center"
+                                  IsChecked="{Binding RawImageConfig.IsLightSourceEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Checked="LightSourceCheckBox_Changed"
+                                  Unchecked="LightSourceCheckBox_Changed"
+                                  Margin="0 0 0 8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="光源强度(%)" VerticalAlignment="Center" Margin="0 0 6 0"/>
+                        <hc:NumericUpDown x:Name="LightIntensityBox" Grid.Row="1" Grid.Column="1" Height="30"
+                                          Minimum="0" Maximum="100" DecimalPlaces="0" Increment="1"
+                                          Value="{Binding RawImageConfig.LightIntensity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          LostFocus="LightIntensityBox_LostFocus"/>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="通道曝光" Margin="0 0 0 8">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="曝光模式" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <CheckBox x:Name="AutoExposureCheckBox" Grid.Row="0" Grid.Column="1" Content="自动" VerticalAlignment="Center"
+                                  IsChecked="{Binding RawImageConfig.IsAutoExposureEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Checked="AutoExposureCheckBox_Changed"
+                                  Unchecked="AutoExposureCheckBox_Changed"
+                                  Margin="0 0 0 8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="曝光时间(us)" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <hc:NumericUpDown x:Name="ManualExposureBox" Grid.Row="1" Grid.Column="1" Height="30"
+                                          Minimum="1" Maximum="5000" DecimalPlaces="0" Increment="1"
+                                          Value="{Binding RawImageConfig.ManualExposure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding IsManualExposureEnabled}"
+                                          LostFocus="ExposureBox_LostFocus"
+                                          Margin="0 0 0 8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="目标曝光值" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <hc:NumericUpDown x:Name="TargetExposureBox" Grid.Row="2" Grid.Column="1" Height="30"
+                                          Minimum="0" Maximum="65535" DecimalPlaces="0" Increment="10"
+                                          Value="{Binding RawImageConfig.TargetExposure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding IsAutoExposureSettingEnabled}"
+                                          LostFocus="TargetExposureBox_LostFocus"
+                                          Margin="0 0 0 8"/>
+
+                        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                            <TextBlock Text="自动时间" VerticalAlignment="Center" Margin="0 0 6 0"/>
+                            <hc:NumericUpDown x:Name="MinExposureBox" Width="78" Height="30" Minimum="1" Maximum="5000"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.MinExposure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEnabled="{Binding IsAutoExposureSettingEnabled}"
+                                              LostFocus="AutoExposureRangeBox_LostFocus"/>
+                            <TextBlock Text="-" VerticalAlignment="Center" Margin="5 0"/>
+                            <hc:NumericUpDown x:Name="MaxExposureBox" Width="78" Height="30" Minimum="1" Maximum="5000"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.MaxExposure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEnabled="{Binding IsAutoExposureSettingEnabled}"
+                                              LostFocus="AutoExposureRangeBox_LostFocus"/>
+                            <TextBlock Text="us" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                        </StackPanel>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="测量峰值选取" Margin="0 0 0 8">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="选择方式" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <ComboBox x:Name="PeakSelectionModeComboBox" Grid.Row="0" Grid.Column="1" Height="30"
+                                  ItemsSource="{Binding PeakSelectionModeOptions}"
+                                  DisplayMemberPath="DisplayName"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding RawImageConfig.PeakSelectionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionChanged="PeakSelectionModeComboBox_SelectionChanged"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  Margin="0 0 0 8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="峰排序" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <ComboBox x:Name="PeakSortModeComboBox" Grid.Row="1" Grid.Column="1" Height="30"
+                                  ItemsSource="{Binding PeakSortModeOptions}"
+                                  DisplayMemberPath="DisplayName"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding RawImageConfig.PeakSortMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionChanged="PeakSortModeComboBox_SelectionChanged"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  Margin="0 0 0 8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="最小间隔" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <hc:NumericUpDown x:Name="PeakMinSpacingBox" Grid.Row="2" Grid.Column="1" Height="30"
+                                          Minimum="0" Maximum="1023" DecimalPlaces="0" Increment="1"
+                                          Value="{Binding RawImageConfig.PeakMinSpacing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          LostFocus="PeakDetectionBox_LostFocus"
+                                          Margin="0 0 0 8"/>
+
+                        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0 0 0 8">
+                            <TextBlock Text="峰1" VerticalAlignment="Center" Width="36"/>
+                            <TextBlock Text="序号" VerticalAlignment="Center"/>
+                            <hc:NumericUpDown x:Name="Peak1IndexBox" Width="54" Height="30" Minimum="1" Maximum="10"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.Peak1Index, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="PeakSelectionBox_LostFocus" Margin="5 0"/>
+                            <TextBlock Text="起止" VerticalAlignment="Center"/>
+                            <hc:NumericUpDown x:Name="Peak1StartBox" Width="64" Height="30" Minimum="0" Maximum="1023"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.Peak1Start, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="PeakSelectionBox_LostFocus" Margin="5 0"/>
+                            <hc:NumericUpDown x:Name="Peak1EndBox" Width="64" Height="30" Minimum="0" Maximum="1023"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.Peak1End, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="PeakSelectionBox_LostFocus"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                            <TextBlock Text="峰2" VerticalAlignment="Center" Width="36"/>
+                            <TextBlock Text="序号" VerticalAlignment="Center"/>
+                            <hc:NumericUpDown x:Name="Peak2IndexBox" Width="54" Height="30" Minimum="1" Maximum="10"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.Peak2Index, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="PeakSelectionBox_LostFocus" Margin="5 0"/>
+                            <TextBlock Text="起止" VerticalAlignment="Center"/>
+                            <hc:NumericUpDown x:Name="Peak2StartBox" Width="64" Height="30" Minimum="0" Maximum="1023"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.Peak2Start, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="PeakSelectionBox_LostFocus" Margin="5 0"/>
+                            <hc:NumericUpDown x:Name="Peak2EndBox" Width="64" Height="30" Minimum="0" Maximum="1023"
+                                              DecimalPlaces="0" Increment="1"
+                                              Value="{Binding RawImageConfig.Peak2End, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="PeakSelectionBox_LostFocus"/>
+                        </StackPanel>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="图像滤波" Margin="0 0 0 8">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="自动选择" VerticalAlignment="Center" Margin="0 0 6 8"/>
+                        <CheckBox x:Name="AutoImageFilterCheckBox" Grid.Row="0" Grid.Column="1" Content="自动" VerticalAlignment="Center"
+                                  IsChecked="{Binding RawImageConfig.IsAutoImageFilterEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Checked="ImageFilter_Changed"
+                                  Unchecked="ImageFilter_Changed"
+                                  Margin="0 0 0 8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="滤波宽度" VerticalAlignment="Center" Margin="0 0 6 0"/>
+                        <ComboBox x:Name="ImageFilterWidthComboBox" Grid.Row="1" Grid.Column="1" Height="30"
+                                  ItemsSource="{Binding ImageFilterWidthOptions}"
+                                  DisplayMemberPath="DisplayName"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding RawImageConfig.ImageFilterWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionChanged="ImageFilterWidthComboBox_SelectionChanged"
+                                  Style="{StaticResource ComboBoxExtend}"/>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+
+                <WxGroupBox:WxGroupBox Header="暗校准" Margin="0 0 0 8">
+                    <StackPanel Margin="8" Orientation="Horizontal">
+                        <Button Content="下载暗校准表" Width="120" Height="30" Margin="0 0 8 0"
+                                Click="DownloadDarkReferenceButton_Click"
+                                Style="{StaticResource GeneralButtonStyle}"/>
+                        <Button Content="开始暗校准" Width="110" Height="30"
+                                Click="DarkCalibrationButton_Click"
+                                Style="{StaticResource GeneralButtonStyle}"/>
+                    </StackPanel>
+                </WxGroupBox:WxGroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource BtnOverColor}"/>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0 0 0 8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" BorderBrush="#909090" BorderThickness="1" Background="#7F7F7F" Margin="0 0 6 0">
+                    <StackPanel>
+                        <TextBlock Text="最大峰值" Foreground="White" HorizontalAlignment="Center" FontWeight="Bold" Margin="0 2"/>
+                        <TextBlock x:Name="MaxPeakValueTextBlock" Text="{Binding RawImageConfig.MaxPeakValue, StringFormat={}{0:F0}}" Background="White" HorizontalAlignment="Stretch" TextAlignment="Center" Padding="0 3"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" BorderBrush="#909090" BorderThickness="1" Background="#7F7F7F" Margin="0 0 6 0">
+                    <StackPanel>
+                        <TextBlock Text="最大峰位置" Foreground="White" HorizontalAlignment="Center" FontWeight="Bold" Margin="0 2"/>
+                        <TextBlock x:Name="MaxPeakPositionTextBlock" Text="{Binding RawImageConfig.MaxPeakPosition}" Background="White" HorizontalAlignment="Stretch" TextAlignment="Center" Padding="0 3"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="曝光状态" VerticalAlignment="Center" Margin="0 0 6 0"/>
+                    <Ellipse x:Name="ExposureStateEllipse" Width="14" Height="14" Fill="#777777"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" BorderBrush="#D05A5A" BorderThickness="1" Background="White">
+                <Grid>
+                    <TextBlock Text="原始图像窗口" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 6 0 0" FontWeight="Bold"/>
+                    <ContentControl x:Name="RawImageChartHost" Margin="0 24 0 0" Background="White"/>
+                    <TextBlock x:Name="NoDataTextBlock"
+                               Text="暂无图像数据"
+                               Foreground="#777777"
+                               FontSize="16"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"
+                               Visibility="Collapsed"/>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2" Margin="0 8 0 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <WrapPanel Grid.Row="0" VerticalAlignment="Center">
+                    <CheckBox x:Name="YAxisAutoCheckBox" Content="Y轴自动" IsChecked="{Binding RawImageConfig.IsYAxisAuto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 10 4" Click="ChartOption_Click"/>
+                    <CheckBox x:Name="XAxisAutoCheckBox" Content="X轴自动" IsChecked="{Binding RawImageConfig.IsXAxisAuto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 10 4" Click="ChartOption_Click"/>
+                    <TextBlock Text="X坐标类型" VerticalAlignment="Center" Margin="0 4 5 4"/>
+                    <ComboBox x:Name="CoordinateTypeComboBox" Width="70" Height="28" SelectedIndex="0" Margin="0 4 10 4" Style="{StaticResource ComboBoxExtend}">
+                        <ComboBoxItem Content="像素"/>
+                    </ComboBox>
+                    <CheckBox x:Name="ShowRangeCheckBox" Content="显示量程外图像" IsChecked="{Binding RawImageConfig.IsMeasureRangeVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 10 4" Click="ChartOption_Click"/>
+                    <CheckBox x:Name="ShowThresholdCheckBox" Content="阈值线显示" IsChecked="{Binding RawImageConfig.IsThresholdVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 10 4" Click="ChartOption_Click"/>
+                </WrapPanel>
+
+                <WrapPanel Grid.Row="1" VerticalAlignment="Center">
+                    <Button x:Name="RefreshImageButton" Content="{Binding RefreshButtonText}" Width="90" Height="30" Margin="0 4 8 4"
+                            Click="RefreshImageButton_Click"
+                            Style="{StaticResource GeneralButtonStyle}"/>
+                    <CheckBox x:Name="AutoRefreshCheckBox" Content="自动峰值检测" Margin="0 4 8 4" VerticalAlignment="Center"
+                              IsChecked="{Binding RawImageConfig.IsAutoRefreshEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Checked="AutoRefreshCheckBox_Changed"
+                              Unchecked="AutoRefreshCheckBox_Changed"/>
+                    <TextBlock Text="手动峰高阈值" VerticalAlignment="Center" Margin="0 4 5 4"/>
+                    <hc:NumericUpDown x:Name="PeakHeightThresholdBox" Width="74" Height="30" Minimum="0" Maximum="65535"
+                                      DecimalPlaces="0" Increment="1"
+                                      Value="{Binding RawImageConfig.PeakHeightThreshold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      LostFocus="PeakDetectionBox_LostFocus"
+                                      Margin="0 4 8 4"/>
+                    <TextBlock Text="手动锐度阈值" VerticalAlignment="Center" Margin="0 4 5 4"/>
+                    <hc:NumericUpDown x:Name="PeakSharpnessThresholdBox" Width="74" Height="30" Minimum="0" Maximum="65535"
+                                      DecimalPlaces="0" Increment="1"
+                                      Value="{Binding RawImageConfig.PeakSharpnessThreshold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      LostFocus="PeakDetectionBox_LostFocus"
+                                      Margin="0 4 8 4"/>
+                    <Button Content="保存图像" Width="90" Height="30" Margin="0 4 8 4"
+                            Click="SaveImageButton_Click"
+                            Style="{StaticResource GeneralButtonStyle}"/>
+                    <TextBlock x:Name="StatusTextBlock" VerticalAlignment="Center" Foreground="#666666" Text="就绪" Margin="0 4"/>
+                </WrapPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

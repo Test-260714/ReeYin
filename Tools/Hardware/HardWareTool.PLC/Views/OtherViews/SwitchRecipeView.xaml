@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="HardWareTool.PLC.Views.SwitchRecipeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HardWareTool.PLC.Views"
+             mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:helper="clr-namespace:ReeYin_V.Core.Helper;assembly=ReeYin_V.Core"
+             xmlns:permission="clr-namespace:ReeYin_V.Core.Services;assembly=ReeYin_V.Core"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             xmlns:controlEx="clr-namespace:ReeYin_V.UI.ControlExtend;assembly=ReeYin_V.UI"
+             xmlns:WxLink="clr-namespace:ReeYin_V.UI.UserControls.WxLink;assembly=ReeYin_V.UI"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             FontSize="24"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="100" d:DesignWidth="300">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Loaded">
+                    <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+    <Grid>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin=" 10,0,0,0">
+                    <Run Text="当前配方："/>
+                    <Run Text="{Binding ModelParam.SltRecipe.Describe,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                </TextBlock>
+                <Button Content="切换" Margin="10 0 0 0" Height="auto" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" HorizontalAlignment="Right"
+                                       Command="{Binding GeneralCommand}" CommandParameter="切换配方"/>
+                <!--<ComboBox Width="250" hc:InfoElement.TitlePlacement="Left" FontSize="18" hc:InfoElement.Title="当前配方:" hc:InfoElement.TitleWidth="120" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black"  HorizontalContentAlignment="Center"
+                                ItemsSource="{Binding ModelParam.Recipes,Mode=TwoWay}" DisplayMemberPath="Describe" SelectedItem="{Binding ModelParam.SltRecipe,TargetNullValue='null',FallbackValue='null',Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" >
+
+                </ComboBox>-->
+            </StackPanel>
+            <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 10 0 0">
+                <Button Content="切换" Margin="10 0" Height="30" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" HorizontalAlignment="Right"
+                                       Command="{Binding GeneralCommand}" CommandParameter="切换配方" />
+
+            </StackPanel>-->
+        </StackPanel>
+    </Grid>
+</UserControl>

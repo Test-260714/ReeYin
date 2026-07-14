@@ -1,0 +1,595 @@
+﻿<UserControl x:Class="FileTool.BRJReportOutput.Views.BrjReportOutputView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:views="clr-namespace:FileTool.BRJReportOutput.Views"
+             mc:Ignorable="d"
+             FontSize="14"
+             Height="900"
+             Width="1760"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             Background="{DynamicResource RegionBackgroundBrush}"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="900"
+             d:DesignWidth="1760">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="BrjAccentBrush" Color="#C39200"/>
+        <SolidColorBrush x:Key="BrjAccentDarkBrush" Color="#9C7600"/>
+        <SolidColorBrush x:Key="BrjCardBackgroundBrush" Color="#FAFAFA"/>
+        <SolidColorBrush x:Key="BrjMutedBorderBrush" Color="#D8D8D8"/>
+        <SolidColorBrush x:Key="BrjPanelBorderBrush" Color="#BFBFBF"/>
+
+        <Style x:Key="BrjCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BrjCardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrjMutedBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="BrjMenuTextStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,26,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="BrjTopMenuStyle" TargetType="Menu">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="BrjTopMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Margin" Value="0,0,26,0"/>
+            <Setter Property="Padding" Value="0,4"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="BrjSubMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="MinWidth" Value="150"/>
+            <Setter Property="Padding" Value="18,7"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="BrjLabelStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="BrjSmallLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource BrjLabelStyle}">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style x:Key="BrjInputStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrjMutedBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="BrjDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrjMutedBorderBrush}"/>
+        </Style>
+
+        <Style x:Key="BrjGoldButtonStyle" TargetType="Button" BasedOn="{StaticResource GeneralButtonStyle}">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="{StaticResource BrjAccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrjAccentDarkBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="BrjPagerButtonStyle" TargetType="Button" BasedOn="{StaticResource BrjGoldButtonStyle}">
+            <Setter Property="Width" Value="86"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+        </Style>
+
+        <Style x:Key="BrjChartTabItemStyle" TargetType="TabItem" BasedOn="{StaticResource SingleTabItemStyle}">
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="MinWidth" Value="112"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="BrjSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="BrjPlaceholderTextStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="BrjChartSurfaceStyle" TargetType="Border">
+            <Setter Property="Background" Value="#D8D8D8"/>
+            <Setter Property="BorderBrush" Value="#C6C6C6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style x:Key="BrjChartTitleStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#0033FF"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="BrjDefectInfoCellStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource BrjMutedBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{DynamicResource RegionBackgroundBrush}"
+                BorderBrush="{StaticResource BrjMutedBorderBrush}"
+                BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Menu Style="{StaticResource BrjTopMenuStyle}">
+                    <MenuItem Header="查询功能" Style="{StaticResource BrjTopMenuItemStyle}">
+                        <MenuItem Header="查询当日数据" Command="{Binding QuickQueryCommand}" CommandParameter="Today" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="查询前日数据" Command="{Binding QuickQueryCommand}" CommandParameter="Yesterday" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="查询三日数据" Command="{Binding QuickQueryCommand}" CommandParameter="ThreeDays" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="查询七日数据" Command="{Binding QuickQueryCommand}" CommandParameter="SevenDays" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="查询三十日数据" Command="{Binding QuickQueryCommand}" CommandParameter="ThirtyDays" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="查询一年数据" Command="{Binding QuickQueryCommand}" CommandParameter="OneYear" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                    </MenuItem>
+                </Menu>
+                <TextBlock Text="报表功能" Style="{StaticResource BrjMenuTextStyle}"/>
+                <TextBlock Text="批次处理功能" Style="{StaticResource BrjMenuTextStyle}"/>
+                <Menu Style="{StaticResource BrjTopMenuStyle}">
+                    <MenuItem Header="参数设置" Style="{StaticResource BrjTopMenuItemStyle}">
+                        <MenuItem Header="直径分组参数" Command="{Binding OpenDiameterGroupSettingsCommand}" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="报表保存目录" Command="{Binding SelectReportDirectoryCommand}" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                        <MenuItem Header="恢复默认报表目录" Command="{Binding ResetReportDirectoryCommand}" Style="{StaticResource BrjSubMenuItemStyle}"/>
+                    </MenuItem>
+                </Menu>
+                <TextBlock Text="缺陷图像" Style="{StaticResource BrjMenuTextStyle}"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="900"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="148"/>
+                    <RowDefinition Height="46"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource BrjCardStyle}" Margin="0,0,0,6">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="205"/>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Margin="0,0,10,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <DatePicker Grid.Row="0" SelectedDate="{Binding StartDate, Mode=TwoWay}" Style="{StaticResource BrjDatePickerStyle}" Margin="0,0,0,6"/>
+                            <DatePicker Grid.Row="1" SelectedDate="{Binding EndDate, Mode=TwoWay}" Style="{StaticResource BrjDatePickerStyle}" Margin="0,0,0,6"/>
+                            <Button Grid.Row="2" Content="查询指定日期记录" Command="{Binding QueryByDateCommand}" Style="{StaticResource BrjGoldButtonStyle}"/>
+                        </Grid>
+
+                        <Grid Grid.Column="1" Margin="0,0,10,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="输入要查询批次：" HorizontalAlignment="Center" Style="{StaticResource BrjLabelStyle}"/>
+                            <TextBox Grid.Row="1" Text="{Binding QuerySN, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BrjInputStyle}" Margin="0,0,0,6"/>
+                            <Button Grid.Row="2" Content="查询指定批次号信息" Command="{Binding QueryBySNCommand}" Style="{StaticResource BrjGoldButtonStyle}"/>
+                        </Grid>
+
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="38"/>
+                                <RowDefinition Height="38"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.55*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Row="0" Grid.ColumnSpan="2" Content="打开缺陷图像文件夹--批次" Style="{StaticResource BrjGoldButtonStyle}" Margin="0,0,0,6"/>
+                            <Button Grid.Row="1" Grid.ColumnSpan="2" Content="显示批次缺陷明细" Command="{Binding ShowBatchDefectsCommand}" Style="{StaticResource BrjGoldButtonStyle}" Margin="0,0,0,6"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="生成批次报表" Command="{Binding ExportBatchReportCommand}" Style="{StaticResource BrjGoldButtonStyle}" Margin="0,0,6,0"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="打开报表文件夹" Command="{Binding OpenReportFolderCommand}" Style="{StaticResource BrjGoldButtonStyle}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource BrjCardStyle}" Margin="0,0,0,6" Padding="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="74"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="74"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="当前页码：" Style="{StaticResource BrjLabelStyle}" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" Text="{Binding CurrentPage}" IsReadOnly="True" Style="{StaticResource BrjInputStyle}" Margin="4,0,16,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="总页码：" Style="{StaticResource BrjLabelStyle}" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="3" Text="{Binding TotalPage}" IsReadOnly="True" Style="{StaticResource BrjInputStyle}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="{Binding StatusText}" ToolTip="{Binding StatusText}" Style="{StaticResource BrjLabelStyle}" Margin="18,0,8,0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                        <Button Grid.Column="6" Content="首页" Command="{Binding FirstPageCommand}" Style="{StaticResource BrjPagerButtonStyle}" VerticalAlignment="Center"/>
+                        <Button Grid.Column="7" Content="上一页" Command="{Binding PreviousPageCommand}" Style="{StaticResource BrjPagerButtonStyle}" VerticalAlignment="Center"/>
+                        <Button Grid.Column="8" Content="下一页" Command="{Binding NextPageCommand}" Style="{StaticResource BrjPagerButtonStyle}" VerticalAlignment="Center"/>
+                        <Button Grid.Column="9" Content="尾页" Command="{Binding LastPageCommand}" Style="{StaticResource BrjPagerButtonStyle}" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" BorderBrush="{StaticResource BrjMutedBorderBrush}" BorderThickness="1">
+                    <DataGrid AutoGenerateColumns="False"
+                              ItemsSource="{Binding ReportRecords}"
+                              SelectedItem="{Binding SelectedReportRecord, Mode=TwoWay}"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              SelectionMode="Single"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              Style="{StaticResource DefaultDataGridStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="SN" Binding="{Binding SN}" Width="170"/>
+                            <DataGridTextColumn Header="创建时间" Binding="{Binding CreateTime, StringFormat={}{0:yyyyMMdd-HHmmss}}" Width="150"/>
+                            <DataGridTextColumn Header="缺陷个数" Binding="{Binding DefectCount}" Width="80"/>
+                            <DataGridTextColumn Header="检测米数" Binding="{Binding DetectMeters}" Width="90"/>
+                            <DataGridTextColumn Header="结束时间" Binding="{Binding EndTime, StringFormat={}{0:yyyyMMdd-HHmmss}}" Width="150"/>
+                            <DataGridTextColumn Header="产品宽度mm" Binding="{Binding ProductWidthMm}" Width="100"/>
+                            <DataGridTextColumn Header="换卷长度m" Binding="{Binding RollLengthM}" Width="100"/>
+                            <DataGridTextColumn Header="操作员" Binding="{Binding OperatorName}" Width="80"/>
+                            <DataGridTextColumn Header="班次" Binding="{Binding ShiftName}" Width="70"/>
+                            <DataGridTextColumn Header="产品型号" Binding="{Binding ProductModel}" Width="90"/>
+                            <DataGridTextColumn Header="图像个数" Binding="{Binding ImageCount}" Width="90"/>
+                            <DataGridTextColumn Header="OK数量" Binding="{Binding OkCount}" Width="80"/>
+                            <DataGridTextColumn Header="NG数量" Binding="{Binding NgCount}" Width="80"/>
+                            <DataGridTextColumn Header="相机数" Binding="{Binding CameraCount}" Width="70"/>
+                            <DataGridTextColumn Header="分辨率X" Binding="{Binding ResolutionX}" Width="220"/>
+                            <DataGridTextColumn Header="分辨率Y" Binding="{Binding ResolutionY}" Width="220"/>
+                            <DataGridTextColumn Header="图像宽度" Binding="{Binding ImageWidth}" Width="220"/>
+                            <DataGridTextColumn Header="图像高度" Binding="{Binding ImageHeight}" Width="220"/>
+                            <DataGridTextColumn Header="缺陷图像Min宽" Binding="{Binding DefectImageMinWidth}" Width="120"/>
+                            <DataGridTextColumn Header="缺陷图像Min高" Binding="{Binding DefectImageMinHeight}" Width="120"/>
+                            <DataGridTextColumn Header="分切左坐标" Binding="{Binding SlitLeftCoordinates}" Width="260"/>
+                            <DataGridTextColumn Header="分切右坐标" Binding="{Binding SlitRightCoordinates}" Width="260"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch" Background="{StaticResource BrjAccentBrush}"/>
+
+            <Grid Grid.Column="2" Margin="6,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="228"/>
+                </Grid.RowDefinitions>
+
+                <TabControl Grid.Row="0"
+                            Style="{StaticResource TabControlWithUnderLineStyle}"
+                            ItemContainerStyle="{StaticResource BrjChartTabItemStyle}">
+                    <TabItem Header="缺陷地图">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedReportRecord.SN, StringFormat=批次号：{0}}" Style="{StaticResource BrjChartTitleStyle}"/>
+                            <Border Grid.Row="1" Style="{StaticResource BrjChartSurfaceStyle}">
+                                <Grid>
+                                    <views:BrjDefectMapView Points="{Binding DefectMapPoints}"
+                                                            GuideLinePercents="{Binding DefectMapGuideLinePercents}"
+                                                            SelectedPoint="{Binding SelectedDefectMapPoint, Mode=TwoWay}"
+                                                            LengthM="{Binding DefectMapLengthM}"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="缺陷类型统计图">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedReportRecord.SN, StringFormat=批次号：{0}}" Style="{StaticResource BrjChartTitleStyle}"/>
+                            <Border Grid.Row="1" Style="{StaticResource BrjChartSurfaceStyle}">
+                                <Grid>
+                                    <views:BrjPieChartView ItemsSource="{Binding DefectTypeStats}"/>
+                                    <TextBlock Text="当前批次暂无缺陷类型统计数据">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource BrjPlaceholderTextStyle}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DefectTypeStats.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="缺陷面积统计图">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedReportRecord.SN, StringFormat=批次号：{0}}" Style="{StaticResource BrjChartTitleStyle}"/>
+                            <Border Grid.Row="1" Style="{StaticResource BrjChartSurfaceStyle}">
+                                <Grid>
+                                    <views:BrjPieChartView ItemsSource="{Binding DefectAreaStats}"/>
+                                    <TextBlock Text="当前批次暂无缺陷面积统计数据">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource BrjPlaceholderTextStyle}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DefectAreaStats.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="缺陷直径统计图">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedReportRecord.SN, StringFormat=批次号：{0}}" Style="{StaticResource BrjChartTitleStyle}"/>
+                            <Border Grid.Row="1" Style="{StaticResource BrjChartSurfaceStyle}">
+                                <Grid>
+                                    <views:BrjPieChartView ItemsSource="{Binding DefectDiameterStats}"/>
+                                    <TextBlock Text="当前批次暂无缺陷直径统计数据">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource BrjPlaceholderTextStyle}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DefectDiameterStats.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="缺陷分条统计图">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedReportRecord.SN, StringFormat=批次号：{0}}" Style="{StaticResource BrjChartTitleStyle}"/>
+                            <Border Grid.Row="1" Style="{StaticResource BrjChartSurfaceStyle}">
+                                <Grid>
+                                    <views:BrjMultiAxisChartView ItemsSource="{Binding DefectSlitStats}"/>
+                                    <TextBlock Text="当前批次暂无缺陷分条统计数据">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource BrjPlaceholderTextStyle}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DefectSlitStats.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+
+                <Grid Grid.Row="1" Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="360"/>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="280"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" BorderBrush="{StaticResource BrjPanelBorderBrush}" BorderThickness="1" Background="{StaticResource BrjCardBackgroundBrush}">
+                        <DataGrid ItemsSource="{Binding DefectLegendItems}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  CanUserResizeRows="False"
+                                  IsReadOnly="False"
+                                  HeadersVisibility="Column"
+                                  RowHeaderWidth="0"
+                                  GridLinesVisibility="All"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  SelectionMode="Single"
+                                  Style="{StaticResource DefaultDataGridStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="索引" Binding="{Binding Index}" Width="46" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Header="显示" Width="52">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Command="{Binding DataContext.ToggleDefectLegendCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                      CommandParameter="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="颜色" Width="44">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Width="18" Height="12" Background="{Binding Fill}" BorderBrush="{Binding Stroke}" BorderThickness="1" HorizontalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="缺陷类别" Binding="{Binding DefectType}" Width="105" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Header="形状" Width="44">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid Width="18" Height="18" HorizontalAlignment="Center">
+                                                <Ellipse Width="10" Height="10" Fill="{Binding Fill}" Stroke="{Binding Stroke}" StrokeThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding MarkerKind}" Value="Circle">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                                <Path Data="M9,2 L16,16 L2,16 Z" Fill="{Binding Fill}" Stroke="{Binding Stroke}" StrokeThickness="1">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding MarkerKind}" Value="Triangle">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                                <Grid>
+                                                    <Grid.Style>
+                                                        <Style TargetType="Grid">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding MarkerKind}" Value="Cross">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Grid.Style>
+                                                    <Path Data="M3,3 L15,15" Stroke="{Binding Stroke}" StrokeThickness="3.4" Opacity="0.35" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    <Path Data="M15,3 L3,15" Stroke="{Binding Stroke}" StrokeThickness="3.4" Opacity="0.35" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    <Path Data="M3,3 L15,15" Stroke="{Binding Fill}" StrokeThickness="2.1" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    <Path Data="M15,3 L3,15" Stroke="{Binding Fill}" StrokeThickness="2.1" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="数量" Binding="{Binding Count}" Width="*" MinWidth="64" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource BrjCardStyle}" BorderBrush="{StaticResource BrjPanelBorderBrush}" Margin="6,0,6,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Button Grid.Row="0" Content="打开当前缺陷小图" Style="{StaticResource BrjGoldButtonStyle}"/>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                        <RowDefinition Height="22"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="相机" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.CameraDisplayName}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="缺陷索引" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.DefectIndex}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="分段号" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.SegmentIndex}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="类型" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.DefectType}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="面积/mm^2" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.AreaMm2}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="直径/mm" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="5" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.DiameterMm}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="横位置/mm" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="6" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.PositionXMm}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="纵位置/m" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                    <Border Grid.Row="7" Grid.Column="1" Style="{StaticResource BrjDefectInfoCellStyle}"><TextBlock Text="{Binding SelectedDefectMapPoint.Source.PositionYM}" Style="{StaticResource BrjSmallLabelStyle}"/></Border>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource BrjCardStyle}" BorderBrush="{StaticResource BrjPanelBorderBrush}">
+                        <TextBlock Text="缺陷图片预览" Style="{StaticResource BrjPlaceholderTextStyle}"/>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

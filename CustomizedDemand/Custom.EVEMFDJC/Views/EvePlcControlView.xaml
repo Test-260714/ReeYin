@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="Custom.EVEMFDJC.Views.EvePlcControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Custom.EVEMFDJC.Views"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="300">
+    
+    <WxGroupBox:WxGroupBox Header="PLC操作" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Button Content="启动" Height="30" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" 
+                                       Command="{Binding GeneralCommand}" CommandParameter="启动"/>
+            <Button Grid.Column="1" Content="复位" Height="30" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" 
+                                       Command="{Binding GeneralCommand}" CommandParameter="复位"/>
+            <Button Grid.Column="2" Content="光栅屏蔽" Height="30" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" 
+                                       Command="{Binding GeneralCommand}" CommandParameter="光栅屏蔽"/>
+            <Button Grid.Column="0" Grid.Row="1" Content="停止" Height="30" Width="80" FontSize="16" Style="{StaticResource GeneralButtonStyle}" 
+                                       Command="{Binding GeneralCommand}" CommandParameter="停止"/>
+        </Grid>
+    </WxGroupBox:WxGroupBox>
+</UserControl>

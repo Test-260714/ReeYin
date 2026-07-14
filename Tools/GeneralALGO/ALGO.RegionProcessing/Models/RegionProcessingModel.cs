@@ -1,0 +1,3150 @@
+﻿using ALGO.RegionProcessing.ViewModels;
+using HalconDotNet;
+using ImageTool.Halcon;
+using ImageTool.Halcon.Config;
+using ImageTool.Halcon.Model;
+using Newtonsoft.Json;
+using ReeYin_V.Core.Enums;
+using ReeYin_V.Core.Events;
+using ReeYin_V.Core.Extension;
+using ReeYin_V.Core.Helper;
+using ReeYin_V.Core.Helper.ImageOP;
+using ReeYin_V.Core.Interfaces;
+using ReeYin_V.Core.IOC;
+using ReeYin_V.Core.Models;
+using ReeYin_V.Core.Services.Project;
+using ReeYin_V.Logger;
+using ReeYin_V.Share;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Windows;
+using static ALGO.RegionProcessing.ViewModels.RegionProcessingViewModel;
+using HalconDrawingObject = ReeYin_V.UI.Controls.DrawingObjectInfo;
+using HalconShapeType = ReeYin_V.UI.Controls.ShapeType;
+
+namespace ALGO.RegionProcessing
+{
+    [Serializable]
+    public class RegionProcessingModel : ModelParamBase
+    {
+        #region 字段
+        private const string LogPrefix = "[区域处理]";
+        private const string DefaultSplitRectangleOrder = "从左到右，再从上到下";
+        private const string SplitRectangleOrderRightThenDown = "从右到左，再从上到下";
+        private const string SplitRectangleOrderDownThenRight = "从上到下，再从左到右";
+        private const string SplitRectangleOrderUpThenRight = "从下到上，再从左到右";
+
+        [JsonIgnore]
+        public override VMHWindowControl mWindowH { set; get; }
+
+        /// <summary>
+        /// 标记输入图像是否由本模块复制并负责释放。
+        /// </summary>
+        [JsonIgnore]
+        private bool _ownsInputImage;
+
+        /// <summary>
+        /// 输入或区域参数变化后，下一次打开预览时需要刷新底图。
+        /// </summary>
+        [JsonIgnore]
+        private bool _previewRefreshPending = true;
+
+        private bool _isFastModeEnabled;
+
+        /// <summary>
+        /// WPF 预览控件当前显示的 HALCON 图像，由本模块替换时释放旧对象。
+        /// </summary>
+        [JsonIgnore]
+        private HObject? _previewImageObject;
+
+        /// <summary>
+        /// 参数页打开时允许实时刷新预览；流程快速运行时保持关闭。
+        /// </summary>
+        [JsonIgnore]
+        private bool _runtimePreviewEnabled;
+
+        /// <summary>
+        /// 异步预览刷新版本号，用于丢弃过期的 Dispatcher 回调。
+        /// </summary>
+        [JsonIgnore]
+        private long _previewUpdateVersion;
+
+        /// <summary>
+        /// 执行日志流水号，便于部署环境串联一次运行的诊断信息。
+        /// </summary>
+        [JsonIgnore]
+        private long _executionLogSequence;
+
+        /// <summary>
+        /// 已从输出参数替换下来的 HALCON 对象队列锁。
+        /// </summary>
+        [JsonIgnore]
+        private readonly object _retiredOutputSyncRoot = new object();
+
+        /// <summary>
+        /// 延迟释放的输出对象，避免下游刚读取旧输出时被立即清理。
+        /// </summary>
+        [JsonIgnore]
+        private readonly Queue<(HObject Value, string Label)> _retiredOutputHObjects = new Queue<(HObject Value, string Label)>();
+
+        private const int MaxRetiredOutputHObjectCount = 8;
+
+        #endregion
+
+        #region 属性
+
+        [JsonIgnore]
+        private int _selectedTabIndex;
+        /// <summary>
+        /// 选项卡索引
+        /// </summary>
+        public int SelectedTabIndex
+        {
+            get { return _selectedTabIndex; }
+            set { SetProperty(ref _selectedTabIndex, value); }
+        }
+
+        /// <summary>
+        /// 部署时跳过运行结果绘制，只保留算法执行和输出。
+        /// </summary>
+        public bool IsFastModeEnabled
+        {
+            get { return _isFastModeEnabled; }
+            set { SetProperty(ref _isFastModeEnabled, value); }
+        }
+
+        [JsonIgnore]
+        public HObject? PreviewImageObject
+        {
+            get { return _previewImageObject; }
+            private set { SetProperty(ref _previewImageObject, value); }
+        }
+
+        [JsonIgnore]
+        public ObservableCollection<HalconDrawingObject> PreviewDrawObjects { get; } = [];
+
+        [JsonIgnore]
+        private HObject _initRegion1 = new HObject();
+        /// <summary>
+        /// 输入区域1信息
+        /// </summary>
+        public HObject InitRegion1
+        {
+            get { return _initRegion1; }
+            set { SetProperty(ref _initRegion1, value); }
+        }
+
+        [JsonIgnore]
+        private HObject _initRegion2 = new HObject();
+        /// <summary>
+        /// 输入区域2信息
+        /// </summary>
+        public HObject InitRegion2
+        {
+            get { return _initRegion2; }
+            set { SetProperty(ref _initRegion2, value); }
+        }
+
+        [JsonIgnore]
+        private HObject _currentStepRegion = new HObject();
+        /// <summary>
+        /// 当前步骤输出区域信息
+        /// </summary>
+        public HObject CurrentStepRegion
+        {
+            get { return _currentStepRegion; }
+            set { SetProperty(ref _currentStepRegion, value); }
+        }
+
+        [JsonIgnore]
+        private TransmitParam _inputImage = new TransmitParam();
+        /// <summary>
+        /// 输入图像参数
+        /// </summary>
+        public TransmitParam InputImage
+        {
+            get
+            {
+                RefreshInputImagePreview();
+                return _inputImage;
+            }
+            set
+            {
+                SetInputImage(value);
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        [OutputParam("SourceImage", "输入图像")]
+        /// <summary>
+        /// 本次区域处理实际使用的输入图像，仅在用户添加该输出时赋值。
+        /// </summary>
+        public HImage? SourceImage { get; set; }
+
+        [JsonIgnore]
+        private TransmitParam _inputRegion1 = new TransmitParam();
+        /// <summary>
+        /// 输入区域1参数
+        /// </summary>
+        public TransmitParam InputRegion1
+        {
+            get
+            {
+                RefreshInputRegion1Preview();
+                return _inputRegion1;
+            }
+            set
+            {
+                _inputRegion1 = value ?? new TransmitParam();
+                RefreshInputRegion1Preview();
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        private TransmitParam _inputRegion2 = new TransmitParam();
+        /// <summary>
+        /// 输入区域2参数
+        /// </summary>
+        public TransmitParam InputRegion2
+        {
+            get
+            {
+                RefreshInputRegion2Preview();
+                return _inputRegion2;
+            }
+            set
+            {
+                _inputRegion2 = value ?? new TransmitParam();
+                RefreshInputRegion2Preview();
+                RaisePropertyChanged();
+            }
+        }
+
+
+        [JsonIgnore]
+        private HRegion _outRegion = new HRegion();
+        [JsonIgnore]
+        [OutputParam("OutRegion", "输出区域")]
+        /// <summary>
+        /// 输出区域信息
+        /// </summary>
+        public HRegion OutRegion
+        {
+            get { return _outRegion; }
+            set { SetProperty(ref _outRegion, value); }
+        }
+
+        [JsonIgnore]
+        private HImage _outRegionImage = new HImage();
+        [JsonIgnore]
+        [OutputParam("OutRegionImage", "输出区域黑白图")]
+        /// <summary>
+        /// 最终区域生成的黑白图像，区域内白色，区域外黑色。
+        /// </summary>
+        public HImage OutRegionImage
+        {
+            get { return _outRegionImage; }
+            set { SetProperty(ref _outRegionImage, value); }
+        }
+
+        [JsonIgnore]
+        private HObject _outRegionImages = new HObject();
+        [JsonIgnore]
+        [OutputParam("OutRegionImages", "区域裁剪图像")]
+        /// <summary>
+        /// 按最终输出区域逐个裁剪输入图像后拼接的图像集合。
+        /// </summary>
+        public HObject OutRegionImages
+        {
+            get { return _outRegionImages; }
+            set { SetProperty(ref _outRegionImages, value ?? new HObject()); }
+        }
+
+        private ProcessingStep _currentStep;
+        public ProcessingStep CurrentStep
+        {
+            get => _currentStep;
+            set
+            {
+                if (_currentStep != value)
+                {
+                    _currentStep = value;
+                    UpdateListParamDefinitions();
+                    RaisePropertyChanged(nameof(CurrentStep));
+                }
+            }
+        }
+
+        [JsonIgnore]
+        private ObservableCollection<ParamDefinition> _processingParamDefinitions;
+        public ObservableCollection<ParamDefinition> ProcessingParamDefinitions
+        {
+            get { return _processingParamDefinitions; }
+            set { SetProperty(ref _processingParamDefinitions, value); RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private ObservableCollection<ParamDefinition> _listProcessingParamDefinitions;
+        public ObservableCollection<ParamDefinition> ListProcessingParamDefinitions
+        {
+            get { return _listProcessingParamDefinitions; }
+            set { SetProperty(ref _listProcessingParamDefinitions, value); RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private Dictionary<Guid, List<ParamDefinition>> _listParamPresets = [];
+        public Dictionary<Guid, List<ParamDefinition>> ListParamPresets
+        {
+            get { return _listParamPresets; }
+            set { SetProperty(ref _listParamPresets, value); RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private Dictionary<Guid, List<ParamDefinition>> _oldListParamPresets = [];
+        public Dictionary<Guid, List<ParamDefinition>> OldListParamPresets
+        {
+            get { return _oldListParamPresets; }
+            set { SetProperty(ref _oldListParamPresets, value); RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private Dictionary<int, HObject> _listStepOutRegions = [];
+        public Dictionary<int, HObject> ListStepOutRegions
+        {
+            get { return _listStepOutRegions; }
+            set { SetProperty(ref _listStepOutRegions, value); RaisePropertyChanged(); }
+        }
+
+        /// <summary> 区域列表 </summary>
+        [JsonIgnore]
+        public Dictionary<string, ROI> RoiList = new Dictionary<string, ROI>();
+
+        /// <summary>
+        /// 显示的 ROI
+        /// </summary>
+        [JsonIgnore]
+        public List<HRoi> mHRoi { get; set; } = new List<HRoi>();
+
+        [JsonIgnore]
+        public override Func<ExecuteModuleOutput> TriggerModuleRun { get; set; }
+
+        [JsonIgnore]
+        private ProcessingMode _processingMode = ProcessingMode.Erosion;
+        public ProcessingMode ProcessingMode
+        {
+            get { return _processingMode; }
+            set
+            {
+                if (SetProperty(ref _processingMode, value))
+                {
+                    InitializeParamDefinitions(value);
+                }
+            }
+        }
+
+        [JsonIgnore]
+        private bool _stepValid = false;
+        public bool StepValid
+        {
+            get { return _stepValid; }
+            set { SetProperty(ref _stepValid, value); RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private ObservableCollection<ProcessingStep> _processingSteps = [];
+        public ObservableCollection<ProcessingStep> ProcessingSteps
+        {
+            get { return _processingSteps; }
+            set { SetProperty(ref _processingSteps, value); RaisePropertyChanged(); }
+        }
+
+
+        #endregion
+
+        #region 方法
+
+        public RegionProcessingModel()
+        {
+
+        }
+
+        public override bool OnceInit()
+        {
+            try
+            {
+                if (IsOnceInit)
+                {
+                    return true;
+                }
+
+                if (!base.OnceInit())
+                {
+                    return false;
+                }
+
+                Task.Run(() =>
+                {
+                    EventSubscriptionHelper.AutoSubscribe(this, PrismProvider.EventAggregator);
+
+                });
+
+                if (TriggerModuleRun == null)
+                {
+                    TriggerModuleRun = () =>
+                    {
+                        return ExecuteModule().Result;
+                    };
+                }
+
+                IsOnceInit = true;
+                return true;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public override bool LoadKeyParam()
+        {
+            return LoadKeyParam(true);
+        }
+
+        private bool LoadKeyParam(bool refreshPreview)
+        {
+            try
+            {
+                if (!base.LoadKeyParam())
+                {
+                    LogWarning($"参数加载失败: base.LoadKeyParam 返回 false, RefreshPreview={refreshPreview}");
+                    return false;
+                }
+
+                RefreshResolvedInputImageValue();
+
+                object region1Value = GetTransmitParam(InputParams, _inputRegion1);
+                if (region1Value != null)
+                {
+                    _inputRegion1.Value = region1Value;
+                    HObject loadedRegion1 = CloneInputRegion(region1Value);
+                    if (IsLiveHObject(loadedRegion1))
+                    {
+                        ReplaceInitRegion1(loadedRegion1);
+                    }
+                    else
+                    {
+                        HalconImageOwnership.DisposeOwned(loadedRegion1);
+                    }
+                }
+                else
+                {
+                    _inputRegion1.Value = null;
+                    ReplaceInitRegion1(null);
+                }
+
+                object region2Value = GetTransmitParam(InputParams, _inputRegion2);
+                if (region2Value != null)
+                {
+                    _inputRegion2.Value = region2Value;
+                    HObject loadedRegion2 = CloneInputRegion(region2Value);
+                    if (IsLiveHObject(loadedRegion2))
+                    {
+                        ReplaceInitRegion2(loadedRegion2);
+                    }
+                    else
+                    {
+                        HalconImageOwnership.DisposeOwned(loadedRegion2);
+                    }
+                }
+                else
+                {
+                    _inputRegion2.Value = null;
+                    ReplaceInitRegion2(null);
+                }
+
+                if (refreshPreview)
+                {
+                    _previewRefreshPending = true;
+                    RefreshInputImagePreview();
+                    RefreshInputRegion1Preview();
+                    RefreshInputRegion2Preview();
+                }
+                LogTrace(
+                    $"参数加载完成: RefreshPreview={refreshPreview}, Input={DescribeImage(_inputImage?.Value as HObject)}, " +
+                    $"Region1={DescribeRegion(InitRegion1)}, Region2={DescribeRegion(InitRegion2)}, Steps={ProcessingSteps?.Count ?? 0}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogError($"参数加载异常: {ex}");
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 执行区域处理模块
+        /// </summary>
+        /// <returns>模块执行结果和耗时。</returns>
+        public new async Task<ExecuteModuleOutput> ExecuteModule()
+        {
+            long runId = System.Threading.Interlocked.Increment(ref _executionLogSequence);
+            var (result, time) = SetTimeHelper.SetTimer(() =>
+            {
+                HObject? tempRegion1 = null;
+                HObject? tempRegion2 = null;
+                HObject? TmpOutRegion = null;
+                HImage? tempImage = null;
+                try
+                {
+                    bool isSchemeFlow = PrismProvider.ProjectManager?.SltCurSolutionItem?.IsManual == false;
+                    LogTrace(
+                        $"开始执行: RunId={runId}, Serial={Serial}, SelectedTab={SelectedTabIndex}, Mode={ProcessingMode}, " +
+                        $"FastMode={IsFastModeEnabled}, RuntimePreview={_runtimePreviewEnabled}, SchemeFlow={isSchemeFlow}");
+
+                    if (!LoadKeyParam(false))
+                    {
+                        LogWarning($"执行中止: RunId={runId}, 参数加载失败");
+                        return NodeStatus.Error;
+                    }
+
+                    tempRegion1 = CloneHObject(InitRegion1) ?? new HObject();
+                    mHRoi.Clear();
+                    tempRegion2 = CloneHObject(InitRegion2) ?? new HObject();
+                    tempImage = CloneInputImage();
+
+                    LogTrace(
+                        $"输入状态: RunId={runId}, Image={DescribeImage(tempImage)}, Region1={DescribeRegion(tempRegion1)}, " +
+                        $"Region2={DescribeRegion(tempRegion2)}, OutputParams={OutputParams?.Count ?? 0}");
+
+                    // 执行区域处理方法
+                    HOperatorSet.GenEmptyObj(out TmpOutRegion);
+                    bool status = ProcessRegion(tempImage, tempRegion1, tempRegion2, out TmpOutRegion);
+
+                    if (status)
+                    {
+                        LogTrace($"处理结果: RunId={runId}, ResultRegion={DescribeRegion(TmpOutRegion)}");
+                        if (IsEmptyRegion(TmpOutRegion))
+                        {
+                            LogWarning($"ResultRegion empty or invalid: RunId={runId}, ResultRegion={DescribeRegion(TmpOutRegion)}");
+                            ReplaceOutRegion(new HRegion());
+                            ReplaceOutRegionImage(null);
+                            ReplaceOutRegionImages(new HObject());
+                            return RefreshOutputsAfterProcessing(runId);
+                        }
+
+                        // 输出区域
+                        ReplaceOutRegion(CloneHRegion(TmpOutRegion));
+                        ReplaceOutRegionImage(GenerateRegionBinaryImage(TmpOutRegion, tempImage));
+                        RefreshCroppedRegionImagesOutput(tempImage, TmpOutRegion);
+                        if (ShouldDrawRuntimeResult())
+                        {
+                            UpdateRuntimePreview(tempImage, GetRuntimePreviewRegion(TmpOutRegion));
+                            TryShowResultRegion();
+                        }
+                    }
+
+                    else if (!status)
+                    {
+                        LogWarning($"执行中止: RunId={runId}, ProcessRegion 返回 false");
+                        return NodeStatus.Error;
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    LogError($"执行失败: RunId={runId}, Error={ex}");
+                    return NodeStatus.Error;
+                }
+                finally
+                {
+                    SafeDisposeOutputHObject(tempRegion1, "Execute.tempRegion1");
+                    SafeDisposeOutputHObject(tempRegion2, "Execute.tempRegion2");
+                    SafeDisposeOutputHObject(TmpOutRegion, "Execute.TmpOutRegion");
+                    SafeDisposeOutputHObject(tempImage, "Execute.tempImage");
+                }
+
+                return RefreshOutputsAfterProcessing(runId);
+            });
+
+            LogTrace($"执行耗时: RunId={runId}, Status={result}, Time={time}ms");
+            return Output = new ExecuteModuleOutput()
+            {
+                RunStatus = result,
+                RunTime = time,
+            };
+        }
+
+        public override void Dispose()
+        {
+            DisposeListStepOutRegions();
+            SafeDisposeOutputHObject(InitRegion1, "InitRegion1");
+            InitRegion1 = new HObject();
+            SafeDisposeOutputHObject(InitRegion2, "InitRegion2");
+            InitRegion2 = new HObject();
+            SafeDisposeOutputHObject(CurrentStepRegion, "CurrentStepRegion");
+            CurrentStepRegion = new HObject();
+            SafeDisposeOutputHObject(SourceImage, "SourceImage");
+            SourceImage = null;
+            SafeDisposeOutputHObject(OutRegion, "OutRegion");
+            OutRegion = new HRegion();
+            SafeDisposeOutputHObject(OutRegionImage, "OutRegionImage");
+            OutRegionImage = new HImage();
+            SafeDisposeOutputHObject(OutRegionImages, "OutRegionImages");
+            OutRegionImages = new HObject();
+            ClearPreviewDisplayCore();
+            DisposeRetiredOutputHObjects();
+            ReleaseOwnedInputImage();
+            base.Dispose();
+        }
+
+        private NodeStatus RefreshOutputsAfterProcessing(long runId)
+        {
+            try
+            {
+                LogTrace($"输出刷新开始: RunId={runId}, OutputParams={OutputParams?.Count ?? 0}");
+
+                RefreshSourceImageOutput();
+                var outputValues = OutputParamCollector.GetDataPointValues(this);
+                foreach (var item in OutputParams ?? Enumerable.Empty<TransmitParam>())
+                {
+                    if (outputValues.TryGetValue(item.ParamName, out object? value))
+                    {
+                        object? outputValue = CloneOutputValueForBoundary(value);
+                        if (outputValue == null
+                            && string.Equals(item.ParamName, nameof(SourceImage), StringComparison.Ordinal))
+                        {
+                            outputValue = CloneInputImage();
+                            LogWarning(
+                                $"SourceImage输出克隆为空，已回退当前输入图像: RunId={runId}, " +
+                                $"Source={DescribeImage(value as HObject)}, Fallback={DescribeImage(outputValue as HObject)}");
+                        }
+
+                        if (outputValue == null && value is HObject)
+                        {
+                            LogWarning(
+                                $"输出参数克隆为空: RunId={runId}, ParamName={item.ParamName}, Name={item.Name}, " +
+                                $"Source={DescribeImage(value as HObject)}");
+                        }
+
+                        DisposePreviousOutputValue(item.Value, value, outputValue);
+                        item.Value = outputValue;
+                        LogTrace(
+                            $"输出参数刷新: RunId={runId}, ParamName={item.ParamName}, Name={item.Name}, " +
+                            $"Source={DescribeImage(value as HObject)}, Output={DescribeImage(outputValue as HObject)}");
+                    }
+                    else
+                    {
+                        LogWarning($"输出参数缺失: RunId={runId}, ParamName={item.ParamName}, Name={item.Name}");
+                    }
+                }
+
+                if (!UpdateParam())
+                {
+                    LogWarning($"输出刷新警告: RunId={runId}, UpdateParam 返回 false");
+                }
+
+                if (IsEmptyRegion(OutRegion))
+                {
+                    LogTrace($"执行完成: RunId={runId}, Status=NotRun, OutRegion={DescribeRegion(OutRegion)}");
+                    return NodeStatus.NotRun;
+                }
+
+                LogTrace($"执行完成: RunId={runId}, Status=Success, OutRegion={DescribeRegion(OutRegion)}");
+                return NodeStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                LogError($"输出刷新失败: RunId={runId}, Error={ex}");
+                return NodeStatus.Error;
+            }
+        }
+
+        private void RefreshSourceImageOutput()
+        {
+            if (!HasOutputParam(nameof(SourceImage)))
+            {
+                ReplaceSourceImage(null);
+                return;
+            }
+
+            var (sourceImage, copyTime) = SetTimeHelper.SetTimer(CloneInputImage);
+            ReplaceSourceImage(sourceImage);
+            LogTrace($"输入图像输出拷贝耗时: Time={copyTime}ms, Image={DescribeImage(SourceImage)}");
+        }
+
+        private void ReplaceSourceImage(HImage? nextSourceImage)
+        {
+            if (!ReferenceEquals(SourceImage, nextSourceImage))
+            {
+                RetireOutputHObject(SourceImage, "SourceImage");
+            }
+
+            SourceImage = nextSourceImage;
+        }
+
+        private void ReplaceOutRegion(HRegion? nextRegion)
+        {
+            if (!ReferenceEquals(OutRegion, nextRegion))
+            {
+                RetireOutputHObject(OutRegion, "OutRegion");
+            }
+
+            OutRegion = nextRegion ?? new HRegion();
+        }
+
+        private void ReplaceOutRegionImage(HImage? nextImage)
+        {
+            if (!ReferenceEquals(OutRegionImage, nextImage))
+            {
+                RetireOutputHObject(OutRegionImage, "OutRegionImage");
+            }
+
+            OutRegionImage = nextImage ?? new HImage();
+        }
+
+        private void RefreshCroppedRegionImagesOutput(HImage? inputImage, HObject finalRegion)
+        {
+            if (!HasOutputParam(nameof(OutRegionImages)))
+            {
+                ReplaceOutRegionImages(new HObject());
+                return;
+            }
+
+            HObject croppedImages = null;
+            HObject selectedRegion = null;
+            HObject reducedImage = null;
+            HObject croppedImage = null;
+            HObject concatenatedImages = null;
+            try
+            {
+                HOperatorSet.GenEmptyObj(out croppedImages);
+                if (!IsLiveImage(inputImage) || IsEmptyRegion(finalRegion))
+                {
+                    ReplaceOutRegionImages(croppedImages);
+                    croppedImages = null;
+                    return;
+                }
+
+                HOperatorSet.CountObj(finalRegion, out HTuple regionCount);
+                for (int index = 1; index <= regionCount.I; index++)
+                {
+                    HOperatorSet.SelectObj(finalRegion, out selectedRegion, index);
+                    HOperatorSet.ReduceDomain(inputImage, selectedRegion, out reducedImage);
+                    HOperatorSet.CropDomain(reducedImage, out croppedImage);
+                    HOperatorSet.ConcatObj(croppedImages, croppedImage, out concatenatedImages);
+                    SafeDisposeOutputHObject(croppedImages, "OutRegionImages.previousConcat");
+                    croppedImages = concatenatedImages;
+                    concatenatedImages = null;
+                    SafeDisposeOutputHObject(selectedRegion, "OutRegionImages.selectedRegion");
+                    SafeDisposeOutputHObject(reducedImage, "OutRegionImages.reducedImage");
+                    SafeDisposeOutputHObject(croppedImage, "OutRegionImages.croppedImage");
+                    selectedRegion = null;
+                    reducedImage = null;
+                    croppedImage = null;
+                }
+
+                ReplaceOutRegionImages(croppedImages);
+                croppedImages = null;
+            }
+            catch (Exception ex)
+            {
+                LogWarning($"区域裁剪图像输出失败: Image={DescribeImage(inputImage)}, Region={DescribeRegion(finalRegion)}, Error={ex.Message}");
+                ReplaceOutRegionImages(new HObject());
+            }
+            finally
+            {
+                SafeDisposeOutputHObject(selectedRegion, "OutRegionImages.selectedRegion");
+                SafeDisposeOutputHObject(reducedImage, "OutRegionImages.reducedImage");
+                SafeDisposeOutputHObject(croppedImage, "OutRegionImages.croppedImage");
+                SafeDisposeOutputHObject(concatenatedImages, "OutRegionImages.concatenatedImages");
+                SafeDisposeOutputHObject(croppedImages, "OutRegionImages.croppedImages");
+            }
+        }
+
+        private void ReplaceOutRegionImages(HObject nextImages)
+        {
+            if (!ReferenceEquals(OutRegionImages, nextImages))
+            {
+                RetireOutputHObject(OutRegionImages, "OutRegionImages");
+            }
+
+            OutRegionImages = nextImages ?? new HObject();
+        }
+
+        private void ReplaceInitRegion1(HObject? nextRegion)
+        {
+            if (!ReferenceEquals(InitRegion1, nextRegion))
+            {
+                SafeDisposeOutputHObject(InitRegion1, "InitRegion1.PreviousValue");
+            }
+
+            InitRegion1 = nextRegion ?? new HObject();
+        }
+
+        private void ReplaceInitRegion2(HObject? nextRegion)
+        {
+            if (!ReferenceEquals(InitRegion2, nextRegion))
+            {
+                SafeDisposeOutputHObject(InitRegion2, "InitRegion2.PreviousValue");
+            }
+
+            InitRegion2 = nextRegion ?? new HObject();
+        }
+
+        private static object? CloneOutputValueForBoundary(object? value)
+        {
+            return value switch
+            {
+                HImage hImage => TryCopyImage(hImage, out HImage? imageCopy) ? imageCopy : null,
+                HObject hObject => CloneHObject(hObject),
+                _ => value
+            };
+        }
+
+        private void DisposePreviousOutputValue(object? previousValue, object? sourceValue, object? nextValue)
+        {
+            if (previousValue is not HObject previousHObject ||
+                ReferenceEquals(previousValue, sourceValue) ||
+                ReferenceEquals(previousValue, nextValue))
+            {
+                return;
+            }
+
+            RetireOutputHObject(previousHObject, "OutputParam.Value");
+        }
+
+        /// <summary>
+        /// 将被替换的输出对象延迟释放；若对象已经无效则直接清理。
+        /// </summary>
+        /// <param name="hObject">本模块曾发布给输出参数的 HALCON 对象，可为空。</param>
+        /// <param name="label">释放日志中的对象来源标签。</param>
+        private void RetireOutputHObject(HObject? hObject, string label)
+        {
+            if (hObject == null)
+            {
+                return;
+            }
+
+            if (!HalconImageOwnership.IsInitializedSafe(hObject))
+            {
+                SafeDisposeOutputHObject(hObject, label);
+                return;
+            }
+
+            (HObject Value, string Label)? expired = null;
+            lock (_retiredOutputSyncRoot)
+            {
+                if (_retiredOutputHObjects.Any(item => ReferenceEquals(item.Value, hObject)))
+                {
+                    return;
+                }
+
+                _retiredOutputHObjects.Enqueue((hObject, label));
+                if (_retiredOutputHObjects.Count > MaxRetiredOutputHObjectCount)
+                {
+                    expired = _retiredOutputHObjects.Dequeue();
+                }
+            }
+
+            if (expired.HasValue)
+            {
+                SafeDisposeOutputHObject(expired.Value.Value, $"Retired.{expired.Value.Label}");
+            }
+        }
+
+        private void DisposeRetiredOutputHObjects()
+        {
+            List<(HObject Value, string Label)> expired;
+            lock (_retiredOutputSyncRoot)
+            {
+                expired = _retiredOutputHObjects.ToList();
+                _retiredOutputHObjects.Clear();
+            }
+
+            foreach (var item in expired)
+            {
+                SafeDisposeOutputHObject(item.Value, $"Retired.{item.Label}");
+            }
+        }
+
+        private void DisposeListStepOutRegions()
+        {
+            if (ListStepOutRegions != null)
+            {
+                foreach (HObject stepRegion in ListStepOutRegions.Values)
+                {
+                    SafeDisposeOutputHObject(stepRegion, "ListStepOutRegions");
+                }
+            }
+
+            ListStepOutRegions = [];
+        }
+
+        /// <summary>
+        /// 释放本模块拥有的 HALCON 输出对象，忽略对象已删除时的清理异常。
+        /// </summary>
+        /// <param name="hObject">需要释放的输出、预览或临时 HALCON 对象，可为空。</param>
+        /// <param name="label">释放失败时写入日志的对象来源标签。</param>
+        private static void SafeDisposeOutputHObject(HObject? hObject, string label)
+        {
+            if (hObject == null)
+            {
+                return;
+            }
+
+            if (HalconImageOwnership.TryDisposeOwned(hObject, out Exception disposeError))
+            {
+                return;
+            }
+
+            if (HalconImageOwnership.IsDeletedObjectError(disposeError))
+            {
+                return;
+            }
+
+            WriteStaticLog("ERROR", $"输出对象释放失败: Label={label}, Error={disposeError}");
+        }
+
+        private static void WriteStaticLog(string level, string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            string formatted = $"{LogPrefix} {message}";
+            try
+            {
+                switch ((level ?? string.Empty).Trim().ToUpperInvariant())
+                {
+                    case "WARN":
+                    case "WARNING":
+                        Logs.LogWarning(formatted);
+                        break;
+                    case "ERROR":
+                        Logs.LogError(formatted);
+                        break;
+                    default:
+                        Logs.LogInfo(formatted);
+                        break;
+                }
+            }
+            catch
+            {
+                // 日志失败不能影响区域处理输出清理。
+            }
+        }
+
+        private static HObject? CloneHObject(HObject? source)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (!HalconImageOwnership.IsInitializedSafe(source))
+                {
+                    return null;
+                }
+
+                HOperatorSet.CopyObj(source, out HObject copied, 1, -1);
+                return copied;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static HRegion? CloneHRegion(HObject? source)
+        {
+            HObject? copied = CloneHObject(source);
+            if (!IsLiveHObject(copied))
+            {
+                HalconImageOwnership.DisposeOwned(copied);
+                return null;
+            }
+
+            try
+            {
+                return new HRegion(copied);
+            }
+            catch
+            {
+                HalconImageOwnership.DisposeOwned(copied);
+                return null;
+            }
+        }
+
+        private static bool IsLiveHObject(HObject? hObject)
+        {
+            return hObject != null && HalconImageOwnership.IsInitializedSafe(hObject);
+        }
+
+        private static bool IsLiveImage(HObject? image)
+        {
+            return image != null && HalconImageOwnership.TryGetImageSize(image, out int _, out int _, out _);
+        }
+
+        private bool HasOutputParam(string paramName)
+        {
+            return OutputParams?.Any(item =>
+                string.Equals(item.ParamName, paramName, StringComparison.Ordinal)) == true;
+        }
+
+
+        public void InitializeParamDefinitions(ProcessingMode mode)
+        {
+            ProcessingParamDefinitions = GetParamDefinitions(mode);
+
+            foreach (var p in ProcessingParamDefinitions)
+            {
+                p.ProcessingParamDefinitionsRef = ProcessingParamDefinitions;
+            }
+
+            RaisePropertyChanged(nameof(ProcessingParamDefinitions));
+        }
+
+        private static bool IsEmptyRegion(HObject region)
+        {
+            if (!IsLiveHObject(region))
+            {
+                return true;
+            }
+
+            try
+            {
+                HOperatorSet.AreaCenter(region, out HTuple area, out _, out _);
+                if (area == null || area.Length == 0)
+                {
+                    return true;
+                }
+
+                return area.TupleSum().D <= 0;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        public void UpdateListParamDefinitions()
+        {
+            if (CurrentStep == null)
+            {
+                ListProcessingParamDefinitions = [];
+                CurrentStepRegion = new HObject();
+                return;
+            }
+
+            CurrentStep.StepId = EnsureStepId(CurrentStep.StepId);
+            if (!ListParamPresets.TryGetValue(CurrentStep.StepId, out List<ParamDefinition> definitions))
+            {
+                definitions = GetParamDefinitions(CurrentStep.Mode).ToList();
+                ListParamPresets[CurrentStep.StepId] = definitions;
+            }
+
+            ListProcessingParamDefinitions = new ObservableCollection<ParamDefinition>(definitions);
+            foreach (var p in ListProcessingParamDefinitions)
+            {
+                p.ProcessingParamDefinitionsRef = ListProcessingParamDefinitions;
+            }
+
+            CurrentStepRegion = ListStepOutRegions.TryGetValue(CurrentStep.Index, out HObject? value) ? value : new HObject();
+            RefreshCurrentStepPreview();
+        }
+
+        private void RefreshCurrentStepPreview()
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            if (!IsLiveHObject(CurrentStepRegion))
+            {
+                return;
+            }
+
+            try
+            {
+                HImage? previewImage = null;
+                try
+                {
+                    previewImage = CloneInputImage();
+                    if (IsLiveImage(previewImage))
+                    {
+                        DisplayPreviewImage(previewImage);
+                    }
+                }
+                finally
+                {
+                    HalconImageOwnership.DisposeOwned(previewImage);
+                }
+
+                DrawRegionPreview(CurrentStepRegion, "yellow", true);
+            }
+            catch (Exception ex)
+            {
+                LogTrace($"当前步骤预览跳过: {ex.Message}");
+            }
+        }
+
+        public void InitializeListParamDefinitions()
+        {
+            ListParamPresets = [];
+            ProcessingSteps ??= [];
+
+            for (var i = 0; i < ProcessingSteps.Count; i++)
+            {
+                var step = ProcessingSteps[i];
+                step.Index = i + 1;
+                step.StepId = EnsureStepId(step.StepId);
+
+                if (OldListParamPresets.ContainsKey(step.StepId))
+                {
+                    ListProcessingParamDefinitions = new ObservableCollection<ParamDefinition>(OldListParamPresets[step.StepId]);
+                }
+                else
+                {
+                    ListProcessingParamDefinitions = GetParamDefinitions(step.Mode);
+                }
+
+                ListParamPresets[step.StepId] = ListProcessingParamDefinitions.ToList();
+            }
+
+            ListProcessingParamDefinitions ??= [];
+            foreach (var p in ListProcessingParamDefinitions)
+            {
+                p.ProcessingParamDefinitionsRef = ListProcessingParamDefinitions;
+            }
+
+            RaisePropertyChanged(nameof(ListProcessingParamDefinitions));
+
+            StepValid = ProcessingSteps.ValidateIO();
+        }
+
+        public void RestoreListStepParams()
+        {
+            ProcessingSteps ??= [];
+            ListParamPresets ??= [];
+            OldListParamPresets ??= [];
+
+            var legacyByIndex = new Dictionary<int, List<ParamDefinition>>();
+            if (ListParamPresets.Count > 0)
+            {
+                foreach (var pair in ListParamPresets)
+                {
+                    int index = ProcessingSteps.FirstOrDefault(step => step.StepId == pair.Key)?.Index ?? 0;
+                    if (index > 0)
+                    {
+                        legacyByIndex[index] = pair.Value?.Select(param => param?.Clone()).ToList() ?? [];
+                    }
+                }
+            }
+
+            if (legacyByIndex.Count == 0 && OldListParamPresets.Count > 0)
+            {
+                foreach (var pair in OldListParamPresets)
+                {
+                    int index = ProcessingSteps.FirstOrDefault(step => step.StepId == pair.Key)?.Index ?? 0;
+                    if (index > 0)
+                    {
+                        legacyByIndex[index] = pair.Value?.Select(param => param?.Clone()).ToList() ?? [];
+                    }
+                }
+            }
+
+            var restored = new Dictionary<Guid, List<ParamDefinition>>();
+            for (int i = 0; i < ProcessingSteps.Count; i++)
+            {
+                var step = ProcessingSteps[i];
+                step.Index = i + 1;
+                step.StepId = EnsureStepId(step.StepId);
+
+                if (legacyByIndex.TryGetValue(step.Index, out var definitionsByIndex) && definitionsByIndex != null)
+                {
+                    restored[step.StepId] = definitionsByIndex.Select(param => param?.Clone()).ToList();
+                    continue;
+                }
+
+                if (ListParamPresets.TryGetValue(step.StepId, out var definitionsByStepId) && definitionsByStepId != null)
+                {
+                    restored[step.StepId] = definitionsByStepId.Select(param => param?.Clone()).ToList();
+                    continue;
+                }
+
+                if (OldListParamPresets.TryGetValue(step.StepId, out var oldDefinitions) && oldDefinitions != null)
+                {
+                    restored[step.StepId] = oldDefinitions.Select(param => param?.Clone()).ToList();
+                    continue;
+                }
+
+                restored[step.StepId] = GetParamDefinitions(step.Mode).ToList();
+            }
+
+            ListParamPresets = restored;
+            OldListParamPresets = ListParamPresets.DeepClone();
+            StepValid = ProcessingSteps.ValidateIO();
+        }
+
+
+        public bool ProcessRegion(HObject region1, HObject region2, out HObject resultRegion)
+        {
+            return ProcessRegion(null, region1, region2, out resultRegion);
+        }
+
+        public bool ProcessRegion(HImage inputImage, HObject region1, HObject region2, out HObject resultRegion)
+        {
+            try
+            {
+                if (SelectedTabIndex == 0)
+                {
+                    resultRegion = SingleModeRun(inputImage, region1, ProcessingMode, ProcessingParamDefinitions.ToHTuple(), region2);
+                    return IsLiveHObject(resultRegion);
+                }
+
+                resultRegion = MultiModeRun(inputImage, region1, region2);
+                return IsLiveHObject(resultRegion);
+            }
+            catch (Exception ex)
+            {
+                LogError($"区域处理失败: SelectedTab={SelectedTabIndex}, Mode={ProcessingMode}, Image={DescribeImage(inputImage)}, Region1={DescribeRegion(region1)}, Region2={DescribeRegion(region2)}, Error={ex}");
+                resultRegion = null;
+                return false;
+            }
+        }
+
+        public void ShowHRoi()
+        {
+            if (!IsDisplayWindowReady())
+            {
+                return;
+            }
+
+            if (mWindowH != null)
+            {
+                mWindowH.ClearROI();
+            }
+
+            List<HRoi> roiList = mHRoi.Where(c => c.ModuleName == ModuleName).ToList();
+            foreach (HRoi roi in roiList)
+            {
+                if (roi.roiType == HRoiType.文字显示)
+                {
+                    HText roiText = (HText)roi;
+                    ShowTool.SetFont(
+                        mWindowH.hControl.HalconWindow,
+                        roiText.size,
+                        "false",
+                        "false"
+                    );
+                    ShowTool.SetMsg(
+                        mWindowH.hControl.HalconWindow,
+                        roiText.text,
+                        "image",
+                        roiText.row,
+                        roiText.col,
+                        roiText.drawColor,
+                        "false"
+                    );
+                }
+                else
+                {
+                    mWindowH.WindowH.DispHobject(roi.hobject, roi.drawColor, roi.IsFillDisp);
+                }
+            }
+        }
+
+        private void TryShowResultRegion()
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            // 结果区域已通过 WPF 轮廓预览刷新；保留非抛出入口，避免运行链路依赖窗口句柄。
+        }
+
+        private bool IsDisplayWindowReady()
+        {
+            return mWindowH != null
+                && !mWindowH.IsDisposed
+                && mWindowH.IsHandleCreated
+                && mWindowH.hControl != null
+                && mWindowH.hControl.IsHandleCreated
+                && mWindowH.WindowH != null;
+        }
+
+        /// <summary>
+        /// 判断当前运行是否允许刷新预览覆盖层；快速模式或未打开参数页时跳过 UI 绘制。
+        /// </summary>
+        /// <returns>true 表示可以刷新运行预览；false 表示只执行算法和输出刷新。</returns>
+        private bool ShouldDrawRuntimeResult()
+        {
+            if (IsFastModeEnabled || !_runtimePreviewEnabled)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void ShowHRoi(HRoi ROI)
+        {
+            try
+            {
+                int index = mHRoi.FindIndex(e => e.roiType == ROI.roiType && e.ModuleName == ROI.ModuleName);
+                if (ROI.fors == true)
+                {
+                    mHRoi.Add(ROI);
+                    return;
+                }
+                if (index > -1)
+                    mHRoi[index] = ROI;
+                else
+                    mHRoi.Add(ROI);
+            }
+            catch (Exception ex)
+            {
+                LogTrace($"ROI显示跳过: {ex.Message}");
+            }
+        }
+
+        public HObject MultiModeRun(HImage inputImage, HObject inPutRgn1, HObject inPutRgn2 = null)
+        {
+            HObject resultRegion = new HObject();
+            HObject tmpRegion = null;
+            HObject tmpOutRegion = null;
+            DisposeListStepOutRegions();
+
+            if (!StepValid)
+            {
+                System.Windows.MessageBox.Show("步骤输入输出不匹配，请调整！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw new Exception("步骤输入输出不匹配，请调整！");
+            }
+
+            try
+            {
+                tmpRegion = CloneHObject(inPutRgn1) ?? new HObject();
+                tmpOutRegion = CloneHObject(tmpRegion) ?? new HObject();
+
+                for (int i = 0; i < ProcessingSteps.Count; i++)
+                {
+                    var step = ProcessingSteps[i];
+                    if (step == null || !step.IsEnabled)
+                    {
+                        LogTrace($"处理步骤跳过: Index={i + 1}, Step为空或未启用");
+                        continue;
+                    }
+
+                    step.Index = i + 1;
+                    step.StepId = EnsureStepId(step.StepId);
+
+                    if (!ListParamPresets.TryGetValue(step.StepId, out var definitions))
+                    {
+                        definitions = GetParamDefinitions(step.Mode).ToList();
+                        ListParamPresets[step.StepId] = definitions;
+                    }
+
+                    try
+                    {
+                        if (IsLiveHObject(tmpOutRegion))
+                        {
+                            if (!ReferenceEquals(tmpRegion, tmpOutRegion))
+                            {
+                                SafeDisposeOutputHObject(tmpRegion, "MultiMode.previousInput");
+                            }
+
+                            tmpRegion = tmpOutRegion;
+                        }
+
+                        LogTrace($"处理步骤: Index={step.Index}, Mode={step.Mode}, Input={DescribeRegion(tmpRegion)}, Input2={DescribeRegion(inPutRgn2)}, ParamCount={definitions?.Count ?? 0}");
+                        HObject previousOutRegion = tmpOutRegion;
+                        tmpOutRegion = SingleModeRun(inputImage, tmpRegion, step.Mode, definitions.ToHTuple(), inPutRgn2);
+                        if (!ReferenceEquals(previousOutRegion, tmpRegion))
+                        {
+                            SafeDisposeOutputHObject(previousOutRegion, "MultiMode.previousOutput");
+                        }
+
+                        if (!IsLiveHObject(tmpOutRegion))
+                        {
+                            LogWarning($"处理步骤失败: Index={step.Index}, Mode={step.Mode}, Output={DescribeRegion(tmpOutRegion)}");
+                            throw new Exception($"步骤 {step.Index} 执行失败，模式：{step.Mode}");
+                        }
+
+                        SafeDisposeOutputHObject(resultRegion, "MultiMode.previousResult");
+                        resultRegion = CloneHObject(tmpOutRegion) ?? new HObject();
+                        if (!IsLiveHObject(resultRegion))
+                        {
+                            LogWarning($"处理步骤结果复制失败: Index={step.Index}, Mode={step.Mode}, Source={DescribeRegion(tmpOutRegion)}");
+                            throw new Exception($"步骤 {step.Index} 结果复制失败，模式：{step.Mode}");
+                        }
+
+                        HObject stepResultRegion = CloneHObject(resultRegion) ?? new HObject();
+                        if (!IsLiveHObject(stepResultRegion))
+                        {
+                            LogWarning($"处理步骤预览结果复制失败: Index={step.Index}, Mode={step.Mode}, Source={DescribeRegion(resultRegion)}");
+                            throw new Exception($"步骤 {step.Index} 预览结果复制失败，模式：{step.Mode}");
+                        }
+
+                        if (ListStepOutRegions.TryGetValue(step.Index, out HObject oldStepRegion))
+                        {
+                            SafeDisposeOutputHObject(oldStepRegion, "MultiMode.oldStepResult");
+                        }
+
+                        ListStepOutRegions[step.Index] = stepResultRegion;
+                        LogTrace($"处理步骤完成: Index={step.Index}, Mode={step.Mode}, Output={DescribeRegion(resultRegion)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"处理步骤异常: Index={step.Index}, Mode={step.Mode}, Input={DescribeRegion(tmpRegion)}, Input2={DescribeRegion(inPutRgn2)}, Output={DescribeRegion(tmpOutRegion)}, ParamCount={definitions?.Count ?? 0}, Error={ex}");
+                        throw;
+                    }
+                }
+
+                HObject returnRegion = resultRegion;
+                resultRegion = null;
+                return returnRegion;
+            }
+            finally
+            {
+                SafeDisposeOutputHObject(tmpRegion, "MultiMode.tmpRegion");
+                if (!ReferenceEquals(tmpOutRegion, tmpRegion))
+                {
+                    SafeDisposeOutputHObject(tmpOutRegion, "MultiMode.tmpOutRegion");
+                }
+
+                SafeDisposeOutputHObject(resultRegion, "MultiMode.resultRegion");
+            }
+        }
+
+
+        public HObject SingleModeRun(HImage inputImage, HObject inPutRgn1, ProcessingMode mode, HTuple tmpParam, HObject inPutRgn2=null)
+        {
+            HObject resultRegion = new HObject();
+            LogTrace($"处理步骤: Mode={mode}, Input1={DescribeRegion(inPutRgn1)}, Input2={DescribeRegion(inPutRgn2)}, ParamLength={tmpParam?.Length ?? 0}");
+            switch (mode)
+            {
+                case ProcessingMode.CreateThreshold:
+                    {
+                        return ExecuteCreateThreshold(inputImage, inPutRgn1, tmpParam);
+                    }
+                case ProcessingMode.FilterShape:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        return ExecuteFilterShape(inPutRgn1, tmpParam);
+                    }
+                case ProcessingMode.ShapeTrans:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+
+                        string transMode = tmpParam.Length > 0 ? tmpParam[0].S : "形状转换";
+                        if (transMode == "最小形状")
+                        {
+                            HTuple smallestParam = new HTuple(tmpParam.Length > 2 ? tmpParam[2].S : "圆形");
+                            return ExecuteSmallestShape(inPutRgn1, smallestParam);
+                        }
+
+                        string shapeTransParam = tmpParam.Length > 1 ? tmpParam[1].S : "convex";
+                        HOperatorSet.ShapeTrans(inPutRgn1, out resultRegion, shapeTransParam);
+                        return resultRegion;
+                    }
+                case ProcessingMode.SmallestShape:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        return ExecuteSmallestShape(inPutRgn1, tmpParam);
+                    }
+                case ProcessingMode.Erosion:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (tmpParam[0] == "circle") HOperatorSet.ErosionCircle(inPutRgn1, out resultRegion, tmpParam[1]);
+                        else if (tmpParam[0] == "rectangle1") HOperatorSet.ErosionRectangle1(inPutRgn1, out resultRegion, tmpParam[1], tmpParam[2]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Dilation:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (tmpParam[0] == "circle") HOperatorSet.DilationCircle(inPutRgn1, out resultRegion, tmpParam[1]);
+                        else if (tmpParam[0] == "rectangle1") HOperatorSet.DilationRectangle1(inPutRgn1, out resultRegion, tmpParam[1], tmpParam[2]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Opening:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (tmpParam[0] == "circle") HOperatorSet.OpeningCircle(inPutRgn1, out resultRegion, tmpParam[1]);
+                        else if (tmpParam[0] == "rectangle1") HOperatorSet.OpeningRectangle1(inPutRgn1, out resultRegion, tmpParam[1], tmpParam[2]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Closing:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (tmpParam[0] == "circle") HOperatorSet.ClosingCircle(inPutRgn1, out resultRegion, tmpParam[1]);
+                        else if (tmpParam[0] == "rectangle1") HOperatorSet.ClosingRectangle1(inPutRgn1, out resultRegion, tmpParam[1], tmpParam[2]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Union1:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        HOperatorSet.Union1(inPutRgn1, out resultRegion);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Union2:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (!IsLiveHObject(inPutRgn2))
+                        {
+                            resultRegion = CloneHObject(inPutRgn1) ?? new HObject();
+                            return resultRegion;
+                        }
+                        HOperatorSet.Union2(inPutRgn1, inPutRgn2, out resultRegion);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Move:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        HOperatorSet.MoveRegion(inPutRgn1, out resultRegion, tmpParam[0], tmpParam[1]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Concat:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (!IsLiveHObject(inPutRgn2))
+                        {
+                            resultRegion = CloneHObject(inPutRgn1) ?? new HObject();
+                            return resultRegion;
+                        }
+                        HOperatorSet.ConcatObj(inPutRgn1, inPutRgn2, out resultRegion);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Mirror:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (tmpParam[0] == "row") HOperatorSet.MirrorRegion(inPutRgn1, out resultRegion, "row", tmpParam[1]);
+                        else if (tmpParam[0] == "column") HOperatorSet.MirrorRegion(inPutRgn1, out resultRegion, "column", tmpParam[1]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Zoom:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        HOperatorSet.ZoomRegion(inPutRgn1, out resultRegion, tmpParam[0], tmpParam[1]);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Complement:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        HOperatorSet.Complement(inPutRgn1, out resultRegion);
+                        return resultRegion;
+                    }
+                case ProcessingMode.Intersection:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (!IsLiveHObject(inPutRgn2))
+                        {
+                            resultRegion = CloneHObject(inPutRgn1) ?? new HObject();
+                            return resultRegion;
+                        }
+                        HOperatorSet.Intersection(inPutRgn1, inPutRgn2, out resultRegion);
+                        return resultRegion;
+                    }
+                case ProcessingMode.SplitRectangle:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        return ExecuteSplitRectangleRegion(inPutRgn1, tmpParam);
+                    }
+                case ProcessingMode.RectangleMask:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        return ExecuteRectangleMaskRegion(inPutRgn1, tmpParam);
+                    }
+                case ProcessingMode.Difference:
+                    {
+                        if (!IsLiveHObject(inPutRgn1))
+                            return resultRegion;
+                        if (!IsLiveHObject(inPutRgn2))
+                        {
+                            resultRegion = CloneHObject(inPutRgn1) ?? new HObject();
+                            return resultRegion;
+                        }
+                        HOperatorSet.Difference(inPutRgn1, inPutRgn2, out resultRegion);
+                        return resultRegion;
+                    }
+
+                default:
+
+                    return resultRegion;
+            }
+        }
+
+        public ObservableCollection<ParamDefinition> GetParamDefinitions(ProcessingMode mode)
+        {
+            ObservableCollection<ParamDefinition> paramDefinitions = new ObservableCollection<ParamDefinition>();
+
+            switch (mode)
+            {
+                case ProcessingMode.CreateThreshold:
+                    paramDefinitions =
+                    [
+                        new() { Name="阈值方式:", UIType=ParamUIType.ComboBox, Value="固定", Options=["固定", "自动亮", "自动暗", "局部阈值"], ValueType = ParamValueType.String },
+                        new() { Name="固定最小值:", UIType=ParamUIType.Number, Value=0, MinValue=0, MaxValue=255, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="固定最大值:", UIType=ParamUIType.Number, Value=255, MinValue=0, MaxValue=255, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="局部Mask高:", UIType=ParamUIType.Number, Value=5, MinValue=3, MaxValue=255, ValueType = ParamValueType.Int, SmallChange=2, IsVisible=false },
+                        new() { Name="局部Mask宽:", UIType=ParamUIType.Number, Value=5, MinValue=3, MaxValue=255, ValueType = ParamValueType.Int, SmallChange=2, IsVisible=false },
+                        new() { Name="局部StdFactor:", UIType=ParamUIType.Number, Value=0.25, MinValue=0, MaxValue=100, ValueType = ParamValueType.Double, SmallChange=0.05, IsVisible=false },
+                        new() { Name="局部Abs阈值:", UIType=ParamUIType.Number, Value=5, MinValue=0, MaxValue=255, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                        new() { Name="局部类型:", UIType=ParamUIType.ComboBox, Value="dark", Options=["dark", "light", "equal", "not_equal"], ValueType = ParamValueType.String, IsVisible=false },
+                    ];
+                    break;
+
+                case ProcessingMode.FilterShape:
+                    paramDefinitions =
+                    [
+                        new() { Name="特征名:", UIType=ParamUIType.ComboBox, Value="area", Options=GetFilterFeatureNames(), ValueType = ParamValueType.String },
+                        new() { Name="最小值:", UIType=ParamUIType.Number, Value=0, MinValue=-99999999, MaxValue=99999999, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="最大值:", UIType=ParamUIType.Number, Value=99999999, MinValue=-99999999, MaxValue=99999999, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                    ];
+                    break;
+
+                case ProcessingMode.ShapeTrans:
+                    paramDefinitions =
+                    [
+                        new() { Name="变换类型:", UIType=ParamUIType.ComboBox, Value="形状转换", Options=["形状转换", "最小形状"], ValueType = ParamValueType.String },
+                        new() { Name="形状转换参数:", UIType=ParamUIType.ComboBox, Value="convex", Options=["convex", "ellipse", "outer_circle", "inner_circle", "rectangle1", "rectangle2", "inner_rectangle1", "inner_rectangle2"], ValueType = ParamValueType.String, IsVisible=true },
+                        new() { Name="最小形状参数:", UIType=ParamUIType.ComboBox, Value="圆形", Options=["圆形", "矩形1", "矩形2"], ValueType = ParamValueType.String, IsVisible=false },
+                    ];
+                    break;
+
+                case ProcessingMode.SmallestShape:
+                    paramDefinitions =
+                    [
+                        new() { Name="最小形状参数:", UIType=ParamUIType.ComboBox, Value="圆形", Options=["圆形", "矩形1", "矩形2"], ValueType = ParamValueType.String, IsVisible=true },
+                    ];
+                    break;
+
+                case ProcessingMode.Erosion:
+                    paramDefinitions =
+                    [
+                        new() { Name="圆/矩形腐蚀:", UIType=ParamUIType.ComboBox, Value="circle", Options=["circle", "rectangle1"], ValueType = ParamValueType.String },
+                        new() { Name="圆半径:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="矩形长:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                        new() { Name="矩形宽:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                    ];
+                    break;
+
+                case ProcessingMode.Dilation:
+                    paramDefinitions =
+                    [
+                        new() { Name="圆/矩形膨胀:", UIType=ParamUIType.ComboBox, Value="circle", Options=["circle", "rectangle1"], ValueType = ParamValueType.String },
+                        new() { Name="圆半径:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="矩形长:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                        new() { Name="矩形宽:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                    ];
+                    break;
+
+                case ProcessingMode.Opening:
+                    paramDefinitions =
+                    [
+                        new() { Name="开操作形状:", UIType=ParamUIType.ComboBox, Value="circle", Options=["circle", "rectangle1"], ValueType = ParamValueType.String },
+                        new() { Name="圆半径:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="矩形长:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                        new() { Name="矩形宽:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                    ];
+                    break;
+
+                case ProcessingMode.Closing:
+                    paramDefinitions =
+                    [
+                        new() { Name="闭操作形状:", UIType=ParamUIType.ComboBox, Value="circle", Options=["circle", "rectangle1"], ValueType = ParamValueType.String },
+                        new() { Name="圆半径:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=true },
+                        new() { Name="矩形长:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                        new() { Name="矩形宽:", UIType=ParamUIType.Number, Value=1.5, MinValue=1, MaxValue=51, ValueType = ParamValueType.Double, SmallChange=1, IsVisible=false },
+                    ];
+                    break;
+                case ProcessingMode.Move:
+                    paramDefinitions =
+                    [
+                        new() { Name="水平移动:", UIType=ParamUIType.Number, Value=0, MinValue=-10000, MaxValue=10000, ValueType = ParamValueType.Int, SmallChange=1, IsVisible=true },
+                        new() { Name="垂直移动:", UIType=ParamUIType.Number, Value=0, MinValue=-10000, MaxValue=10000, ValueType = ParamValueType.Int, SmallChange=1, IsVisible=true },
+                    ];
+                    break;
+
+                case ProcessingMode.Mirror:
+                    paramDefinitions =
+                    [
+                        new() { Name="镜像方式:",  UIType=ParamUIType.ComboBox, Value="row", Options=["row", "column"], ValueType = ParamValueType.String },
+                        new() { Name="对称轴:", UIType=ParamUIType.Number, Value=0, MinValue=-10000, MaxValue=10000, ValueType = ParamValueType.Int, SmallChange=1, IsVisible=true},
+                    ];
+                    break;
+
+                case ProcessingMode.Zoom:
+                    paramDefinitions =
+                    [
+                        new() { Name="横向缩放比例:", UIType=ParamUIType.Number, Value=1.0, MinValue=0.1, MaxValue=10.0, ValueType = ParamValueType.Double, SmallChange=0.1, IsVisible=true },
+                        new() { Name="纵向缩放比例:", UIType=ParamUIType.Number, Value=1.0, MinValue=0.1, MaxValue=10.0, ValueType = ParamValueType.Double, SmallChange=0.1, IsVisible=true },
+                    ];
+                    break;
+
+                case ProcessingMode.SplitRectangle:
+                    paramDefinitions =
+                    [
+                        new() { Name="横向份数:", UIType=ParamUIType.Number, Value=1, MinValue=1, MaxValue=1000, ValueType = ParamValueType.Int, SmallChange=1, IsVisible=true },
+                        new() { Name="纵向份数:", UIType=ParamUIType.Number, Value=1, MinValue=1, MaxValue=1000, ValueType = ParamValueType.Int, SmallChange=1, IsVisible=true },
+                        new() { Name="矩形类型:", UIType=ParamUIType.ComboBox, Value="自动", Options=["自动", "矩形1", "矩形2"], ValueType = ParamValueType.String, IsVisible=true },
+                        new() { Name="输出顺序:", UIType=ParamUIType.ComboBox, Value=DefaultSplitRectangleOrder, Options=[DefaultSplitRectangleOrder, SplitRectangleOrderRightThenDown, SplitRectangleOrderDownThenRight, SplitRectangleOrderUpThenRight], ValueType = ParamValueType.String, IsVisible=true },
+                    ];
+                    break;
+
+                case ProcessingMode.RectangleMask:
+                    paramDefinitions =
+                    [
+                        new() { Name="起点X比例:", UIType=ParamUIType.Number, Value=0.0, MinValue=0, MaxValue=1, ValueType = ParamValueType.Double, SmallChange=0.01, IsVisible=true },
+                        new() { Name="起点Y比例:", UIType=ParamUIType.Number, Value=0.0, MinValue=0, MaxValue=1, ValueType = ParamValueType.Double, SmallChange=0.01, IsVisible=true },
+                        new() { Name="矩形宽度比例:", UIType=ParamUIType.Number, Value=0.5, MinValue=0, MaxValue=1, ValueType = ParamValueType.Double, SmallChange=0.01, IsVisible=true },
+                        new() { Name="矩形高度比例:", UIType=ParamUIType.Number, Value=0.5, MinValue=0, MaxValue=1, ValueType = ParamValueType.Double, SmallChange=0.01, IsVisible=true },
+                    ];
+                    break;
+
+                default:
+                    paramDefinitions = [];
+                    break;
+            }
+
+            return paramDefinitions;
+        }
+
+        private HObject ExecuteSplitRectangleRegion(HObject inputRegion, HTuple tmpParam)
+        {
+            if (!IsLiveHObject(inputRegion))
+            {
+                HOperatorSet.GenEmptyObj(out HObject resultRegions);
+                return resultRegions;
+            }
+
+            int horizontalCount = GetPositiveIntParam(tmpParam, 0, 1);
+            int verticalCount = GetPositiveIntParam(tmpParam, 1, 1);
+            string rectangleType = tmpParam.Length > 2 ? tmpParam[2].S : "自动";
+            string splitOrder = tmpParam.Length > 3 ? tmpParam[3].S : DefaultSplitRectangleOrder;
+
+            if (rectangleType == "矩形1")
+            {
+                HOperatorSet.SmallestRectangle1(inputRegion, out HTuple row1, out HTuple col1, out HTuple row2, out HTuple col2);
+                double centerRow = (row1.D + row2.D) / 2.0;
+                double centerCol = (col1.D + col2.D) / 2.0;
+                double length1 = Math.Max(0.5, (col2.D - col1.D + 1.0) / 2.0);
+                double length2 = Math.Max(0.5, (row2.D - row1.D + 1.0) / 2.0);
+                return BuildSplitRectangle2Regions(centerRow, centerCol, 0.0, length1, length2, horizontalCount, verticalCount, splitOrder);
+            }
+
+            HOperatorSet.SmallestRectangle2(inputRegion, out HTuple row, out HTuple col, out HTuple phi, out HTuple length1R2, out HTuple length2R2);
+            return BuildSplitRectangle2Regions(row.D, col.D, phi.D, length1R2.D, length2R2.D, horizontalCount, verticalCount, splitOrder);
+        }
+
+        private HObject ExecuteRectangleMaskRegion(HObject inputRegion, HTuple? tmpParam)
+        {
+            if (!IsLiveHObject(inputRegion))
+            {
+                HOperatorSet.GenEmptyObj(out HObject emptyRegion);
+                return emptyRegion;
+            }
+
+            double startXRatio = ClampRatio(GetDoubleParam(tmpParam, 0, 0.0));
+            double startYRatio = ClampRatio(GetDoubleParam(tmpParam, 1, 0.0));
+            double widthRatio = Math.Min(ClampRatio(GetDoubleParam(tmpParam, 2, 0.5)), 1.0 - startXRatio);
+            double heightRatio = Math.Min(ClampRatio(GetDoubleParam(tmpParam, 3, 0.5)), 1.0 - startYRatio);
+            if (widthRatio <= 0 || heightRatio <= 0)
+            {
+                return CloneHObject(inputRegion) ?? new HObject();
+            }
+
+            HObject? maskRegion = null;
+            try
+            {
+                HOperatorSet.SmallestRectangle2(inputRegion, out HTuple row, out HTuple col, out HTuple phi, out HTuple length1, out HTuple length2);
+                double length1Value = Math.Max(0.5, length1.D);
+                double length2Value = Math.Max(0.5, length2.D);
+                bool length1IsNarrow = length1Value <= length2Value;
+                double narrowHalfLength = length1IsNarrow ? length1Value : length2Value;
+                double longHalfLength = length1IsNarrow ? length2Value : length1Value;
+                double narrowPhi = length1IsNarrow ? phi.D : phi.D + (Math.PI / 2.0);
+                double longPhi = length1IsNarrow ? phi.D + (Math.PI / 2.0) : phi.D;
+
+                // X follows the narrow edge and Y follows the long edge.
+                double maskLength1 = Math.Max(0.5, narrowHalfLength * widthRatio);
+                double maskLength2 = Math.Max(0.5, longHalfLength * heightRatio);
+                double narrowOffset = narrowHalfLength * (-1.0 + (2.0 * startXRatio) + widthRatio);
+                double longOffset = longHalfLength * (-1.0 + (2.0 * startYRatio) + heightRatio);
+                double maskCenterCol = col.D + (narrowOffset * Math.Cos(narrowPhi)) + (longOffset * Math.Cos(longPhi));
+                double maskCenterRow = row.D + (narrowOffset * Math.Sin(narrowPhi)) + (longOffset * Math.Sin(longPhi));
+
+                HOperatorSet.GenRectangle2(out maskRegion, maskCenterRow, maskCenterCol, narrowPhi, maskLength1, maskLength2);
+                HOperatorSet.Difference(inputRegion, maskRegion, out HObject resultRegion);
+                return resultRegion;
+            }
+            finally
+            {
+                SafeDisposeOutputHObject(maskRegion, "RectangleMask.maskRegion");
+            }
+        }
+
+        private static int GetPositiveIntParam(HTuple tmpParam, int index, int fallback)
+        {
+            if (tmpParam == null || tmpParam.Length <= index)
+            {
+                return Math.Max(1, fallback);
+            }
+
+            try
+            {
+                return Math.Max(1, Convert.ToInt32(Math.Round(tmpParam[index].D)));
+            }
+            catch
+            {
+                return Math.Max(1, fallback);
+            }
+        }
+
+        private static double GetDoubleParam(HTuple? tmpParam, int index, double fallback)
+        {
+            if (tmpParam == null || tmpParam.Length <= index)
+            {
+                return fallback;
+            }
+
+            try
+            {
+                return tmpParam[index].D;
+            }
+            catch
+            {
+                return fallback;
+            }
+        }
+
+        private static double ClampRatio(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+            {
+                return 0.0;
+            }
+
+            return Math.Min(1.0, Math.Max(0.0, value));
+        }
+
+        private static HObject BuildSplitRectangle2Regions(
+            double centerRow,
+            double centerCol,
+            double phi,
+            double length1,
+            double length2,
+            int horizontalCount,
+            int verticalCount,
+            string splitOrder)
+        {
+            HOperatorSet.GenEmptyObj(out HObject resultRegions);
+            double cellLength1 = Math.Max(0.5, length1 / horizontalCount);
+            double cellLength2 = Math.Max(0.5, length2 / verticalCount);
+            double cos = Math.Cos(phi);
+            double sin = Math.Sin(phi);
+
+            foreach (var cellIndex in EnumerateSplitRectangleCellIndices(horizontalCount, verticalCount, splitOrder))
+            {
+                int rowIndex = cellIndex.RowIndex;
+                int colIndex = cellIndex.ColIndex;
+                double offset2 = -length2 + cellLength2 + (2.0 * rowIndex * cellLength2);
+                double offset1 = -length1 + cellLength1 + (2.0 * colIndex * cellLength1);
+                double cellCenterCol = centerCol + (offset1 * cos) - (offset2 * sin);
+                double cellCenterRow = centerRow + (offset1 * sin) + (offset2 * cos);
+
+                HObject cellRegion = null;
+                HObject concatenatedRegions = null;
+                try
+                {
+                    HOperatorSet.GenRectangle2(out cellRegion, cellCenterRow, cellCenterCol, phi, cellLength1, cellLength2);
+                    HOperatorSet.ConcatObj(resultRegions, cellRegion, out concatenatedRegions);
+                    SafeDisposeOutputHObject(resultRegions, "SplitRectangle.previousResult");
+                    resultRegions = concatenatedRegions;
+                    concatenatedRegions = null;
+                }
+                finally
+                {
+                    SafeDisposeOutputHObject(cellRegion, "SplitRectangle.cellRegion");
+                    SafeDisposeOutputHObject(concatenatedRegions, "SplitRectangle.concatenatedRegions");
+                }
+            }
+
+            return resultRegions;
+        }
+
+        private static IEnumerable<(int RowIndex, int ColIndex)> EnumerateSplitRectangleCellIndices(
+            int horizontalCount,
+            int verticalCount,
+            string splitOrder)
+        {
+            switch (splitOrder)
+            {
+                case SplitRectangleOrderRightThenDown:
+                    for (int rowIndex = 0; rowIndex < verticalCount; rowIndex++)
+                    {
+                        for (int colIndex = horizontalCount - 1; colIndex >= 0; colIndex--)
+                        {
+                            yield return (rowIndex, colIndex);
+                        }
+                    }
+                    break;
+                case SplitRectangleOrderDownThenRight:
+                    for (int colIndex = 0; colIndex < horizontalCount; colIndex++)
+                    {
+                        for (int rowIndex = 0; rowIndex < verticalCount; rowIndex++)
+                        {
+                            yield return (rowIndex, colIndex);
+                        }
+                    }
+                    break;
+                case SplitRectangleOrderUpThenRight:
+                    for (int colIndex = 0; colIndex < horizontalCount; colIndex++)
+                    {
+                        for (int rowIndex = verticalCount - 1; rowIndex >= 0; rowIndex--)
+                        {
+                            yield return (rowIndex, colIndex);
+                        }
+                    }
+                    break;
+                default:
+                    for (int rowIndex = 0; rowIndex < verticalCount; rowIndex++)
+                    {
+                        for (int colIndex = 0; colIndex < horizontalCount; colIndex++)
+                        {
+                            yield return (rowIndex, colIndex);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        private HObject ExecuteCreateThreshold(HImage inputImage, HObject fallbackRegion, HTuple tmpParam)
+        {
+            HOperatorSet.GenEmptyObj(out HObject resultRegion);
+            if (!IsLiveImage(inputImage))
+                return resultRegion;
+
+            string mode = tmpParam.Length > 0 ? tmpParam[0].S : "固定";
+            HObject? rawRegion = null;
+
+            try
+            {
+                if (mode == "固定")
+                {
+                    double minVal = tmpParam.Length > 1 ? tmpParam[1].D : 0;
+                    double maxVal = tmpParam.Length > 2 ? tmpParam[2].D : 255;
+                    HOperatorSet.Threshold(inputImage, out rawRegion, minVal, maxVal);
+                }
+                else if (mode == "局部阈值")
+                {
+                    int maskH = tmpParam.Length > 3 ? MakeOddPositive(tmpParam[3].I, 5) : 5;
+                    int maskW = tmpParam.Length > 4 ? MakeOddPositive(tmpParam[4].I, 5) : 5;
+                    double stdFactor = tmpParam.Length > 5 ? tmpParam[5].D : 0.25;
+                    double absTh = tmpParam.Length > 6 ? tmpParam[6].D : 5;
+                    string localType = tmpParam.Length > 7 ? tmpParam[7].S : "dark";
+                    HOperatorSet.VarThreshold(inputImage, out rawRegion, maskH, maskW, stdFactor, absTh, localType);
+                }
+                else if (mode == "自动暗")
+                {
+                    HOperatorSet.BinaryThreshold(inputImage, out rawRegion, "max_separability", "dark", out _);
+                }
+                else
+                {
+                    HOperatorSet.BinaryThreshold(inputImage, out rawRegion, "max_separability", "light", out _);
+                }
+
+                if (IsLiveHObject(fallbackRegion))
+                {
+                    HOperatorSet.Intersection(rawRegion, fallbackRegion, out HObject intersectedRegion);
+                    return intersectedRegion;
+                }
+
+                HObject returnRegion = rawRegion ?? new HObject();
+                rawRegion = null;
+                return returnRegion;
+            }
+            finally
+            {
+                SafeDisposeOutputHObject(rawRegion, "CreateThreshold.rawRegion");
+                SafeDisposeOutputHObject(resultRegion, "CreateThreshold.emptyResult");
+            }
+        }
+
+        private HObject ExecuteFilterShape(HObject inPutRgn1, HTuple tmpParam)
+        {
+            HObject filterInput = CloneHObject(inPutRgn1) ?? new HObject();
+            HObject connectedRegions = null;
+
+            try
+            {
+                HOperatorSet.Connection(filterInput, out connectedRegions);
+
+                string featureName = tmpParam.Length > 0 ? tmpParam[0].S : "area";
+                double minValue = tmpParam.Length > 1 ? tmpParam[1].D : 0;
+                double maxValue = tmpParam.Length > 2 ? tmpParam[2].D : 99999999;
+
+                HOperatorSet.SelectShape(connectedRegions, out HObject resultRegion, featureName, "and", minValue, maxValue);
+                return resultRegion;
+            }
+            finally
+            {
+                SafeDisposeOutputHObject(connectedRegions, "FilterShape.connectedRegions");
+                SafeDisposeOutputHObject(filterInput, "FilterShape.filterInput");
+            }
+        }
+
+        private HObject ExecuteSmallestShape(HObject inPutRgn1, HTuple tmpParam)
+        {
+            HOperatorSet.GenEmptyObj(out HObject resultRegion);
+            string shapeType = tmpParam.Length > 0 ? tmpParam[0].S : "圆形";
+            HOperatorSet.Connection(inPutRgn1, out HObject connectedRegions);
+            HObject shapeRegions = null;
+
+            if (shapeType == "圆形")
+            {
+                HOperatorSet.SmallestCircle(connectedRegions, out HTuple row, out HTuple col, out HTuple radius);
+                HOperatorSet.GenCircle(out shapeRegions, row, col, radius);
+                HOperatorSet.Union1(shapeRegions, out resultRegion);
+                HalconImageOwnership.DisposeOwned(connectedRegions);
+                HalconImageOwnership.DisposeOwned(shapeRegions);
+                return resultRegion;
+            }
+
+            if (shapeType == "矩形1")
+            {
+                HOperatorSet.SmallestRectangle1(connectedRegions, out HTuple row1, out HTuple col1, out HTuple row2, out HTuple col2);
+                HOperatorSet.GenRectangle1(out shapeRegions, row1, col1, row2, col2);
+                HOperatorSet.Union1(shapeRegions, out resultRegion);
+                HalconImageOwnership.DisposeOwned(connectedRegions);
+                HalconImageOwnership.DisposeOwned(shapeRegions);
+                return resultRegion;
+            }
+
+            HOperatorSet.SmallestRectangle2(connectedRegions, out HTuple rowR2, out HTuple colR2, out HTuple phi, out HTuple length1, out HTuple length2);
+            HOperatorSet.GenRectangle2(out shapeRegions, rowR2, colR2, phi, length1, length2);
+            HOperatorSet.Union1(shapeRegions, out resultRegion);
+            HalconImageOwnership.DisposeOwned(connectedRegions);
+            HalconImageOwnership.DisposeOwned(shapeRegions);
+            return resultRegion;
+        }
+
+        private HImage GenerateRegionBinaryImage(HObject region, HImage inputImage)
+        {
+            if (!HalconImageOwnership.IsInitializedSafe(region))
+            {
+                return new HImage();
+            }
+
+            HObject? binaryImage = null;
+            try
+            {
+                GetBinaryImageSize(region, inputImage, out int width, out int height);
+                HOperatorSet.RegionToBin(region, out binaryImage, 255, 0, width, height);
+                return HalconImageOwnership.CopyOwnedObjectOrNull(binaryImage) ?? new HImage();
+            }
+            catch
+            {
+                HalconImageOwnership.DisposeOwned(binaryImage);
+                return new HImage();
+            }
+        }
+
+        private void GetBinaryImageSize(HObject region, HImage inputImage, out int width, out int height)
+        {
+            width = 1;
+            height = 1;
+
+            if (inputImage != null && HalconImageOwnership.TryGetImageSize(inputImage, out int imageWidth, out int imageHeight, out _))
+            {
+                width = Math.Max(1, imageWidth);
+                height = Math.Max(1, imageHeight);
+                return;
+            }
+
+            HOperatorSet.SmallestRectangle1(region, out HTuple row1, out HTuple column1, out HTuple row2, out HTuple column2);
+            width = Math.Max(1, (int)Math.Ceiling(column2.D + 1));
+            height = Math.Max(1, (int)Math.Ceiling(row2.D + 1));
+        }
+
+        private static int MakeOddPositive(int value, int fallback)
+        {
+            int valid = value <= 0 ? fallback : value;
+            if (valid % 2 == 0)
+                valid += 1;
+            return valid;
+        }
+
+        private static List<string> GetFilterFeatureNames()
+        {
+            return
+            [
+                "area",
+                "row",
+                "column",
+                "width",
+                "height",
+                "ratio",
+                "row1",
+                "column1",
+                "row2",
+                "column2",
+                "circularity",
+                "compactness",
+                "contlength",
+                "convexity",
+                "rectangularity",
+                "ra",
+                "rb",
+                "phi",
+                "anisometry",
+                "bulkiness",
+                "struct_factor",
+                "outer_radius",
+                "inner_radius",
+                "inner_height",
+                "inner_width",
+                "dist_mean",
+                "dist_deviation",
+                "num_sides",
+                "connect_num",
+                "holes_num",
+                "area_holes",
+                "max_diameter",
+                "orientation",
+                "euler_number",
+                "rect2_phi"
+            ];
+        }
+
+        internal void SetRuntimePreviewEnabled(bool enabled)
+        {
+            _runtimePreviewEnabled = enabled;
+            if (!enabled)
+            {
+                ClearPreviewDisplay();
+                return;
+            }
+
+            _previewRefreshPending = true;
+        }
+
+        /// <summary>
+        /// 将运行结果复制到 WPF 预览；跨线程时只接受最新一次刷新请求。
+        /// </summary>
+        /// <param name="previewImage">本次算法使用的输入图像，跨线程显示前会复制。</param>
+        /// <param name="resultRegion">图像坐标系下的结果区域，跨线程显示前会复制。</param>
+        private void UpdateRuntimePreview(HImage previewImage, HObject resultRegion)
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            try
+            {
+                long updateVersion = System.Threading.Interlocked.Increment(ref _previewUpdateVersion);
+                var dispatcher = PrismProvider.Dispatcher;
+                if (dispatcher == null || dispatcher.CheckAccess())
+                {
+                    UpdateRuntimePreviewCore(previewImage, resultRegion);
+                    return;
+                }
+
+                HImage? imageCopy = CopyPreviewImageOrNull(previewImage);
+                if (imageCopy == null)
+                {
+                    return;
+                }
+
+                HObject? regionCopy = CloneHObject(resultRegion);
+                dispatcher.BeginInvoke(() =>
+                {
+                    try
+                    {
+                        if (updateVersion == System.Threading.Volatile.Read(ref _previewUpdateVersion))
+                        {
+                            UpdateRuntimePreviewCore(imageCopy, regionCopy);
+                        }
+                    }
+                    finally
+                    {
+                        HalconImageOwnership.DisposeOwned(imageCopy);
+                        SafeDisposeOutputHObject(regionCopy, "RuntimePreview.RegionCopy");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTrace($"运行预览刷新跳过: {ex.Message}");
+            }
+        }
+
+        private HObject GetRuntimePreviewRegion(HObject finalRegion)
+        {
+            if (SelectedTabIndex == 1
+                && CurrentStep != null
+                && ListStepOutRegions != null
+                && ListStepOutRegions.TryGetValue(CurrentStep.Index, out HObject stepRegion)
+                && IsLiveHObject(stepRegion))
+            {
+                return stepRegion;
+            }
+
+            return finalRegion;
+        }
+
+        private void UpdateRuntimePreviewCore(HImage? previewImage, HObject? resultRegion)
+        {
+            if (IsLiveImage(previewImage))
+            {
+                UpdatePreviewImageObject(previewImage!);
+            }
+
+            DrawRegionPreview(resultRegion, "green", true);
+        }
+
+        /// <summary>
+        /// 显示只有区域输入时生成的临时底图，并清空旧的区域覆盖层。
+        /// </summary>
+        /// <param name="previewImage">待显示的 HALCON 图像对象，异步显示前会复制。</param>
+        private void DisplayPreviewImage(HObject previewImage)
+        {
+            if (!ShouldDrawRuntimeResult() || !IsLiveImage(previewImage))
+            {
+                return;
+            }
+
+            try
+            {
+                long updateVersion = System.Threading.Interlocked.Increment(ref _previewUpdateVersion);
+                var dispatcher = PrismProvider.Dispatcher;
+                if (dispatcher == null || dispatcher.CheckAccess())
+                {
+                    UpdatePreviewImageObject(previewImage);
+                    ClearPreviewDrawObjects();
+                    return;
+                }
+
+                HImage? previewCopy = CopyPreviewImageOrNull(previewImage);
+                if (previewCopy == null)
+                {
+                    return;
+                }
+
+                dispatcher.BeginInvoke(() =>
+                {
+                    try
+                    {
+                        if (updateVersion == System.Threading.Volatile.Read(ref _previewUpdateVersion))
+                        {
+                            UpdatePreviewImageObject(previewCopy);
+                            ClearPreviewDrawObjects();
+                        }
+                    }
+                    finally
+                    {
+                        HalconImageOwnership.DisposeOwned(previewCopy);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTrace($"预览图刷新跳过: {ex.Message}");
+            }
+        }
+
+        private void RefreshInputRegionOverlays()
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            ClearPreviewDrawObjects();
+            AddRegionContourOverlays(InitRegion1, "red");
+            AddRegionContourOverlays(InitRegion2, "blue");
+        }
+
+        private void DrawRegionPreview(HObject? region, string color, bool clearExisting)
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            if (clearExisting)
+            {
+                ClearPreviewDrawObjects();
+            }
+
+            AddRegionContourOverlays(region, color);
+        }
+
+        private void AddRegionContourOverlays(HObject? region, string color)
+        {
+            if (!IsLiveHObject(region))
+            {
+                return;
+            }
+
+            try
+            {
+                HObject? overlayRegion = CloneHObject(region);
+                if (!IsLiveHObject(overlayRegion))
+                {
+                    HalconImageOwnership.DisposeOwned(overlayRegion);
+                    return;
+                }
+
+                PreviewDrawObjects.Add(new HalconDrawingObject
+                {
+                    ShapeType = HalconShapeType.Region,
+                    Hobject = overlayRegion,
+                    Color = color,
+                    IsFillDisplay = false
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTrace($"区域轮廓预览跳过: {ex.Message}");
+            }
+        }
+
+        private void UpdatePreviewImageObject(HObject previewImage)
+        {
+            HImage? image = CopyPreviewImageOrNull(previewImage);
+            if (image == null)
+            {
+                return;
+            }
+
+            SetPreviewImageObject(image);
+        }
+
+        private void SetPreviewImageObject(HObject? image)
+        {
+            HObject? oldImage = _previewImageObject;
+            PreviewImageObject = image;
+            if (!ReferenceEquals(oldImage, image))
+            {
+                SafeDisposeOutputHObject(oldImage, "PreviewImageObject");
+            }
+        }
+
+        private void ClearPreviewDrawObjects()
+        {
+            foreach (HalconDrawingObject drawObject in PreviewDrawObjects.ToList())
+            {
+                SafeDisposeOutputHObject(drawObject?.Hobject, "PreviewDrawObject");
+            }
+
+            PreviewDrawObjects.Clear();
+        }
+
+        private static HImage? CopyPreviewImageOrNull(HObject? previewImage)
+        {
+            if (previewImage == null || !HalconImageOwnership.IsInitializedSafe(previewImage))
+            {
+                return null;
+            }
+
+            if (previewImage is HImage hImage)
+            {
+                return HalconImageOwnership.CopyOwnedOrNull(hImage);
+            }
+
+            return HalconImageOwnership.TryCopyBorrowed(previewImage, 1, out HImage imageCopy)
+                ? imageCopy
+                : null;
+        }
+
+        private void ClearPreviewDisplay()
+        {
+            var dispatcher = PrismProvider.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess())
+            {
+                ClearPreviewDisplayCore();
+                return;
+            }
+
+            dispatcher.BeginInvoke(ClearPreviewDisplayCore);
+        }
+
+        private void ClearPreviewDisplayCore()
+        {
+            ClearPreviewDrawObjects();
+            SetPreviewImageObject(null);
+        }
+
+        private void RefreshInputImagePreview()
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            if (!_previewRefreshPending)
+            {
+                return;
+            }
+
+            EnsureInputImageValueResolved();
+            HImage? previewImage = CloneInputImage();
+            if (!IsLiveImage(previewImage))
+            {
+                HalconImageOwnership.DisposeOwned(previewImage);
+                if (HasInputImageLink())
+                {
+                    _previewRefreshPending = true;
+                    return;
+                }
+
+                ClearPreviewDisplay();
+                _previewRefreshPending = false;
+                return;
+            }
+
+            try
+            {
+                DisplayPreviewImage(previewImage);
+                _previewRefreshPending = false;
+            }
+            finally
+            {
+                HalconImageOwnership.DisposeOwned(previewImage);
+            }
+        }
+
+        private void RefreshInputRegion1Preview()
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            HObject previewRegion = CloneInputRegion(_inputRegion1?.Value);
+            if (!IsLiveHObject(previewRegion))
+            {
+                HalconImageOwnership.DisposeOwned(previewRegion);
+                return;
+            }
+
+            ReplaceInitRegion1(previewRegion);
+            EnsureInputImageValueResolved();
+            _previewRefreshPending = true;
+            RefreshInputImagePreview();
+            if (!HasUsableInputImageForPreview() && !HasInputImageLink())
+            {
+                CreateBlankPreviewForRegion(previewRegion);
+            }
+
+            RefreshInputRegionOverlays();
+        }
+
+        private void RefreshInputRegion2Preview()
+        {
+            if (!ShouldDrawRuntimeResult())
+            {
+                return;
+            }
+
+            HObject previewRegion = CloneInputRegion(_inputRegion2?.Value);
+            if (!IsLiveHObject(previewRegion))
+            {
+                HalconImageOwnership.DisposeOwned(previewRegion);
+                return;
+            }
+
+            ReplaceInitRegion2(previewRegion);
+            EnsureInputImageValueResolved();
+            _previewRefreshPending = true;
+            RefreshInputImagePreview();
+            if (!HasUsableInputImageForPreview() && !HasInputImageLink() && !IsLiveHObject(InitRegion1))
+            {
+                CreateBlankPreviewForRegion(previewRegion);
+            }
+
+            RefreshInputRegionOverlays();
+        }
+
+        /// <summary>
+        /// 切换输入图像链接，并释放本模块上一帧自有的输入图像副本。
+        /// </summary>
+        /// <param name="value">界面选择的输入图像参数；为空时重置为空链接。</param>
+        private void SetInputImage(TransmitParam value)
+        {
+            ReleaseOwnedInputImage();
+            _inputImage = value ?? new TransmitParam();
+            _ownsInputImage = false;
+            _previewRefreshPending = true;
+            ClearIncomingLinkedInputImageValue();
+            EnsureInputImageValueResolved();
+            RefreshInputImagePreview();
+        }
+
+        private HImage CloneInputImage()
+        {
+            try
+            {
+                return CreateOwnedInputImage(_inputImage?.Value);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool HasUsableInputImageForPreview()
+        {
+            HImage? image = CloneInputImage();
+            try
+            {
+                return IsLiveImage(image);
+            }
+            finally
+            {
+                HalconImageOwnership.DisposeOwned(image);
+            }
+        }
+
+        private void EnsureInputImageValueResolved()
+        {
+            if (_inputImage == null)
+            {
+                return;
+            }
+
+            RefreshResolvedInputImageValue();
+        }
+
+        private void RefreshResolvedInputImageValue()
+        {
+            if (_inputImage == null)
+            {
+                return;
+            }
+
+            HImage previousOwnedImage = _ownsInputImage ? _inputImage.Value as HImage : null;
+            object imageValue = ResolveLinkedInputImageValue();
+            HImage ownedImage = CreateOwnedInputImage(imageValue);
+            if (!HalconImageOwnership.IsInitializedSafe(ownedImage))
+            {
+                HalconImageOwnership.DisposeOwned(ownedImage);
+                if (HasInputImageLink())
+                {
+                    _inputImage.Value = null;
+                }
+
+                SafeDisposeOutputHObject(previousOwnedImage, "InputImage.PreviousValue");
+                _ownsInputImage = false;
+                return;
+            }
+
+            SafeDisposeOutputHObject(previousOwnedImage, "InputImage.PreviousValue");
+            _inputImage.Value = ownedImage;
+            _ownsInputImage = true;
+        }
+
+        private void ClearIncomingLinkedInputImageValue()
+        {
+            if (_inputImage?.Resourece != ResoureceType.Global
+                && _inputImage?.Resourece != ResoureceType.CustomGlobal)
+            {
+                return;
+            }
+
+            _inputImage.Value = null;
+        }
+
+        private object ResolveLinkedInputImageValue()
+        {
+            if (_inputImage == null)
+            {
+                return null;
+            }
+
+            object imageValue = null;
+            if (_inputImage.Resourece == ResoureceType.Inupt
+                || _inputImage.Resourece == ResoureceType.LastInput)
+            {
+                imageValue = GetTransmitParam(InputParams, _inputImage);
+                if (imageValue != null)
+                {
+                    return imageValue;
+                }
+
+                imageValue = FindLinkedInputImageParam()?.Value;
+                if (imageValue != null)
+                {
+                    return imageValue;
+                }
+            }
+
+            imageValue = FindCurrentGlobalInputImageParam()?.Value;
+            if (imageValue != null)
+            {
+                return imageValue;
+            }
+
+            imageValue = FindCachedInputImageParam()?.Value;
+            if (imageValue != null)
+            {
+                return imageValue;
+            }
+
+            return HasInputImageLink() ? null : _inputImage.Value;
+        }
+
+        private TransmitParam FindCurrentGlobalInputImageParam()
+        {
+            if (_inputImage == null)
+            {
+                return null;
+            }
+
+            IEnumerable<TransmitParam> candidates = _inputImage.Resourece switch
+            {
+                ResoureceType.Global => PrismProvider.ProjectManager?.SltCurSolutionItem?.GlobalParams,
+                ResoureceType.CustomGlobal => PrismProvider.ProjectManager?.SltCurSolutionItem?.CustomGlobalParams,
+                _ => null
+            };
+
+            return FindMatchingTransmitParam(candidates, _inputImage);
+        }
+
+        private TransmitParam FindLinkedInputImageParam()
+        {
+            if (_inputImage == null || InputParams == null)
+            {
+                return null;
+            }
+
+            return FindMatchingTransmitParam(InputParams, _inputImage);
+        }
+
+        private TransmitParam FindCachedInputImageParam()
+        {
+            if (_inputImage == null)
+            {
+                return null;
+            }
+
+            var outputCache = PrismProvider.ProjectManager?.SltCurSolutionItem?.NodesOutputCache;
+            if (outputCache == null)
+            {
+                return null;
+            }
+
+            if (!outputCache.TryGetValue(_inputImage.Serial.ToString(), out ObservableCollection<TransmitParam> cachedParams)
+                || cachedParams == null)
+            {
+                return null;
+            }
+
+            return FindMatchingTransmitParam(cachedParams, _inputImage);
+        }
+
+        private static TransmitParam FindMatchingTransmitParam(
+            IEnumerable<TransmitParam> candidates,
+            TransmitParam target)
+        {
+            if (candidates == null || target == null)
+            {
+                return null;
+            }
+
+            return candidates.FirstOrDefault(item => item.Guid == target.Guid)
+                ?? candidates.FirstOrDefault(item =>
+                    item.Serial == target.Serial
+                    && !string.IsNullOrWhiteSpace(item.Name)
+                    && item.Name == target.Name)
+                ?? candidates.FirstOrDefault(item =>
+                    !string.IsNullOrWhiteSpace(item.ResourcePath)
+                    && item.ResourcePath == target.ResourcePath)
+                ?? candidates.FirstOrDefault(item =>
+                    !string.IsNullOrWhiteSpace(item.ParamName)
+                    && item.ParamName == target.ParamName);
+        }
+
+        private bool HasInputImageLink()
+        {
+            if (_inputImage == null)
+            {
+                return false;
+            }
+
+            return _inputImage.Resourece == ResoureceType.Inupt
+                || _inputImage.Resourece == ResoureceType.LastInput
+                || _inputImage.Resourece == ResoureceType.Global
+                || _inputImage.Resourece == ResoureceType.CustomGlobal;
+        }
+
+        private HImage? CreateOwnedInputImage(object? imageValue)
+        {
+            try
+            {
+                switch (imageValue)
+                {
+                    case HImage inputImage:
+                        return TryCopyImage(inputImage, out HImage? imageCopy) ? imageCopy : null;
+                    case HObject inputObject:
+                        return TryCopyImage(inputObject, out HImage? objectImageCopy) ? objectImageCopy : null;
+                    default:
+                        return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 复制借用的 HALCON 图像，并验证复制结果有有效尺寸。
+        /// </summary>
+        /// <param name="image">来自上游或全局参数的借用图像对象。</param>
+        /// <param name="imageCopy">复制成功后由调用方负责释放的自有图像。</param>
+        /// <returns>true 表示复制并验证成功；false 表示输入无效或复制失败。</returns>
+        private static bool TryCopyImage(HObject? image, out HImage? imageCopy)
+        {
+            imageCopy = null;
+            if (image == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!HalconImageOwnership.TryCopyBorrowed(image, out HImage ownedCopy)
+                    || !HalconImageOwnership.TryGetImageSize(ownedCopy, out int copyWidth, out int copyHeight, out _))
+                {
+                    HalconImageOwnership.DisposeOwned(ownedCopy);
+                    imageCopy = null;
+                    return false;
+                }
+
+                imageCopy = ownedCopy;
+                return true;
+            }
+            catch
+            {
+                HalconImageOwnership.DisposeOwned(imageCopy);
+                imageCopy = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 释放由本模块复制并保存到输入参数中的图像对象，不处理上游借用对象。
+        /// </summary>
+        private void ReleaseOwnedInputImage()
+        {
+            if (_ownsInputImage && _inputImage?.Value is HImage inputImage)
+            {
+                SafeDisposeOutputHObject(inputImage, "InputImage.Value");
+            }
+
+            _ownsInputImage = false;
+        }
+
+        private HObject CloneInputRegion(object regionValue)
+        {
+            try
+            {
+                switch (regionValue)
+                {
+                    case HObject hObject:
+                        return CloneHObject(hObject);
+                    default:
+                        return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void CreateBlankPreviewForRegion(HObject region)
+        {
+            HImage? baseImage = null;
+            HImage? brightImage = null;
+            try
+            {
+                HOperatorSet.SmallestRectangle1(region, out HTuple row1, out HTuple column1, out HTuple row2, out HTuple column2);
+                int width = Math.Max(1, (int)Math.Ceiling(column2.D + Math.Max(10, column1.D)));
+                int height = Math.Max(1, (int)Math.Ceiling(row2.D + Math.Max(10, row1.D)));
+                baseImage = new HImage();
+                baseImage.GenImageConst("byte", width, height);
+                brightImage = baseImage + 255;
+                DisplayPreviewImage(brightImage);
+            }
+            catch
+            {
+            }
+            finally
+            {
+                HalconImageOwnership.DisposeOwned(baseImage);
+                HalconImageOwnership.DisposeOwned(brightImage);
+            }
+        }
+
+<<<<<<< .mine
+        public void InitImg()
+        {
+        }
+
+        private void EnsureWindowControlInitialized()
+        {
+            string moduleKey = ModuleName;
+            if (string.IsNullOrWhiteSpace(moduleKey))
+            {
+                mWindowH ??= new VMHWindowControl();
+                return;
+            }
+
+            var solutionItem = PrismProvider.ProjectManager?.SltCurSolutionItem;
+            if (solutionItem?.ImgControlPair == null)
+            {
+                mWindowH ??= new VMHWindowControl();
+                return;
+            }
+
+            if (solutionItem.ImgControlPair.TryGetValue(moduleKey, out object windowControl) &&
+                windowControl is VMHWindowControl existWindow)
+            {
+                mWindowH = existWindow;
+                return;
+            }
+
+            mWindowH ??= new VMHWindowControl();
+            solutionItem.ImgControlPair[moduleKey] = mWindowH;
+        }
+
+||||||| .r1186
+        public void InitImg()
+        {
+        }
+
+        private void EnsureWindowControlInitialized()
+        {
+            string moduleKey = ModuleName;
+            if (string.IsNullOrWhiteSpace(moduleKey))
+            {
+                mWindowH ??= new VMHWindowControl();
+                return;
+            }
+
+            var solutionItem = PrismProvider.ProjectManager?.SltCurSolutionItem;
+            if (solutionItem?.ImgControlPair == null)
+            {
+                mWindowH ??= new VMHWindowControl();
+                return;
+            }
+
+            if (solutionItem.ImgControlPair.TryGetValue(moduleKey, out object windowControl) &&
+                windowControl is VMHWindowControl existWindow)
+            {
+                mWindowH = existWindow;
+                return;
+            }
+
+            mWindowH ??= new VMHWindowControl();
+            solutionItem.ImgControlPair[moduleKey] = mWindowH;
+        }
+
+=======
+>>>>>>> .r1220
+        private static Guid EnsureStepId(Guid stepId)
+        {
+            return stepId == Guid.Empty ? Guid.NewGuid() : stepId;
+        }
+
+        #region 日志
+
+        private void LogTrace(string message)
+        {
+            WriteLog("TRACE", message);
+        }
+
+        private void LogWarning(string message)
+        {
+            WriteLog("WARN", message);
+        }
+
+        private void LogError(string message)
+        {
+            WriteLog("ERROR", message);
+        }
+
+        private void WriteLog(string level, string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            string formatted = $"{LogPrefix} 节点{Serial:D3} {message}";
+            try
+            {
+                switch ((level ?? string.Empty).Trim().ToUpperInvariant())
+                {
+                    case "WARN":
+                    case "WARNING":
+                        Logs.LogWarning(formatted);
+                        break;
+                    case "ERROR":
+                        Logs.LogError(formatted);
+                        break;
+                    case "FATAL":
+                        Logs.LogFatal(formatted);
+                        break;
+                    case "TRACE":
+                    case "DEBUG":
+                        Logs.LogTrace(formatted);
+                        break;
+                    default:
+                        Logs.LogInfo(formatted);
+                        break;
+                }
+            }
+            catch
+            {
+                // 日志失败不能影响区域处理主流程。
+            }
+        }
+
+        private static string DescribeImage(HObject? image)
+        {
+            if (image == null)
+            {
+                return "null";
+            }
+
+            try
+            {
+                if (!HalconImageOwnership.IsInitializedSafe(image))
+                {
+                    return "未初始化";
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"读取失败:{ex.Message}";
+            }
+
+            if (HalconImageOwnership.TryGetImageSize(image, out int width, out int height, out string sizeError))
+            {
+                return $"{width}x{height}";
+            }
+
+            if (sizeError.Contains("no size", StringComparison.OrdinalIgnoreCase))
+            {
+                return "空对象";
+            }
+
+            return $"读取失败:{sizeError}";
+        }
+
+        private static string DescribeRegion(HObject? region)
+        {
+            if (region == null)
+            {
+                return "null";
+            }
+
+            try
+            {
+                if (!HalconImageOwnership.IsInitializedSafe(region))
+                {
+                    return "未初始化";
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"读取失败:{ex.Message}";
+            }
+
+            try
+            {
+                HOperatorSet.CountObj(region, out HTuple count);
+                return $"已初始化, Count={count.I}";
+            }
+            catch (Exception ex)
+            {
+                return $"读取失败:{ex.Message}";
+            }
+        }
+
+        #endregion
+
+        #endregion
+    }
+
+    public static class RegionProcessingExtensions
+    {
+        /// <summary>
+        /// 将 ParamDefinition 集合转换为 HTuple，自动处理不同参数类型。
+        /// </summary>
+        public static HTuple ToHTuple(this IEnumerable<ParamDefinition> paramDefinitions)
+        {
+            HTuple tuple = new HTuple();
+
+            if (paramDefinitions == null)
+                return tuple;
+
+            foreach (var param in paramDefinitions)
+            {
+                if (param.Value == null)
+                {
+                    tuple.Append(new HTuple()); // 空值
+                    continue;
+                }
+
+                try
+                {
+                    switch (param.ValueType)
+                    {
+                        case ParamValueType.Int:
+                            tuple.Append(Convert.ToInt32(param.Value));
+                            break;
+
+                        case ParamValueType.Double:
+                            tuple.Append(Convert.ToDouble(param.Value));
+                            break;
+
+                        case ParamValueType.StringInt:
+                            if (int.TryParse(param.Value.ToString(), out int intValue))
+                            {
+                                tuple.Append(Convert.ToInt32(intValue));
+                            }
+                            else
+                            {
+                                tuple.Append(param.Value.ToString());
+                            }
+                            break;
+
+                        case ParamValueType.StringDouble:
+                            if (double.TryParse(param.Value.ToString(), out double doubleValue))
+                            {
+                                tuple.Append(Convert.ToDouble(doubleValue));
+                            }
+                            else
+                            {
+                                tuple.Append(param.Value.ToString());
+                            }
+                            break;
+
+                        case ParamValueType.String:
+                            tuple.Append(param.Value.ToString());
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logs.LogWarning($"[区域处理] 参数转换失败: Name={param.Name}, Value={param.Value}, Error={ex.Message}");
+                    tuple.Append(new HTuple()); // 出错时补一个空值
+                }
+            }
+
+            return tuple;
+        }
+
+        /// <summary>
+        /// 获取 ProcessingMode 的名称、输入数量和输出数量。
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns>模式描述、输入数量和输出数量。</returns>
+        public static (string Description, int Inputs, int Outputs) GetInfo(this ProcessingMode mode)
+        {
+            var field = mode.GetType().GetField(mode.ToString());
+            var attr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+
+            if (attr != null)
+            {
+                var parts = attr.Description.Split('|');
+                if (parts.Length == 3 && int.TryParse(parts[1], out int inputs) && int.TryParse(parts[2], out int outputs))
+                {
+                    return (parts[0], inputs, outputs);
+                }
+            }
+
+            return (mode.ToString(), 0, 0);
+        }
+
+        /// <summary>
+        /// 检查 ProcessingSteps 中每一步的输出和下一步输入是否一致。
+        /// </summary>
+        public static bool ValidateIO(this ObservableCollection<ProcessingStep> steps)
+        {
+            if (steps == null || steps.Count == 0)
+                return true; // 空列表视为合法
+
+            for (int i = 0; i < steps.Count - 1; i++)
+            {
+                var current = steps[i];
+                var next = steps[i + 1];
+
+                // 如果某一步未启用，则跳过
+                if (!current.IsEnabled || !next.IsEnabled)
+                    continue;
+
+                // 检查 Output 和下一步的 Input 是否一致
+                if (!string.Equals(current.Output, next.Input, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static Dictionary<Guid, List<ParamDefinition>> DeepClone(
+                            this Dictionary<Guid, List<ParamDefinition>> source)
+        {
+            var clone = new Dictionary<Guid, List<ParamDefinition>>();
+
+            foreach (var kvp in source)
+            {
+                var clonedList = kvp.Value.Select(p => p.Clone()).ToList();
+                clone.Add(kvp.Key, clonedList);
+            }
+
+            return clone;
+        }
+    }
+}

@@ -1,0 +1,130 @@
+<UserControl x:Class="Custom.WaferFlatnessMeasure.Views.WaferFlatnessResultChartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignWidth="1280"
+             d:DesignHeight="720">
+    <Grid Background="#F4F7FB">
+        <Border Margin="14"
+                Padding="16"
+                Background="White"
+                BorderBrush="#D9E1EA"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="结果曲线"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1F2937"/>
+                        <TextBlock Margin="0,6,0,0"
+                                   Text="{Binding ChartStatus}"
+                                   FontSize="13"
+                                   Foreground="#667085"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Width="84"
+                            Height="30"
+                            Margin="16,0,0,0"
+                            Content="刷新"
+                            Command="{Binding RefreshCommand}"
+                            Style="{StaticResource GeneralButtonStyle}"/>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Margin="0,14,0,12"
+                        Padding="12"
+                        Background="#F8FAFC"
+                        BorderBrush="#E5EAF0"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="260"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="数据源"
+                                   VerticalAlignment="Center"
+                                   Foreground="#344054"/>
+                        <ComboBox Grid.Column="1"
+                                  Height="28"
+                                  Margin="8,0,18,0"
+                                  DisplayMemberPath="DisplayName"
+                                  ItemsSource="{Binding ChartDataSources}"
+                                  SelectedItem="{Binding SelectedChartDataSource, Mode=TwoWay}"
+                                  BorderThickness="0,0,0,1"/>
+
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock Foreground="#667085">
+                                <Run Text="点数 "/>
+                                <Run Text="{Binding PointCount, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Margin="18,0,0,0" Foreground="#667085">
+                                <Run Text="最小值 "/>
+                                <Run Text="{Binding MinimumValue, Mode=OneWay, StringFormat={}{0:F6}}"/>
+                            </TextBlock>
+                            <TextBlock Margin="18,0,0,0" Foreground="#667085">
+                                <Run Text="最大值 "/>
+                                <Run Text="{Binding MaximumValue, Mode=OneWay, StringFormat={}{0:F6}}"/>
+                            </TextBlock>
+                            <TextBlock Margin="18,0,0,0" Foreground="#667085">
+                                <Run Text="平均值 "/>
+                                <Run Text="{Binding AverageValue, Mode=OneWay, StringFormat={}{0:F6}}"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="3"
+                                   Margin="18,0,0,0"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Foreground="#98A2B3"
+                                   Text="{Binding LoadedDataPath}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Background="#0B1220"
+                        BorderBrush="#1E293B"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <Grid>
+                        <Grid x:Name="ChartHost"
+                              Margin="4"
+                              MinHeight="420"/>
+                        <TextBlock x:Name="EmptyChartHint"
+                                   Text="当前还没有可显示的曲线数据。"
+                                   Foreground="#E2E8F0"
+                                   FontSize="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

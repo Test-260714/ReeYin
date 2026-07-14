@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ReeYinOutputRoot Condition="'$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)OutputExe\</ReeYinOutputRoot>
+    <ReeYinOutputRoot Condition="'$(ReeYinOutputRoot)' == ''">$(MSBuildThisFileDirectory)..\..\OutputExe\</ReeYinOutputRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyLicenseModule" AfterTargets="Build">
+    <PropertyGroup>
+      <LicenseModuleOutputDir>$(ReeYinOutputRoot)$(Configuration)\$(TargetFramework)\Modules\</LicenseModuleOutputDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(LicenseModuleOutputDir)" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$(LicenseModuleOutputDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(TargetPath)')" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb"
+          DestinationFolder="$(LicenseModuleOutputDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+  </Target>
+
+</Project>

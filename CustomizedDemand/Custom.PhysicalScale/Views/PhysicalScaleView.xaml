@@ -1,0 +1,655 @@
+<UserControl x:Class="Custom.PhysicalScale.Views.PhysicalScaleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:model="clr-namespace:Custom.PhysicalScale.Models"
+             xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             FontFamily="Microsoft YaHei UI"
+             FontSize="13">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Loaded">
+                <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <Grid Background="#F2EFE8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="380"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Margin="18,18,14,18" Padding="20" Background="#FBFAF7" CornerRadius="12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.14"/>
+            </Border.Effect>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="物理标尺" FontSize="24" FontWeight="SemiBold" Foreground="#213547"/>
+                    <TextBlock Margin="0,8,0,18" Text="" Foreground="#5C6B73" TextWrapping="Wrap"/>
+
+                    <Border Margin="0,0,0,16" Padding="12" Background="#EDF2F7" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="工作模式" FontWeight="SemiBold" Foreground="#243B53"/>
+                            <UniformGrid Columns="2" Margin="0,12,0,0">
+                                <Button Content="基础量测" Margin="0,0,6,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding SetModeCommand}" CommandParameter="Basic"/>
+                                <Button Content="微孔判定" Margin="6,0,0,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Background="#0E7490" Foreground="White"
+                                        Command="{Binding SetModeCommand}" CommandParameter="MicroHole"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="0,0,0,16" Padding="14" Background="#F4F0E6" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="图像来源" FontWeight="SemiBold" Foreground="#5A4326"/>
+                            <TextBlock Margin="0,10,0,8" Text="{Binding Model.ImagePath, FallbackValue=未加载图像}" Foreground="#52606D" TextWrapping="Wrap"/>
+                            <UniformGrid Columns="2">
+                                <Button Content="加载原图" Margin="0,0,6,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Background="#0E7490" Foreground="White"
+                                        Command="{Binding LoadImageCommand}"/>
+                                <Button Content="适应窗口" Margin="6,0,0,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding FitImageCommand}"/>
+                            </UniformGrid>
+                            <Grid Margin="0,12,0,0" Visibility="Collapsed">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="56"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition Width="50"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="后期曝光" Foreground="#52606D"/>
+                                <WxNumericUpDown:WxNumericUpDown Grid.Column="1"
+                                                                 Margin="6,0,0,0"
+                                                                 Height="30"
+                                                                 Width="150"
+                                                                 Minimum="-2"
+                                                                 Maximum="2"
+                                                                 SmallChange="0.1"
+                                                                 LargeChange="0.5"
+                                                                 Precision="1"
+                                                                 HorizontalContentAlignment="Center"
+                                                                 Value="{Binding Model.DisplayExposureCompensation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Grid.Column="2"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Text="EV"
+                                           Foreground="#0F766E"
+                                           FontWeight="SemiBold"/>
+                                <Button Grid.Column="3"
+                                        Margin="6,0,0,0"
+                                        Height="30"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding ResetExposureCommand}"
+                                        Content="重置"/>
+                            </Grid>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="64"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center"
+                                           Text="后期曝光"
+                                           Foreground="#52606D"/>
+                                <Button Grid.Column="1"
+                                        Margin="8,0,0,0"
+                                        Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding ResetExposureCommand}"
+                                        Content="重置"/>
+                                <Grid Grid.Row="1"
+                                      Grid.ColumnSpan="2"
+                                      Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Height="34"
+                                             MinWidth="120"
+                                             Padding="10,0"
+                                             FontSize="16"
+                                             HorizontalContentAlignment="Center"
+                                             VerticalContentAlignment="Center"
+                                             Style="{DynamicResource TextBoxExtend}"
+                                             Text="{Binding Model.DisplayExposureCompensation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+                                    <TextBlock Grid.Column="1"
+                                               Margin="8,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="EV"
+                                               Foreground="#0F766E"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+                            </Grid>
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#7B8794"
+                                       FontSize="12"
+                                       TextWrapping="Wrap">仅影响当前模块显示，不改写原始图像文件。</TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="0,0,0,16" Padding="14" Background="#EFF6F3" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="物理标定" FontWeight="SemiBold" Foreground="#21543D"/>
+                            <TextBlock Margin="0,8,0,2" Text="{Binding FieldWidthSummary}" Foreground="#4E5D6C"/>
+                            <TextBlock Margin="0,0,0,12" Text="{Binding CalibrationSummary}" Foreground="#4E5D6C"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="96"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="视野宽度" Foreground="#4E5D6C"/>
+                                <TextBox Grid.Column="1" Height="30"
+                                         Style="{DynamicResource TextBoxExtend}"
+                                         Text="{Binding Model.FieldWidthMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F1}}"/>
+                                <Button Grid.Column="2" Margin="8,0,0,0" Height="30"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding ApplyFieldWidthCommand}"
+                                        Content="按宽度换算"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="X当量" Foreground="#4E5D6C"/>
+                                <TextBox Grid.Column="1" Height="30"
+                                         Style="{DynamicResource TextBoxExtend}"
+                                         Text="{Binding Model.ScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F4}}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="Y当量" Foreground="#4E5D6C"/>
+                                <TextBox Grid.Column="1" Height="30"
+                                         Style="{DynamicResource TextBoxExtend}"
+                                         Text="{Binding Model.ScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F4}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="0,0,0,16" Padding="14" Background="#F7F1FB" CornerRadius="10" Visibility="{Binding BasicModeVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="绘制工具" FontWeight="SemiBold" Foreground="#5E2A84"/>
+                            <TextBlock Margin="0,8,0,12" Text="{Binding ToolDisplayName}" FontSize="18" FontWeight="SemiBold" Foreground="#3B2F4A"/>
+                            <UniformGrid Columns="2">
+                                <Button Content="选择" Margin="0,0,6,6" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding SetToolCommand}" CommandParameter="Select"/>
+                                <Button Content="点" Margin="6,0,0,6" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding SetToolCommand}" CommandParameter="Point"/>
+                                <Button Content="线" Margin="0,0,6,6" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding SetToolCommand}" CommandParameter="Line"/>
+                                <Button Content="矩形" Margin="6,0,0,6" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding SetToolCommand}" CommandParameter="Rectangle"/>
+                                <Button Content="圆" Margin="0,0,6,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding SetToolCommand}" CommandParameter="Circle"/>
+                                <Button Content="删除选中" Margin="6,0,0,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding DeleteSelectedCommand}"/>
+                            </UniformGrid>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="92"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="锐化档位" Foreground="#5D4D71"/>
+                                <ComboBox Grid.Column="1"
+                                          Height="34"
+                                          SelectedValuePath="Tag"
+                                          SelectedValue="{Binding Model.SelectedSharpenLevel, Mode=TwoWay}">
+                                    <ComboBoxItem Content="弱" Tag="{x:Static model:PhysicalScaleSharpenLevel.Weak}"/>
+                                    <ComboBoxItem Content="中" Tag="{x:Static model:PhysicalScaleSharpenLevel.Medium}"/>
+                                    <ComboBoxItem Content="强" Tag="{x:Static model:PhysicalScaleSharpenLevel.Strong}"/>
+                                </ComboBox>
+                            </Grid>
+                            <Button Content="打开局部锐化预览" Margin="0,10,0,0" Height="34"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Background="#0F766E" Foreground="White"
+                                    Command="{Binding RefineSelectedCommand}"
+                                    ToolTip=""/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="14" Background="#FFF8EE" CornerRadius="10" Visibility="{Binding BasicModeVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="结果操作" FontWeight="SemiBold" Foreground="#7A4B09"/>
+                            <UniformGrid Columns="2" Margin="0,12,0,0">
+                                <Button Content="清空全部" Margin="0,0,6,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding ClearMeasurementsCommand}"/>
+                                <Button Content="导出CSV" Margin="6,0,0,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Background="#B45309" Foreground="White"
+                                        Command="{Binding ExportCsvCommand}"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="0,0,0,16" Padding="14" Background="#EEF7FF" CornerRadius="10" Visibility="{Binding MicroHoleModeVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="微孔判定设置" FontWeight="SemiBold" Foreground="#0F4C81"/>
+                            <TextBlock Margin="0,8,0,12"
+                                       Text="{Binding HoleActionGuide}"
+                                       Foreground="#4E5D6C"
+                                       TextWrapping="Wrap"/>
+                            <Grid Margin="0,12,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="86"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="显示结果" Foreground="#4E5D6C"/>
+                                <ComboBox Grid.Column="1"
+                                          Height="30"
+                                          SelectedValuePath="Tag"
+                                          SelectedValue="{Binding Model.HolePreviewMode, Mode=TwoWay}">
+                                    <ComboBoxItem Content="原图" Tag="{x:Static model:PhysicalScaleHolePreviewMode.Original}"/>
+                                    <ComboBoxItem Content="二值化" Tag="{x:Static model:PhysicalScaleHolePreviewMode.Binary}"/>
+                                    <ComboBoxItem Content="边缘" Tag="{x:Static model:PhysicalScaleHolePreviewMode.Edge}"/>
+                                    <ComboBoxItem Content="亚像素边界" Tag="{x:Static model:PhysicalScaleHolePreviewMode.SubPixelBoundary}"/>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="86"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="孔类型" Foreground="#4E5D6C"/>
+                                <ComboBox Grid.Column="1"
+                                          Height="30"
+                                          SelectedValuePath="Tag"
+                                          SelectedValue="{Binding Model.HolePolarity, Mode=TwoWay}">
+                                    <ComboBoxItem Content="暗孔 / 亮背景" Tag="{x:Static model:PhysicalScaleHolePolarity.DarkHoleOnBrightBackground}"/>
+                                    <ComboBoxItem Content="亮孔 / 暗背景" Tag="{x:Static model:PhysicalScaleHolePolarity.BrightHoleOnDarkBackground}"/>
+                                </ComboBox>
+                            </Grid>
+                            <Expander Margin="0,8,0,0"
+                                      IsExpanded="False"
+                                      Background="#F7FBFF"
+                                      BorderBrush="#D7E8F6"
+                                      BorderThickness="1">
+                                <Expander.Header>
+                                    <TextBlock Text="高级参数（调试用）"
+                                               FontWeight="SemiBold"
+                                               Foreground="#37516B"/>
+                                </Expander.Header>
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Margin="0,0,0,10"
+                                               Text="一般演示不用改。只有重新点击“执行判定”后，这些参数才会重新参与计算。"
+                                               Foreground="#5C6B73"
+                                               TextWrapping="Wrap"/>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="86"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" Text="开口阈值" Foreground="#4E5D6C"/>
+                                        <TextBox Grid.Column="1"
+                                                 Height="30"
+                                                 Style="{DynamicResource TextBoxExtend}"
+                                                 Text="{Binding Model.HoleThreshold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="86"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" Text="最小缺陷面积" Foreground="#4E5D6C"/>
+                                        <TextBox Grid.Column="1"
+                                                 Height="30"
+                                                 Style="{DynamicResource TextBoxExtend}"
+                                                 Text="{Binding Model.HoleMinDefectAreaPx, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F1}}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="14" Background="#FFF8EE" CornerRadius="10" Visibility="{Binding MicroHoleModeVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="操作步骤" FontWeight="SemiBold" Foreground="#7A4B09"/>
+                            <TextBlock Margin="0,10,0,0" Text="{Binding HoleRoiSummary}" Foreground="#5C6B73" TextWrapping="Wrap"/>
+                            <UniformGrid Columns="2" Margin="0,12,0,0">
+                                <Button Content="框选单孔" Margin="0,0,6,6" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding PrepareHoleRoiCommand}"/>
+                                <Button Content="执行判定" Margin="6,0,0,6" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Background="#0F766E" Foreground="White"
+                                        Command="{Binding ExecuteHoleJudgeCommand}"/>
+                                <Button Content="返回原图" Margin="0,0,6,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding ResetHoleJudgeCommand}"/>
+                                <Button Content="清空判定" Margin="6,0,0,0" Height="34"
+                                        Style="{DynamicResource GeneralButtonStyle}"
+                                        Command="{Binding ClearMeasurementsCommand}"/>
+                            </UniformGrid>
+                            <Button Content="导出CSV" Margin="0,12,0,0" Height="34"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Background="#B45309" Foreground="White"
+                                    Command="{Binding ExportCsvCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Column="1" Margin="0,18,0,18" Padding="16" Background="#FBFAF7" CornerRadius="12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.14"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{Binding CenterTitle}" FontSize="22" FontWeight="SemiBold" Foreground="#213547"/>
+                        <TextBlock Margin="0,6,0,0" Text="{Binding CenterSubTitle}" Foreground="#5C6B73" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" Padding="10,6" Background="#E8F1EC" CornerRadius="20" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding CenterBadgeText}" Foreground="#21543D" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1" Margin="0,16,0,16" Background="#171C23" CornerRadius="12" BorderBrush="#CCD5DF" BorderThickness="1">
+                    <Grid>
+                        <ScrollViewer x:Name="ImageScrollViewer"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto"
+                                      PreviewMouseWheel="ImageScrollViewer_OnPreviewMouseWheel"
+                                      PreviewMouseDown="ImageScrollViewer_OnPreviewMouseDown"
+                                      PreviewMouseUp="ImageScrollViewer_OnPreviewMouseUp"
+                                      PreviewMouseMove="ImageScrollViewer_OnPreviewMouseMove"
+                                      Background="#171C23">
+                            <Grid x:Name="ImageSurface">
+                                <Image x:Name="SourceImage" Stretch="Fill" Source="{Binding Model.DisplayImageSource}"/>
+                                <Canvas x:Name="MeasurementCanvas"
+                                        Visibility="{Binding CanvasVisibility}"
+                                        Background="Transparent"
+                                        MouseLeftButtonDown="ImageCanvas_OnMouseLeftButtonDown"
+                                        MouseMove="ImageCanvas_OnMouseMove"
+                                        MouseLeftButtonUp="ImageCanvas_OnMouseLeftButtonUp"
+                                        MouseRightButtonDown="ImageCanvas_OnMouseRightButtonDown"
+                                        MouseLeave="ImageCanvas_OnMouseLeave"/>
+                            </Grid>
+                        </ScrollViewer>
+
+                        <Border Margin="14" Padding="12,8" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#CC0F1720" CornerRadius="8">
+                            <StackPanel MaxWidth="420">
+                                <TextBlock Text="{Binding Model.StatusText}" Foreground="#E5EDF5" TextWrapping="Wrap"/>
+                                <TextBlock Margin="0,6,0,0" Text="{Binding CursorSummary}" Foreground="#A7F3D0" TextWrapping="Wrap" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" Text="显示缩放" FontWeight="SemiBold" Foreground="#213547"/>
+                    <Slider Grid.Column="1" Margin="12,0"
+                            Minimum="0.1" Maximum="64.0"
+                            TickFrequency="0.1"
+                            IsSnapToTickEnabled="False"
+                            Value="{Binding Model.Zoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Width="34" Height="30" Margin="0,0,8,0"
+                                Style="{DynamicResource GeneralButtonStyle}"
+                                Command="{Binding ZoomOutCommand}" Content="-"/>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Model.Zoom, StringFormat={}{0:F2}x}" FontWeight="SemiBold" Foreground="#213547"/>
+                        <Button Width="34" Height="30" Margin="8,0,0,0"
+                                Style="{DynamicResource GeneralButtonStyle}"
+                                Command="{Binding ZoomInCommand}" Content="+"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="2" Margin="14,18,18,18" Padding="18" Background="#FBFAF7" CornerRadius="12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.14"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="350"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="测量结果" FontSize="22" FontWeight="SemiBold" Foreground="#213547" Visibility="{Binding BasicModeVisibility}"/>
+                <TextBlock Text="微孔判定结果" FontSize="22" FontWeight="SemiBold" Foreground="#213547" Visibility="{Binding MicroHoleModeVisibility}"/>
+
+                <Grid Grid.Row="1" Margin="0,14,0,16" Visibility="{Binding BasicModeVisibility}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Margin="0,0,8,0" Padding="12" Background="#EEF4FF" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="当前图像" Foreground="#51606E"/>
+                            <TextBlock Margin="0,6,0,0" Text="{Binding ImageSummary}" FontWeight="SemiBold" Foreground="#1D4ED8"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Margin="8,0,0,0" Padding="12" Background="#F3FBEF" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="量测数量" Foreground="#51606E"/>
+                            <TextBlock Margin="0,6,0,0" Text="{Binding MeasurementCountText}" FontWeight="SemiBold" Foreground="#15803D"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,14,0,16" Visibility="{Binding MicroHoleModeVisibility}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Margin="0,0,8,0" Padding="12" Background="#EEF4FF" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="当前预览" Foreground="#51606E"/>
+                            <TextBlock Margin="0,6,0,0" Text="{Binding DisplayImageSummary}" FontWeight="SemiBold" Foreground="#1D4ED8"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Margin="8,0,0,0" Padding="12" Background="#F3FBEF" CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock Text="判定结果" Foreground="#51606E"/>
+                            <TextBlock Margin="0,6,0,0" Text="{Binding HoleJudgeDisplayText}" FontWeight="SemiBold" Foreground="#15803D"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="2" Margin="0,0,0,14" Padding="12" Background="#FFF3D6" CornerRadius="10" BorderBrush="#E8B84A" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="78"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="缺陷名称" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#8A5A00"/>
+                        <TextBox Grid.Column="1"
+                                 Height="30"
+                                 Style="{DynamicResource TextBoxExtend}"
+                                 Text="{Binding Model.DefectName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </Border>
+
+                <DataGrid Grid.Row="3"
+                          Visibility="{Binding BasicModeVisibility}"
+                          ItemsSource="{Binding Model.Measurements}"
+                          SelectedItem="{Binding Model.SelectedMeasurement, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserResizeRows="False"
+                          HeadersVisibility="Column"
+                          HorizontalScrollBarVisibility="Auto"
+                          Style="{DynamicResource DefaultDataGridStyle}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="编号" Binding="{Binding DisplayName}" Width="72"/>
+                        <DataGridTextColumn Header="类型" Binding="{Binding ShapeTypeName}" Width="64"/>
+                        <DataGridTextColumn Header="像素结果" Binding="{Binding PixelSummary}" Width="120"/>
+                        <DataGridTextColumn Header="物理结果" Binding="{Binding PhysicalSummary}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Border Grid.Row="4" Margin="0,18,0,0" Padding="0" Background="#F7F4EE" CornerRadius="14" BorderBrush="#D9B561" BorderThickness="1.5" Visibility="{Binding BasicModeVisibility}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Padding="14,12" Background="#F2E2B8" CornerRadius="14,14,0,0">
+                            <StackPanel>
+                                <TextBlock Text="明细说明" FontWeight="SemiBold" Foreground="#8A5A00" FontSize="12"/>
+                                <TextBlock Margin="0,8,0,0"
+                                           Text="{Binding SelectedMeasurementReportTitle}"
+                                           FontWeight="Bold"
+                                           Foreground="#102A43"
+                                           FontSize="15"
+                                           TextWrapping="Wrap"/>
+                                <Border Margin="0,10,0,0"
+                                        Padding="10,4"
+                                        Background="#FFF9EC"
+                                        CornerRadius="12"
+                                        BorderBrush="#E7C77A"
+                                        BorderThickness="1"
+                                        HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedMeasurementReportMeta}" Foreground="#7C5A1F" FontSize="11" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Padding="16,14" Background="#FFFCF4" CornerRadius="0,0,14,14">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Height="1" Background="#E7C77A" Margin="0,0,0,12"/>
+                                <TextBox Grid.Row="1"
+                                         Text="{Binding SelectedMeasurementDetail, Mode=OneWay}"
+                                         IsReadOnly="True"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Disabled"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="0"
+                                         FontSize="14"
+                                         FontWeight="SemiBold"
+                                         Foreground="#23395B"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="3" Visibility="{Binding MicroHoleModeVisibility}">
+                    <UniformGrid Columns="2">
+                        <Border Margin="0,0,8,8" Padding="12" Background="#EEF4FF" CornerRadius="10">
+                            <StackPanel>
+                                <TextBlock Text="异常类型" Foreground="#51606E"/>
+                                <TextBlock Margin="0,6,0,0" Text="{Binding HoleJudgeReasonText}" FontWeight="SemiBold" Foreground="#1D4ED8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Margin="8,0,0,8" Padding="12" Background="#F3FBEF" CornerRadius="10">
+                            <StackPanel>
+                                <TextBlock Text="等效开口直径" Foreground="#51606E"/>
+                                <TextBlock Margin="0,6,0,0" Text="{Binding HoleDiameterSummary}" FontWeight="SemiBold" Foreground="#15803D" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Margin="0,8,8,0" Padding="12" Background="#FFF7ED" CornerRadius="10">
+                            <StackPanel>
+                                <TextBlock Text="缺陷总面积" Foreground="#51606E"/>
+                                <TextBlock Margin="0,6,0,0" Text="{Binding HoleDefectAreaSummary}" FontWeight="SemiBold" Foreground="#C2410C" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Margin="8,8,0,0" Padding="12" Background="#FEF2F2" CornerRadius="10">
+                            <StackPanel>
+                                <TextBlock Text="缺陷数量" Foreground="#51606E"/>
+                                <TextBlock Margin="0,6,0,0" Text="{Binding HoleCountSummary}" FontWeight="SemiBold" Foreground="#B91C1C"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </Grid>
+
+                <Border Grid.Row="4" Margin="0,18,0,0" Padding="0" Background="#F7F4EE" CornerRadius="14" BorderBrush="#D9B561" BorderThickness="1.5" Visibility="{Binding MicroHoleModeVisibility}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Padding="14,12" Background="#F2E2B8" CornerRadius="14,14,0,0">
+                            <StackPanel>
+                                <TextBlock Text="判定报告" FontWeight="SemiBold" Foreground="#8A5A00" FontSize="12"/>
+                                <TextBlock Margin="0,8,0,0"
+                                           Text="{Binding HoleJudgeResultTitle}"
+                                           FontWeight="Bold"
+                                           Foreground="#102A43"
+                                           FontSize="15"
+                                           TextWrapping="Wrap"/>
+                                <Border Margin="0,10,0,0"
+                                        Padding="10,4"
+                                        Background="#FFF9EC"
+                                        CornerRadius="12"
+                                        BorderBrush="#E7C77A"
+                                        BorderThickness="1"
+                                        HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding HoleJudgeResultMeta}" Foreground="#7C5A1F" FontSize="11" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Padding="16,14" Background="#FFFCF4" CornerRadius="0,0,14,14">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Height="1" Background="#E7C77A" Margin="0,0,0,12"/>
+                                <TextBox Grid.Row="1"
+                                         Text="{Binding Model.HoleReportDetail, Mode=OneWay}"
+                                         IsReadOnly="True"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Disabled"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="0"
+                                         FontSize="14"
+                                         FontWeight="SemiBold"
+                                         Foreground="#23395B"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

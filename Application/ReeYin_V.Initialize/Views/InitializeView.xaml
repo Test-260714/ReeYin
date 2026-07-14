@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="ReeYin_V.Initialize.Views.InitializeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReeYin_V.Initialize.Views"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:core="clr-namespace:ReeYin_V.Core;assembly=ReeYin_V.Core"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="600" Height="350"
+             d:DesignHeight="350" d:DesignWidth="600">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.Background>
+            <ImageBrush  ImageSource="{DynamicResource Icon_Login_BG}" Stretch="UniformToFill" Opacity="1"/>
+        </Grid.Background>
+        
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+            <hc:CircleProgressBar IsIndeterminate="True" Margin="16,0,0,0" Foreground="Green" Background="Transparent"/>
+
+            <TextBlock Text="{Binding Message}"   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+
+            <!--<ProgressBar Style="{StaticResource ProgressBarDanger}" Foreground="#B7894B" Margin="0,0,0,10" Value="100" Maximum="200" IsIndeterminate="True"/>-->
+            
+            <Button Name="btnLogin" IsEnabled="{Binding IsEnabled}" Content="{Binding}" Style="{StaticResource GeneralButtonStyle}" Width="200" Height="50"
+                                    Command="{Binding EnterCommand}" CommandParameter="{Binding Name}">
+                <Button.ContentTemplate>
+                    <DataTemplate >
+                        <StackPanel Orientation="horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!--<TextBlock Text="&#xe610;" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource Iconfont}" />-->
+                            <TextBlock Text="{DynamicResource Skip}" TextWrapping="Wrap" FontSize="24" Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </StackPanel>
+
+
+    </Grid>
+</UserControl>

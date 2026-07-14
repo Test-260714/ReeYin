@@ -1,0 +1,522 @@
+<UserControl x:Class="Custom.CalibrationPlateMeasure.Views.CalibrationPlateMeasureView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             FontFamily="Microsoft YaHei UI"
+             FontSize="13"
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded"
+             d:DesignHeight="920"
+             d:DesignWidth="1600">
+    <UserControl.Resources>
+        <!-- 运行按钮样式，沿用系统主按钮外观。 -->
+        <Style x:Key="MeasureActionButtonStyle" TargetType="Button" BasedOn="{StaticResource GeneralButtonStyle}">
+            <Setter Property="Width" Value="110" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+        <!-- 左侧参数输入框使用局部中性色焦点样式，避免继承全局黄色主题线。 -->
+        <Style x:Key="CalibrationInputTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#CBD5E1" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="#1F2933" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="TextBoxBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TextBoxBorder" Property="BorderBrush" Value="#94A3B8" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="TextBoxBorder" Property="BorderBrush" Value="#64748B" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="TextBoxBorder" Property="Opacity" Value="0.56" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TIFF 浏览按钮保持轻量样式，和输入框高度对齐。 -->
+        <Style x:Key="CalibrationBrowseButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Margin" Value="8,0,0,0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="BorderBrush" Value="#CBD5E1" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="#334155" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#EEF2F7" />
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#94A3B8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#E2E8F0" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.56" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 结果表格表头做紧凑显示，保证右侧面板内中文表头完整可见。 -->
+        <Style x:Key="CalibrationResultDataGridColumnHeaderStyle"
+               TargetType="DataGridColumnHeader"
+               BasedOn="{StaticResource DefaultCellHeaderStyle}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="4,0" />
+        </Style>
+
+        <!-- 结果表格选中态使用中性色，避免出现全局黄色选中角标。 -->
+        <Style x:Key="CalibrationResultDataGridCellStyle"
+               TargetType="DataGridCell"
+               BasedOn="{StaticResource DefaultCellStyle}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EEF2F7" />
+                    <Setter Property="Foreground" Value="#1F2933" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CalibrationResultDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Tag" Value="{Binding DataContext.DeleteMeasureItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+            <Setter Property="ContextMenu">
+                <Setter.Value>
+                    <ContextMenu>
+                        <MenuItem Header="删除该结果"
+                                  Command="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                    </ContextMenu>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#F1F5F9" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F8FAFC" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CalibrationResultDataGridStyle"
+               TargetType="DataGrid"
+               BasedOn="{StaticResource DefaultDataGridStyle}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="ColumnHeaderHeight" Value="32" />
+            <Setter Property="MinRowHeight" Value="30" />
+            <Setter Property="RowStyle" Value="{StaticResource CalibrationResultDataGridRowStyle}" />
+            <Setter Property="CellStyle" Value="{StaticResource CalibrationResultDataGridCellStyle}" />
+            <Setter Property="ColumnHeaderStyle" Value="{StaticResource CalibrationResultDataGridColumnHeaderStyle}" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0" />
+            <Setter Property="VerticalGridLinesBrush" Value="#E2E8F0" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F3F6F8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="400" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Margin="12"
+                Padding="14"
+                Background="White"
+                BorderBrush="#D8E0E8"
+                BorderThickness="1"
+                CornerRadius="8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- 算法输入区：图像、测量类型和当前模式对应参数。 -->
+                    <TextBlock Text="标准片测量"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2933" />
+
+                    <TextBlock Margin="0,16,0,6"
+                               Text="TIFF 高度图"
+                               FontSize="12"
+                               Foreground="#52606D" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="42" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Style="{StaticResource CalibrationInputTextBoxStyle}"
+                                 Text="{Binding ModelParam.ImagePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1"
+                                Style="{StaticResource CalibrationBrowseButtonStyle}"
+                                Content="..."
+                                Command="{Binding BrowseImageCommand}" />
+                    </Grid>
+
+                    <TextBlock Margin="0,16,0,6"
+                               Text="测量类型"
+                               FontSize="12"
+                               Foreground="#52606D" />
+                    <ComboBox Height="32"
+                              ItemsSource="{Binding MeasurementModeOptions}"
+                              DisplayMemberPath="Name"
+                              SelectedValuePath="Mode"
+                              SelectedValue="{Binding SelectedMeasurementMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <Grid x:Name="MeasureActionButtonGrid"
+                          Margin="0,18,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource MeasureActionButtonStyle}"
+                                Content="执行测量"
+                                Command="{Binding ExecuteMeasureCommand}" />
+                        <Button Grid.Column="1"
+                                Style="{StaticResource MeasureActionButtonStyle}"
+                                HorizontalAlignment="Right"
+                                Margin="0"
+                                Content="{Binding ToggleCenterDisplayText}"
+                                Command="{Binding ToggleCenterDisplayCommand}" />
+                    </Grid>
+
+                    <TextBlock Margin="0,22,0,10"
+                               Text="换算参数(mm)"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2933" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="34" />
+                            <RowDefinition Height="34" />
+                            <RowDefinition Height="34" />
+                        </Grid.RowDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="X 像素间距" Foreground="#52606D" />
+                        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.IntervalX, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="Y 像素间距" Foreground="#52606D" />
+                        <TextBox Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.IntervalY, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                        <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="Z 换算系数" Foreground="#52606D" />
+                        <TextBox Grid.Row="2" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.IntervalZ, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                    </Grid>
+
+                    <TextBlock Margin="0,16,0,8"
+                               Text="刻槽参数"
+                               Visibility="{Binding GrooveParameterVisibility}"
+                               FontWeight="SemiBold"
+                               Foreground="#52606D" />
+                    <Grid Visibility="{Binding GrooveParameterVisibility}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="34" />
+                        </Grid.RowDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="深度外扩" Foreground="#52606D" />
+                        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.DepthExpand, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                    </Grid>
+
+                    <TextBlock Margin="0,16,0,8"
+                               Text="圆测量参数"
+                               Visibility="{Binding CircleParameterVisibility}"
+                               FontWeight="SemiBold"
+                               Foreground="#52606D" />
+                    <Grid Visibility="{Binding CircleParameterVisibility}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="34" />
+                            <RowDefinition Height="34" />
+                            <RowDefinition Height="34" />
+                        </Grid.RowDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="最小轮廓长度" Foreground="#52606D" />
+                        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.CircleMinContourLength, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="最小半径" Foreground="#52606D" />
+                        <TextBox Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.CircleMinRadiusPx, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                        <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="深度外扩" Foreground="#52606D" />
+                        <TextBox Grid.Row="2" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding ModelParam.CircleDepthExpandPx, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                    </Grid>
+
+                    <!-- 操作提示放在左侧底部，便于现场部署时快速确认测量步骤和图像交互方式。 -->
+                    <Border Margin="0,24,0,0"
+                            Padding="12"
+                            Background="#F8FAFC"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <StackPanel>
+                            <TextBlock Text="交互说明"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1F2933" />
+
+                            <TextBlock Margin="0,10,0,4"
+                                       Text="如何测量"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#52606D" />
+                            <TextBlock Text="1. 加载 TIFF 高度图"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="2. 鼠标框选测量区域"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="3. 选择测量类型"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="4. 执行测量"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+
+                            <TextBlock Margin="0,12,0,4"
+                                       Text="图像交互"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#52606D" />
+                            <TextBlock Text="左键拖拽：框选测量区域"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="鼠标滚轮：缩放图像"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="右键拖拽：平移图像"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="鼠标移动：显示 XYZ 坐标"
+                                       Foreground="#52606D"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <Border
+                Grid.Column="1"
+                Margin="0,12"
+                Background="#111827"
+                BorderBrush="#D8E0E8"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid ClipToBounds="True">
+                <!-- 中间显示区：灰度图和点云窗口共用同一块显示区域。 -->
+                <Image x:Name="GrayImageViewer"
+                       Margin="0"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       Stretch="Uniform"
+                       SnapsToDevicePixels="True"
+                       RenderOptions.BitmapScalingMode="Fant"
+                       Source="{Binding ModelParam.DisplayImageSource}"
+                       Visibility="{Binding GrayImageVisibility}">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="GrayImageScaleTransform"
+                                            ScaleX="1"
+                                            ScaleY="1" />
+                            <TranslateTransform x:Name="GrayImageTranslateTransform"
+                                                X="0"
+                                                Y="0" />
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+                <!-- ROI 框只用于交互反馈，实际算法读取模型中的图像像素坐标。 -->
+                <Border x:Name="SelectedRoiOverlay"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        BorderBrush="#FFFFD54F"
+                        BorderThickness="1.5"
+                        Background="#22FFD54F"
+                        IsHitTestVisible="False"
+                        Visibility="Collapsed" />
+                <Border x:Name="GrayImageInteractionLayer"
+                        Background="Transparent"
+                        Visibility="{Binding GrayImageVisibility}"
+                        MouseWheel="GrayImageInteractionLayer_MouseWheel"
+                        MouseLeftButtonDown="GrayImageInteractionLayer_MouseLeftButtonDown"
+                        MouseLeftButtonUp="GrayImageInteractionLayer_MouseLeftButtonUp"
+                        MouseRightButtonDown="GrayImageInteractionLayer_MouseRightButtonDown"
+                        MouseRightButtonUp="GrayImageInteractionLayer_MouseRightButtonUp"
+                        MouseDown="GrayImageInteractionLayer_MouseDown"
+                        MouseUp="GrayImageInteractionLayer_MouseUp"
+                        MouseMove="GrayImageInteractionLayer_MouseMove"
+                        SizeChanged="GrayImageInteractionLayer_SizeChanged" />
+                <Border HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        Margin="12"
+                        Padding="10,6"
+                        Background="#CC0B1220"
+                        BorderBrush="#33FFFFFF"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        IsHitTestVisible="False"
+                        Visibility="{Binding GrayImageVisibility}">
+                    <TextBlock Text="{Binding ModelParam.CursorCoordinateText}"
+                               FontFamily="Consolas"
+                               FontSize="12"
+                               Foreground="White" />
+                </Border>
+                <ContentControl x:Name="PointCloudHost"
+                                Margin="0"
+                                Visibility="{Binding PointCloudVisibility}" />
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="2"
+                Margin="12"
+                Padding="14"
+                Background="White"
+                BorderBrush="#D8E0E8"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="320" />
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <!-- 结果区：统计摘要、测量明细和运行日志。 -->
+                    <TextBlock Text="测量结果"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2933" />
+                    <UniformGrid Margin="0,12,0,12" Columns="3">
+                        <StackPanel>
+                            <TextBlock Text="状态" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding RunStatusText}" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="耗时" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding RunTimeText}" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="数量" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding TargetCountText}" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+
+                <DataGrid Grid.Row="1"
+                          Style="{StaticResource CalibrationResultDataGridStyle}"
+                          Margin="0,0,0,12"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          ItemsSource="{Binding ModelParam.MeasureItems}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="序号" Binding="{Binding Index}" Width="44" />
+                        <DataGridTextColumn Header="长度/直径(mm)" Binding="{Binding LengthMm, StringFormat=F4}" Width="112" />
+                        <DataGridTextColumn Header="宽度/半径(mm)" Binding="{Binding WidthMm, StringFormat=F4}" Width="112" />
+                        <DataGridTextColumn Header="深度(mm)" Binding="{Binding DepthMm, StringFormat=F4}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Border Grid.Row="2"
+                        Padding="10"
+                        Background="#F8FAFC"
+                        BorderBrush="#D8E0E8"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="&#36816;&#34892;&#26085;&#24535;"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1F2933" />
+
+                        <ListBox Grid.Row="1"
+                                 Margin="0,8,0,0"
+                                 ItemsSource="{Binding OperationLogs}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               Margin="0,0,0,6"
+                                               FontFamily="Consolas"
+                                               FontSize="12"
+                                               Foreground="#334155"
+                                               TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,96 @@
+<Window x:Class="ReeYin_V.Hardware.ControlCard.ACS.Views.AcsBufferScriptView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="ACS Buffer脚本" Width="1180" Height="760" MinWidth="960" MinHeight="620"
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource RegionBackgroundBrush}"
+        d:DesignHeight="760" d:DesignWidth="1180">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Generic.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ReeYin_V.UI;component/Style/Themes/LightTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="AcsCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource SplitBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Padding" Value="12"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource AcsCardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Buffer编号" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding BufferNoOptions}"
+                              SelectedItem="{Binding SelectedBufferNo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Height="30"/>
+                    <Button Grid.Column="2" Content="打开D-Buffer" Width="110" Height="32" Margin="10,0,0,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding OpenDBufferCommand}"/>
+                    <TextBlock Grid.Column="3" Text="运行标签" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                    <TextBox Grid.Column="4" Text="{Binding RunLabel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+                    <StackPanel Grid.Column="6" Orientation="Horizontal">
+                        <Button Content="读取" Width="70" Height="32" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding UploadBufferCommand}"/>
+                        <Button Content="下载" Width="70" Height="32" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding DownloadBufferCommand}"/>
+                        <Button Content="编译" Width="70" Height="32" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding CompileBufferCommand}"/>
+                        <Button Content="运行" Width="70" Height="32" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding RunBufferCommand}"/>
+                        <Button Content="停止" Width="70" Height="32" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding StopBufferCommand}"/>
+                        <Button Content="清空" Width="70" Height="32" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Command="{Binding ClearBufferCommand}"/>
+                        <Button Content="状态" Width="70" Height="32" Style="{StaticResource GeneralButtonStyle}" Command="{Binding RefreshBufferStatusCommand}"/>
+                    </StackPanel>
+                </Grid>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <CheckBox IsChecked="{Binding BufferIsRunning, Mode=OneWay}" IsHitTestVisible="False" Focusable="False" Margin="0,0,6,0"/>
+                    <TextBlock Text="{Binding BufferStateText, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,24,0"/>
+                    <CheckBox IsChecked="{Binding BufferIsCompiled, Mode=OneWay}" IsHitTestVisible="False" Focusable="False" Margin="0,0,6,0"/>
+                    <TextBlock Text="{Binding BufferCompiledText, Mode=OneWay}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <TextBox Grid.Row="2"
+                 Text="{Binding BufferScript, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas" FontSize="13"
+                 HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap"
+                 Background="White" BorderBrush="{DynamicResource SplitBrush}" BorderThickness="1" Padding="10"/>
+
+        <Border Grid.Row="4" Style="{StaticResource AcsCardStyle}">
+            <TextBox Text="{Binding BufferStatus, Mode=OneWay}" IsReadOnly="True" BorderThickness="0"
+                     Background="Transparent" FontFamily="Consolas" TextWrapping="Wrap"
+                     Height="70" VerticalScrollBarVisibility="Auto"/>
+        </Border>
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="关闭" Width="90" Height="32" Style="{StaticResource GeneralButtonStyle}" Click="CloseButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

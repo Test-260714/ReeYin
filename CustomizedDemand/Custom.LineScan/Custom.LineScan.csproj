@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin__V.NodifyUI\ReeYin_V.NodifyManager.csproj" />
+    <ProjectReference Include="..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\..\Hardware\Camera\ReeYin_V.Hardware.Camera\ReeYin_V.Hardware.Camera.csproj" />
+    <ProjectReference Include="..\..\Hardware\LightController\ReeYin.Hardware.LightController\ReeYin.Hardware.LightController.csproj" />
+  </ItemGroup>
+  
+  <!-- 隔离的硬件SDK引用 - 本地Dll文件夹 -->
+  <ItemGroup>
+    <!-- IKap相机SDK -->
+    <Reference Include="IKapBoardDotNet2">
+      <HintPath>Dll\IKapBoardDotNet2.dll</HintPath>
+    </Reference>
+    <Reference Include="IKapCDotNet2">
+      <HintPath>Dll\IKapCDotNet2.dll</HintPath>
+    </Reference>
+    <!-- 光源控制器 - 使用项目引用 -->
+    <Reference Include="ReeYin.Hardware.LightController.CST">
+      <HintPath>Dll\ReeYin.Hardware.LightController.CST.dll</HintPath>
+    </Reference>
+    <Reference Include="ControllerDllCSharp">
+      <HintPath>Dll\ControllerDllCSharp.dll</HintPath>
+    </Reference>
+    <!-- ZMotion运动控制卡 -->
+    <Reference Include="ReeYin_V.Hardware.ControlCard">
+      <HintPath>Dll\ReeYin_V.Hardware.ControlCard.dll</HintPath>
+    </Reference>
+    <Reference Include="ReeYin_V.Hardware.ControlCard.ZMotion">
+      <HintPath>Dll\ReeYin_V.Hardware.ControlCard.ZMotion.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- CST SDK DLL复制到输出目录 -->
+  <ItemGroup>
+    <None Include="Dll\CommonToolDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\ControllerDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\ControllerDllCSharp.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\sControllerDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Dll\zauxdll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dll\zmotion.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="halcondotnet">
+      <HintPath>..\..\packages\halcondotnet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="@echo off&#xD;&#xA;setlocal&#xD;&#xA;&#xD;&#xA;:: ========== 模块DLL复制 ==========&#xD;&#xA;set SOURCE_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_DEBUG=&quot;$(SolutionDir)OutputExe\Debug\net8.0-windows\Modules\&quot;&#xD;&#xA;set SOURCE_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_RELEASE=&quot;$(SolutionDir)OutputExe\Release\net8.0-windows\Modules\&quot;&#xD;&#xA;&#xD;&#xA;IF EXIST %25SOURCE_DEBUG%25 (&#xD;&#xA;    echo [模块] 复制Debug: %25SOURCE_DEBUG%25&#xD;&#xA;    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;)&#xD;&#xA;IF EXIST %25SOURCE_RELEASE%25 (&#xD;&#xA;    echo [模块] 复制Release: %25SOURCE_RELEASE%25&#xD;&#xA;    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:: ========== 硬件SDK DLL复制到OutputExe ==========&#xD;&#xA;set OUTPUT_DEBUG=&quot;$(SolutionDir)OutputExe\Debug\net8.0-windows\&quot;&#xD;&#xA;set OUTPUT_RELEASE=&quot;$(SolutionDir)OutputExe\Release\net8.0-windows\&quot;&#xD;&#xA;&#xD;&#xA;:: IKap相机SDK&#xD;&#xA;set IKAP_SRC=&quot;$(SolutionDir)packages\A_ThirdParty\HardAPI\IKap\&quot;&#xD;&#xA;IF EXIST %25IKAP_SRC%25 (&#xD;&#xA;    echo [IKap] 复制相机SDK...&#xD;&#xA;    xcopy %25IKAP_SRC%25*.dll %25OUTPUT_DEBUG%25 /Y /I&#xD;&#xA;    xcopy %25IKAP_SRC%25*.dll %25OUTPUT_RELEASE%25 /Y /I&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:: ZMotion运动控制卡SDK&#xD;&#xA;set ZMOTION_SRC=&quot;$(SolutionDir)packages\A_ThirdParty\HardAPI\Zmotion\&quot;&#xD;&#xA;IF EXIST %25ZMOTION_SRC%25 (&#xD;&#xA;    echo [ZMotion] 复制运动卡SDK...&#xD;&#xA;    xcopy %25ZMOTION_SRC%25*.dll %25OUTPUT_DEBUG%25 /Y /I&#xD;&#xA;    xcopy %25ZMOTION_SRC%25*.dll %25OUTPUT_RELEASE%25 /Y /I&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:: CST光源控制器SDK&#xD;&#xA;set CST_SRC=&quot;$(SolutionDir)Hardware\LightController\ReeYin.Hardware.LightController.CST\Dll\&quot;&#xD;&#xA;IF EXIST %25CST_SRC%25 (&#xD;&#xA;    echo [CST] 复制光源控制器SDK...&#xD;&#xA;    xcopy %25CST_SRC%25*.dll %25OUTPUT_DEBUG%25 /Y /I&#xD;&#xA;    xcopy %25CST_SRC%25*.dll %25OUTPUT_RELEASE%25 /Y /I&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo 硬件SDK DLL复制完成！&#xD;&#xA;endlocal&#xD;&#xA;" />
+  </Target>
+
+</Project>

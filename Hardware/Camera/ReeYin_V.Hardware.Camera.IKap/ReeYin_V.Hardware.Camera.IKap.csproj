@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\ReeYin_V.Hardware.Camera\ReeYin_V.Hardware.Camera.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="App\AppIKapCamera.cs" />
+    <Compile Remove="App\IKapCamera.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="halcondotnetxl">
+      <HintPath>..\..\..\packages\A_ThirdParty\Halcon\halcondotnetxl.dll</HintPath>
+    </Reference>
+    <Reference Include="IKapBoardDotNet2">
+      <HintPath>Dll\IKapBoardDotNet2.dll</HintPath>
+    </Reference>
+    <Reference Include="IKapCDotNet2">
+      <HintPath>Dll\IKapCDotNet2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 复制 IKap 原生 DLL 到输出目录 -->
+  <ItemGroup>
+    <None Include="Dll\IKapC.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>IKapC.dll</TargetPath>
+    </None>
+    <None Include="Dll\IKapBoard.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>IKapBoard.dll</TargetPath>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="set SOURCE_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_DEBUG=&quot;$(SolutionDir)\OutputExe\Debug\net8.0-windows\Modules\&quot;&#xD;&#xA;set IKAP_C_NET_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\IKapCDotNet2.dll&quot;&#xD;&#xA;set IKAP_BOARD_NET_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\IKapBoardDotNet2.dll&quot;&#xD;&#xA;set IKAP_C_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\IKapC.dll&quot;&#xD;&#xA;set IKAP_BOARD_DEBUG=&quot;$(ProjectDir)bin\Debug\net8.0-windows\IKapBoard.dll&quot;&#xD;&#xA;&#xD;&#xA;set SOURCE_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll&quot;&#xD;&#xA;set TARGET_RELEASE=&quot;$(SolutionDir)\OutputExe\Release\net8.0-windows\Modules\&quot;&#xD;&#xA;set IKAP_C_NET_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\IKapCDotNet2.dll&quot;&#xD;&#xA;set IKAP_BOARD_NET_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\IKapBoardDotNet2.dll&quot;&#xD;&#xA;set IKAP_C_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\IKapC.dll&quot;&#xD;&#xA;set IKAP_BOARD_RELEASE=&quot;$(ProjectDir)bin\Release\net8.0-windows\IKapBoard.dll&quot;&#xD;&#xA;&#xD;&#xA;:: 检查Debug配置文件&#xD;&#xA;IF EXIST %25SOURCE_DEBUG%25 (&#xD;&#xA;    echo 找到Debug源文件: %25SOURCE_DEBUG%25&#xD;&#xA;    xcopy %25SOURCE_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_C_NET_DEBUG%25 xcopy %25IKAP_C_NET_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_BOARD_NET_DEBUG%25 xcopy %25IKAP_BOARD_NET_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_C_DEBUG%25 xcopy %25IKAP_C_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_BOARD_DEBUG%25 xcopy %25IKAP_BOARD_DEBUG%25 %25TARGET_DEBUG%25 /Y /I&#xD;&#xA;    echo Debug文件复制成功！&#xD;&#xA;) ELSE (&#xD;&#xA;    echo 警告：Debug源文件不存在 - %25SOURCE_DEBUG%25&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:: 检查Release配置文件&#xD;&#xA;IF EXIST %25SOURCE_RELEASE%25 (&#xD;&#xA;    echo 找到Release源文件: %25SOURCE_RELEASE%25&#xD;&#xA;    xcopy %25SOURCE_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_C_NET_RELEASE%25 xcopy %25IKAP_C_NET_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_BOARD_NET_RELEASE%25 xcopy %25IKAP_BOARD_NET_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_C_RELEASE%25 xcopy %25IKAP_C_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    IF EXIST %25IKAP_BOARD_RELEASE%25 xcopy %25IKAP_BOARD_RELEASE%25 %25TARGET_RELEASE%25 /Y /I&#xD;&#xA;    echo Release文件复制成功！&#xD;&#xA;) ELSE (&#xD;&#xA;    echo 警告：Release源文件不存在 - %25SOURCE_RELEASE%25&#xD;&#xA;)&#xD;&#xA;" />
+    <ItemGroup>
+      <IKapRuntimeOutput Include="$(TargetDir)IKapCDotNet2.dll" Condition="Exists('$(TargetDir)IKapCDotNet2.dll')" />
+      <IKapRuntimeOutput Include="$(TargetDir)IKapBoardDotNet2.dll" Condition="Exists('$(TargetDir)IKapBoardDotNet2.dll')" />
+      <IKapRuntimeOutput Include="$(TargetDir)IKapC.dll" Condition="Exists('$(TargetDir)IKapC.dll')" />
+      <IKapRuntimeOutput Include="$(TargetDir)IKapBoard.dll" Condition="Exists('$(TargetDir)IKapBoard.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(IKapRuntimeOutput)" DestinationFolder="$(SolutionDir)\OutputExe\$(Configuration)\net8.0-windows\Modules\" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

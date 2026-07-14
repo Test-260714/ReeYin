@@ -1,0 +1,17 @@
+<UserControl x:Class="ALGO.LineScanSheetCounter.Views.LineScanSheetCounterPreviewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:halconPreview="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             x:Name="Root"
+             Loaded="PreviewControl_Loaded"
+             Unloaded="PreviewControl_Unloaded">
+    <Border Height="500"
+            Margin="5"
+            Background="#1F1F1F"
+            CornerRadius="4"
+            ClipToBounds="True">
+        <halconPreview:VMHWindowControl x:Name="HalconPreview"
+                                        IsStatusBarVisible="True"
+                                        IsShapeDrawingEnabled="False"/>
+    </Border>
+</UserControl>

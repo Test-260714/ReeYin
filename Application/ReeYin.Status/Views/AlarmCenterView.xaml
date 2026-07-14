@@ -1,0 +1,160 @@
+<UserControl x:Class="ReeYin.Status.Views.AlarmCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1180">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UnLoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <UniformGrid Grid.Row="0" Columns="4" Margin="0,0,0,12">
+            <Border Margin="4" Padding="12" Background="#FFF5F7FA" BorderBrush="#FFE0E6ED" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="活动报警" FontSize="13" Foreground="#FF667085" />
+                    <TextBlock Text="{Binding Overview.ActiveCount}" FontSize="28" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Margin="4" Padding="12" Background="#FFFFF7ED" BorderBrush="#FFFED7AA" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="未确认" FontSize="13" Foreground="#FF9A6700" />
+                    <TextBlock Text="{Binding Overview.UnacknowledgedCount}" FontSize="28" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Margin="4" Padding="12" Background="#FFFEF3F2" BorderBrush="#FFFECDCA" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="阻塞报警" FontSize="13" Foreground="#FFB42318" />
+                    <TextBlock Text="{Binding Overview.BlockingCount}" FontSize="28" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Margin="4" Padding="12" Background="#FFF0FDF4" BorderBrush="#FFD1FADF" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="Shelve 中" FontSize="13" Foreground="#FF027A48" />
+                    <TextBlock Text="{Binding Overview.ShelvedCount}" FontSize="28" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <DockPanel Grid.Row="1" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                <Button Content="刷新" Command="{Binding RefreshCommand}" Margin="0,0,8,0" Padding="16,6" />
+                <Button Content="确认选中" Command="{Binding AckSelectedCommand}" Margin="0,0,8,0" Padding="16,6" />
+                <Button Content="清除选中" Command="{Binding ClearSelectedCommand}" Margin="0,0,8,0" Padding="16,6" />
+                <Button Content="Shelve 10 分钟" Command="{Binding ShelveSelectedCommand}" Margin="0,0,8,0" Padding="16,6" />
+                <Button Content="保存配置" Command="{Binding SaveConfigCommand}" Padding="16,6" />
+            </StackPanel>
+            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding StatusMessage}" Foreground="#FF475467" TextWrapping="Wrap" />
+        </DockPanel>
+
+        <WxGroupBox:WxGroupBox Grid.Row="2" Header="报警中心">
+            <TabControl>
+                <TabItem Header="实时报警">
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding ActiveAlarms}" SelectedItem="{Binding SelectedActiveAlarm}"
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" EnableRowVirtualization="True"
+                              EnableColumnVirtualization="True" VirtualizingPanel.IsVirtualizing="True" RowHeaderWidth="20"
+                              GridLinesVisibility="None" Margin="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="时间" Binding="{Binding LastRaisedAt, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="180" />
+                            <DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="90" />
+                            <DataGridTextColumn Header="编码" Binding="{Binding Code}" Width="120" />
+                            <DataGridTextColumn Header="来源" Binding="{Binding SourceName}" Width="120" />
+                            <DataGridTextColumn Header="位置" Binding="{Binding Location}" Width="120" />
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="180" />
+                            <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="90" />
+                            <DataGridCheckBoxColumn Header="阻塞" Binding="{Binding IsBlocking}" Width="70" />
+                            <DataGridCheckBoxColumn Header="已确认" Binding="{Binding IsAcknowledged}" Width="80" />
+                            <DataGridCheckBoxColumn Header="Shelved" Binding="{Binding IsShelved}" Width="80" />
+                            <DataGridTextColumn Header="次数" Binding="{Binding OccurrenceCount}" Width="70" />
+                            <DataGridTextColumn Header="持续时长" Binding="{Binding CurrentDuration}" Width="120" />
+                            <DataGridTextColumn Header="信息" Binding="{Binding Message}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="历史记录">
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding RecentHistory}" CanUserAddRows="False" CanUserDeleteRows="False"
+                              IsReadOnly="True" EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                              VirtualizingPanel.IsVirtualizing="True" RowHeaderWidth="20" GridLinesVisibility="None" Margin="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="触发时间" Binding="{Binding RaisedAt, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="180" />
+                            <DataGridTextColumn Header="清除时间" Binding="{Binding ClearedAt, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="180" />
+                            <DataGridTextColumn Header="编码" Binding="{Binding Code}" Width="120" />
+                            <DataGridTextColumn Header="来源" Binding="{Binding SourceName}" Width="120" />
+                            <DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="90" />
+                            <DataGridTextColumn Header="阻塞策略" Binding="{Binding BlockingMode}" Width="100" />
+                            <DataGridTextColumn Header="持续时长" Binding="{Binding Duration}" Width="120" />
+                            <DataGridTextColumn Header="MTTR" Binding="{Binding MeanTimeToRepair}" Width="120" />
+                            <DataGridTextColumn Header="次数" Binding="{Binding OccurrenceCount}" Width="70" />
+                            <DataGridTextColumn Header="信息" Binding="{Binding Message}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="统计分析">
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Statistics}" CanUserAddRows="False" CanUserDeleteRows="False"
+                              IsReadOnly="True" EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                              VirtualizingPanel.IsVirtualizing="True" RowHeaderWidth="20" GridLinesVisibility="None" Margin="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="编码" Binding="{Binding Code}" Width="120" />
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="180" />
+                            <DataGridTextColumn Header="来源" Binding="{Binding SourceName}" Width="120" />
+                            <DataGridTextColumn Header="频次" Binding="{Binding Frequency}" Width="70" />
+                            <DataGridTextColumn Header="阻塞次数" Binding="{Binding BlockingCount}" Width="90" />
+                            <DataGridTextColumn Header="未确认次数" Binding="{Binding UnacknowledgedCount}" Width="100" />
+                            <DataGridTextColumn Header="总持续时长" Binding="{Binding TotalDuration}" Width="120" />
+                            <DataGridTextColumn Header="平均时长" Binding="{Binding AverageDuration}" Width="120" />
+                            <DataGridTextColumn Header="MTTR" Binding="{Binding MeanTimeToRepair}" Width="120" />
+                            <DataGridTextColumn Header="最近触发" Binding="{Binding LastRaisedAt, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="180" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="报警配置">
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Definitions}" SelectedItem="{Binding SelectedDefinition}"
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" EnableRowVirtualization="True"
+                              EnableColumnVirtualization="True" VirtualizingPanel.IsVirtualizing="True" RowHeaderWidth="20"
+                              GridLinesVisibility="None" Margin="8">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="启用" Binding="{Binding IsEnabled}" Width="60" />
+                            <DataGridTextColumn Header="编码" Binding="{Binding Code, UpdateSourceTrigger=PropertyChanged}" Width="120" />
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="180" />
+                            <DataGridTextColumn Header="来源类型" Binding="{Binding SourceKind, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridTextColumn Header="触发方式" Binding="{Binding TriggerMode, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridTextColumn Header="严重等级" Binding="{Binding Severity, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridTextColumn Header="阻塞策略" Binding="{Binding BlockingMode, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridTextColumn Header="确认策略" Binding="{Binding AckPolicy, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridCheckBoxColumn Header="允许手动清除" Binding="{Binding AllowManualClear}" Width="100" />
+                            <DataGridTextColumn Header="延迟触发" Binding="{Binding Strategy.RaiseDelay, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridTextColumn Header="去抖" Binding="{Binding Strategy.RaiseDebounce, UpdateSourceTrigger=PropertyChanged}" Width="90" />
+                            <DataGridTextColumn Header="恢复去抖" Binding="{Binding Strategy.ClearDebounce, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridCheckBoxColumn Header="自动恢复" Binding="{Binding Strategy.AutoRecover}" Width="80" />
+                            <DataGridCheckBoxColumn Header="重复合并" Binding="{Binding Strategy.MergeRepeatedRaises}" Width="80" />
+                            <DataGridTextColumn Header="重复窗口" Binding="{Binding Strategy.RepeatMergeWindow, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                            <DataGridTextColumn Header="描述" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+        </WxGroupBox:WxGroupBox>
+
+        <TextBlock Grid.Row="3" Margin="0,8,0,0" Foreground="#FF667085"
+                   Text="当前页面只提供报警中心骨架。具体 PLC / 相机 / 传感器 / 软件报警源实现、通知通道和历史存储可在后续继承 AlarmServiceBase / AlarmSourceBase 后接入。" />
+    </Grid>
+</UserControl>

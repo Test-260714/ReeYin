@@ -1,0 +1,331 @@
+<UserControl x:Class="ReeYin_V.NodifySolution.Views.NodifySolutionManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ReeYin_V.NodifySolution.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:Controls="clr-namespace:ReeYin_V.UI.Controls;assembly=ReeYin_V.UI"
+             xmlns:behaviors="clr-namespace:ReeYin_V.UI.Helper;assembly=ReeYin_V.UI"
+             xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" FontSize="14"
+             Height="700" Width="1100"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部标题栏 -->
+        <Border Grid.Row="0" Background="{DynamicResource TitleBarBrush}" BorderBrush="#E0E0E0" BorderThickness="0 0 0 1" Padding="15 12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 标题区域 -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="方案管理" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource TitleForegroundBrush}"/>
+                    <TextBlock Text="/" Margin="10 0" Foreground="{DynamicResource TitleForegroundBrush}" Opacity="0.65" FontSize="16"/>
+                    <TextBlock Text="解决方案列表" FontSize="16" Foreground="{DynamicResource TitleForegroundBrush}" Opacity="0.85"/>
+                </StackPanel>
+
+                <!-- 操作按钮区域 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="操作：" VerticalAlignment="Center" Margin="0 0 10 0" Foreground="{DynamicResource TitleForegroundBrush}" FontWeight="Medium"/>
+                    <Button Content="&#xe630;" Width="36" Height="32" FontSize="16"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Background="#4CAF50"
+                            Foreground="White"
+                            FontFamily="{StaticResource Iconfont}"
+                            BorderBrush="#4CAF50"
+                            ToolTip="添加新方案"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="添加新解决方案"
+                            Margin="0 0 8 0"/>
+                    <Button Content="&#xe74b;" Width="36" Height="32" FontSize="16"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Background="#F44336"
+                            Foreground="White"
+                            FontFamily="{StaticResource Iconfont}"
+                            BorderBrush="#F44336"
+                            ToolTip="删除选中方案"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="删除选中方案"
+                            Margin="0 0 8 0"/>
+                    <Button Content="&#xe60c;" Width="36" Height="32" FontSize="16"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Background="#FF9800"
+                            Foreground="White"
+                            FontFamily="{StaticResource Iconfont}"
+                            BorderBrush="#FF9800"
+                            ToolTip="设为默认启动"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="设为默认启动"
+                            Margin="0 0 8 0"/>
+                    <Button Content="&#xe64c;" Width="36" Height="32" FontSize="16"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Background="#9C27B0"
+                            Foreground="White"
+                            FontFamily="{StaticResource Iconfont}"
+                            BorderBrush="#9C27B0"
+                            ToolTip="还原备份"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="还原备份"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 主内容区域 -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.65*" MinWidth="400"/>
+                <ColumnDefinition Width="6"/>
+                <ColumnDefinition Width="0.35*" MinWidth="280"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧：方案列表 -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                <DataGrid AutoGenerateColumns="False"
+                          x:Name="dg"
+                          Style="{StaticResource DefaultDataGridStyle}"
+                          EnableColumnVirtualization="True"
+                          EnableRowVirtualization="False"
+                          behaviors:DataGridRowNumberBehavior.Enable="True"
+                          behaviors:DataGridRowNumberBehavior.Header="序号"
+                          behaviors:DataGridRowNumberBehavior.Width="60"
+                          behaviors:DataGridRowNumberBehavior.StartIndex="1"
+                          behaviors:DataGridRowNumberBehavior.Format="{}{0}"
+                          behaviors:DataGridRowNumberBehavior.Freeze="True"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          ItemsSource="{Binding ModelParam.SolutionItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedItem="{Binding SltCurSolutionItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          FontSize="12"
+                          RowHeaderWidth="0"
+                          SelectionUnit="FullRow"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="All"
+                          IsReadOnly="True"
+                          CanUserAddRows="False">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDoubleClick">
+                            <i:InvokeCommandAction Command="{Binding GeneralCommand}" CommandParameter="打开"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="140" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="路径" Binding="{Binding FilePath}" Width="*" IsReadOnly="True">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="ToolTip" Value="{Binding FilePath}"/>
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    <Setter Property="Padding" Value="5 0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="修改时间" Binding="{Binding ModifyTime, StringFormat=yyyy-MM-dd HH:mm}" Width="140" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- 分隔符 -->
+            <GridSplitter Grid.Column="1"
+                          Width="6"
+                          Background="#E0E0E0"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Cursor="SizeWE"/>
+
+            <!-- 右侧：方案详情 -->
+            <Border Grid.Column="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Padding="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 详情标题 -->
+                    <TextBlock Grid.Row="0" Text="方案详情" FontSize="16" FontWeight="SemiBold" Foreground="#333333" Margin="0 0 0 15"/>
+
+                    <!-- 详情内容 -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- 名称 -->
+                            <TextBlock Text="名称" Foreground="#888888" FontSize="12" Margin="0 0 0 4"/>
+                            <TextBox Text="{Binding SltCurSolutionItem.Name, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="14"
+                                     Padding="8 6"
+                                     BorderBrush="#DDDDDD"
+                                     BorderThickness="1"
+                                     Margin="0 0 0 12"/>
+
+                            <!-- 标识符 -->
+                            <TextBlock Text="标识符 (GUID)" Foreground="#888888" FontSize="12" Margin="0 0 0 4"/>
+                            <TextBox Text="{Binding SltCurSolutionItem.Guid, Mode=OneWay}"
+                                     FontSize="12"
+                                     Padding="8 6"
+                                     BorderBrush="#DDDDDD"
+                                     BorderThickness="1"
+                                     IsReadOnly="True"
+                                     Foreground="#999999"
+                                     Background="#FAFAFA"
+                                     Margin="0 0 0 12"/>
+
+                            <!-- 路径 -->
+                            <TextBlock Text="文件路径" Foreground="#888888" FontSize="12" Margin="0 0 0 4"/>
+                            <Grid Margin="0 0 0 12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding SltCurSolutionItem.FilePath, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="{Binding SltCurSolutionItem.FilePath}"
+                                         FontSize="13"
+                                         Padding="8 6"
+                                         BorderBrush="#DDDDDD"
+                                         BorderThickness="1"
+                                         IsReadOnly="True"
+                                         Background="#FAFAFA"/>
+                                <Button Grid.Column="1"
+                                        Content="选择"
+                                        Width="60" Height="30"
+                                        FontSize="12"
+                                        Style="{StaticResource GeneralButtonStyle}"
+                                        Background="#2196F3"
+                                        Foreground="White"
+                                        BorderBrush="#2196F3"
+                                        Cursor="Hand"
+                                        Margin="6 0 0 0"
+                                        Command="{Binding GeneralCommand}"
+                                        CommandParameter="选择路径"/>
+                            </Grid>
+
+                            <!-- 修改时间 -->
+                            <TextBlock Text="修改时间" Foreground="#888888" FontSize="12" Margin="0 0 0 4"/>
+                            <TextBox Text="{Binding SltCurSolutionItem.ModifyTime, StringFormat=yyyy-MM-dd HH:mm:ss, Mode=OneWay}"
+                                     FontSize="13"
+                                     Padding="8 6"
+                                     BorderBrush="#DDDDDD"
+                                     BorderThickness="1"
+                                     IsReadOnly="True"
+                                     Foreground="#999999"
+                                     Background="#FAFAFA"
+                                     Margin="0 0 0 12"/>
+
+                            <!-- 描述 -->
+                            <TextBlock Text="描述" Foreground="#888888" FontSize="12" Margin="0 0 0 4"/>
+                            <TextBox Text="{Binding SltCurSolutionItem.Description, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="13"
+                                     Padding="8 6"
+                                     BorderBrush="#DDDDDD"
+                                     BorderThickness="1"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     Height="100"
+                                     VerticalScrollBarVisibility="Auto"
+                                     Margin="0 0 0 12"/>
+
+                            <!-- 默认启动状态 -->
+                            <Border Background="#F0F7FF" BorderBrush="#BBDEFB" BorderThickness="1" CornerRadius="4" Padding="10 8" Margin="0 0 0 12">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="默认启动：" Foreground="#666666" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IsCurrentDefault}" FontSize="13" VerticalAlignment="Center" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCurrentDefault}" Value="是">
+                                                        <Setter Property="Foreground" Value="#4CAF50"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsCurrentDefault}" Value="否">
+                                                        <Setter Property="Foreground" Value="#999999"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- 打开方案按钮 -->
+                    <Button Grid.Row="2"
+                            Content="打开此方案"
+                            Height="38"
+                            FontSize="14"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Background="#2196F3"
+                            Foreground="White"
+                            BorderBrush="#2196F3"
+                            Cursor="Hand"
+                            Margin="0 10 0 0"
+                            Command="{Binding GeneralCommand}"
+                            CommandParameter="打开"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部操作栏 -->
+        <Border Grid.Row="2" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="0 1 0 0" Padding="15 10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 状态信息区域 -->
+                <StackPanel HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                    <TextBlock Text="就绪" Foreground="#666666" FontSize="13" VerticalAlignment="Center"/>
+                    <TextBlock Text="  |  " Foreground="#CCCCCC" Margin="10 0"/>
+                    <TextBlock Foreground="#666666" FontSize="13" VerticalAlignment="Center">
+                        <Run Text="方案数量："/>
+                        <Run Text="{Binding ModelParam.SolutionItems.Count, Mode=OneWay}" FontWeight="SemiBold"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- 操作按钮 -->
+                <StackPanel Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                    <Button Command="{Binding GeneralCommand}"
+                            Height="36"
+                            Width="100"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Content="取消"
+                            CommandParameter="取消"
+                            Background="White"
+                            BorderBrush="#CCCCCC"
+                            Foreground="#666666"
+                            Cursor="Hand"
+                            Margin="0 0 10 0"/>
+                    <Button Command="{Binding GeneralCommand}"
+                            Style="{StaticResource GeneralButtonStyle}"
+                            Height="36"
+                            Width="100"
+                            Content="确认"
+                            CommandParameter="确认"
+                            Background="#2196F3"
+                            BorderBrush="#2196F3"
+                            Foreground="White"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

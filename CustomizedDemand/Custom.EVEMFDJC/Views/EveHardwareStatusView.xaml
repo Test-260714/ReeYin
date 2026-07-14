@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="Custom.EVEMFDJC.Views.EveHardwareStatusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Custom.EVEMFDJC.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="200"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding Unloaded}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <WxGroupBox:WxGroupBox Header="硬件状态信息" >
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="传感器状态  " TextWrapping="Wrap" FontSize="12"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <WxLED:WxLED Width="25" Height="25" Margin="10" IsActive="{Binding ModelParam.SensorStatus,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="PLC状态  " TextWrapping="Wrap" FontSize="12"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <WxLED:WxLED Width="25" Height="25" Margin="10" IsActive="{Binding ModelParam.PlcStatus,UpdateSourceTrigger=PropertyChanged}" IsBreathing="True" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="设备状态  " TextWrapping="Wrap" FontSize="12"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox Width="30" Height="25" Margin="10" Text="{Binding ModelParam.DeviceStatus,UpdateSourceTrigger=PropertyChanged}"  IsReadOnly="True" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </Grid>
+    </WxGroupBox:WxGroupBox>
+</UserControl>

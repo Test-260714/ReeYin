@@ -1,0 +1,305 @@
+<UserControl x:Class="ReeYin_V.Hardware.ControlCard.ZMotion.CustomUI.Views.ZMotionCustomView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
+             xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True" 
+             FontSize="14"
+             Height="750" Width="1100"
+             d:DesignWidth="1100" d:DesignHeight="750">
+    
+    <UserControl.Resources>
+        <!-- 空资源，TabItem 直接使用外部样式 -->
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="180"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- 左侧：连接和基础设置 -->
+            <StackPanel Grid.Column="0" Margin="5">
+                <!-- 连接配置 -->
+                <WxGroupBox:WxGroupBox Header="连接配置" FontSize="12">
+                    <StackPanel Margin="5">
+                        <TextBox hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="IP地址：" 
+                                 Style="{DynamicResource TextBoxExtend}" hc:InfoElement.TitleWidth="80"
+                                 Text="{Binding ModelParam.IpAddress}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,5">
+                            <Button Content="连接" Width="70" Height="30" Margin="0,0,10,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="连接"/>
+                            <Button Content="断开" Width="70" Height="30" Margin="0,0,10,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="断开"/>
+                            <Button Content="参数设置" Width="80" Height="30"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="参数设置"
+                                    ToolTip="打开完整参数设置界面"/>
+                        </StackPanel>
+                    </StackPanel>
+                </WxGroupBox:WxGroupBox>
+                
+                <!-- 实时状态 -->
+                <WxGroupBox:WxGroupBox Header="实时状态" FontSize="12" Margin="0,5,0,0">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Text="运动状态:" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <WxLED:WxLED Width="18" Height="18" Margin="0,0,8,0"
+                                         IsActive="{Binding ModelParam.IsRunning}" IsBreathing="True"/>
+                            <TextBlock Text="{Binding ModelParam.RunState}" FontWeight="Bold" 
+                                       VerticalAlignment="Center" Foreground="#1976D2" FontSize="13"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="当前位置:" VerticalAlignment="Center" Grid.Row="1" Margin="0,10,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,10,0,0"
+                                   FontWeight="Bold" FontSize="18" Foreground="#388E3C" VerticalAlignment="Center">
+                            <Run Text="{Binding ModelParam.CurrentPosition, StringFormat={}{0:F3}}"/>
+                            <Run Text=" mm" FontSize="12"/>
+                        </TextBlock>
+                        
+                        <TextBlock Text="当前速度:" VerticalAlignment="Center" Grid.Row="2" Margin="0,10,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,10,0,0"
+                                   FontWeight="Bold" FontSize="16" Foreground="#F57C00" VerticalAlignment="Center">
+                            <Run Text="{Binding ModelParam.CurrentSpeed, StringFormat={}{0:F2}}"/>
+                            <Run Text=" mm/s" FontSize="12"/>
+                        </TextBlock>
+                    </Grid>
+                </WxGroupBox:WxGroupBox>
+                
+                <!-- 回零参数 -->
+                <WxGroupBox:WxGroupBox Header="回零参数" FontSize="12" Margin="0,5,0,0">
+                    <StackPanel Margin="5">
+                        <TextBox hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="回零速度：" 
+                                 Style="{DynamicResource TextBoxExtend}" hc:InfoElement.TitleWidth="80"
+                                 Text="{Binding ModelParam.HomeSpeed}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,5">
+                            <Button Content="读取" Width="60" Height="28" Margin="0,0,8,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="读取回零速度"/>
+                            <Button Content="设置" Width="60" Height="28" Margin="0,0,8,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="设置回零速度"/>
+                            <Button Content="执行回零" Width="80" Height="28"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="回零"/>
+                        </StackPanel>
+                    </StackPanel>
+                </WxGroupBox:WxGroupBox>
+            </StackPanel>
+            
+            <GridSplitter Grid.Column="1" Width="3" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch"/>
+            
+            <!-- 右侧：运动控制 -->
+            <TabControl Grid.Column="2" FontSize="16" Style="{DynamicResource TabControlStyle}" Margin="5">
+                <!-- 基本运动 -->
+                <TabItem Header="基本运动" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Jog运动 -->
+                        <WxGroupBox:WxGroupBox Header="Jog运动（点动）" FontSize="12" Margin="0,0,5,5">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="按住按钮进行点动，松开停止" Foreground="Gray" FontSize="11" Margin="0,0,0,10"/>
+                                <UniformGrid Columns="2" Margin="0,10,0,0">
+                                    <Button Content="← 左移" Height="50" Margin="5"
+                                            Style="{DynamicResource GeneralButtonStyle}" FontSize="14"
+                                            PreviewMouseLeftButtonDown="JogLeft_MouseDown"
+                                            PreviewMouseLeftButtonUp="JogLeft_MouseUp"/>
+                                    <Button Content="右移 →" Height="50" Margin="5"
+                                            Style="{DynamicResource GeneralButtonStyle}" FontSize="14"
+                                            PreviewMouseLeftButtonDown="JogRight_MouseDown"
+                                            PreviewMouseLeftButtonUp="JogRight_MouseUp"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </WxGroupBox:WxGroupBox>
+                        
+                        <!-- 定位运动 -->
+                        <WxGroupBox:WxGroupBox Header="定位运动" FontSize="12" Grid.Column="1" Margin="5,0,0,5">
+                            <StackPanel Margin="10">
+                                <TextBox hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="运动速度：" 
+                                         Style="{DynamicResource TextBoxExtend}" hc:InfoElement.TitleWidth="80"
+                                         Text="{Binding ModelParam.MoveSpeed}"/>
+                                <TextBox hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="目标位置：" 
+                                         Style="{DynamicResource TextBoxExtend}" hc:InfoElement.TitleWidth="80"
+                                         Text="{Binding ModelParam.TargetPosition}" Margin="0,5,0,0"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+                                    <Button Content="读取参数" Width="80" Height="32" Margin="0,0,10,0"
+                                            Style="{DynamicResource GeneralButtonStyle}"
+                                            Command="{Binding GeneralCommand}" CommandParameter="读取运动参数"/>
+                                    <Button Content="设置参数" Width="80" Height="32"
+                                            Style="{DynamicResource GeneralButtonStyle}"
+                                            Command="{Binding GeneralCommand}" CommandParameter="设置运动参数"/>
+                                </StackPanel>
+                                <Button Content="执行定位" Height="40" Margin="0,15,0,0"
+                                        Style="{DynamicResource GeneralButtonStyle}" FontSize="14"
+                                        Command="{Binding GeneralCommand}" CommandParameter="定位运动"/>
+                            </StackPanel>
+                        </WxGroupBox:WxGroupBox>
+                        
+                        <!-- 停止控制 -->
+                        <WxGroupBox:WxGroupBox Header="停止控制" FontSize="12" Grid.Row="1" Margin="0,5,5,0">
+                            <StackPanel Margin="10" VerticalAlignment="Center">
+                                <Button Content="停止运动" Height="60" Margin="10"
+                                        Background="#E53935" Foreground="White" FontSize="18" FontWeight="Bold"
+                                        Command="{Binding GeneralCommand}" CommandParameter="停止">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Cursor="Hand">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#C62828"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsPressed" Value="True">
+                                                                <Setter Property="Background" Value="#B71C1C"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </WxGroupBox:WxGroupBox>
+                        
+                        <!-- 预留 -->
+                        <WxGroupBox:WxGroupBox Header="其他功能" FontSize="12" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0">
+                            <StackPanel Margin="10" VerticalAlignment="Center">
+                                <TextBlock Text="更多功能请点击【参数设置】按钮" 
+                                           HorizontalAlignment="Center" Foreground="Gray"/>
+                                <TextBlock Text="进入完整参数设置界面" 
+                                           HorizontalAlignment="Center" Foreground="Gray" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </WxGroupBox:WxGroupBox>
+                    </Grid>
+                </TabItem>
+                
+                <!-- IO控制 -->
+                <TabItem Header="IO控制" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                            <TextBlock Text="编码器速度:" VerticalAlignment="Center" Foreground="#666" Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding ModelParam.EncoderSpeed, StringFormat={}{0:F2}}" VerticalAlignment="Center"
+                                       FontWeight="SemiBold" Foreground="#1976D2" Margin="0,0,4,0"/>
+                            <TextBlock Text="脉冲/s" VerticalAlignment="Center" Foreground="#666" Margin="0,0,16,0"/>
+                            <Button Content="刷新IO" Width="80" Height="30"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Command="{Binding GeneralCommand}" CommandParameter="刷新IO"/>
+                        </StackPanel>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <WxGroupBox:WxGroupBox Header="输入 IN" FontSize="12">
+                                <DataGrid ItemsSource="{Binding ModelParam.InputPoints}"
+                                          AutoGenerateColumns="False"
+                                          HeadersVisibility="Column"
+                                          CanUserAddRows="False"
+                                          IsReadOnly="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="点位" Binding="{Binding Name}" Width="*"/>
+                                        <DataGridTextColumn Header="端口" Binding="{Binding Port}" Width="80"/>
+                                        <DataGridTemplateColumn Header="状态" Width="90">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ToggleButton IsChecked="{Binding State, Mode=OneWay}"
+                                                                  IsEnabled="False"
+                                                                  HorizontalAlignment="Center"
+                                                                  Style="{StaticResource ToggleButtonSwitch}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </WxGroupBox:WxGroupBox>
+
+                            <WxGroupBox:WxGroupBox Grid.Column="2" Header="输出 OUT" FontSize="12">
+                                <DataGrid ItemsSource="{Binding ModelParam.OutputPoints}"
+                                          AutoGenerateColumns="False"
+                                          HeadersVisibility="Column"
+                                          CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="点位" Binding="{Binding Name}" Width="*"/>
+                                        <DataGridTextColumn Header="端口" Binding="{Binding Port}" Width="80"/>
+                                        <DataGridTemplateColumn Header="状态" Width="90">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ToggleButton IsChecked="{Binding State, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  HorizontalAlignment="Center"
+                                                                  Style="{StaticResource ToggleButtonSwitch}"
+                                                                  Command="{Binding DataContext.ToggleOutputCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                  CommandParameter="{Binding}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </WxGroupBox:WxGroupBox>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        
+        <GridSplitter Grid.Row="1" Height="3" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch"/>
+        
+        <!-- 底部：日志区域 -->
+        <WxGroupBox:WxGroupBox Grid.Row="2" Header="操作日志" FontSize="12" Margin="5">
+            <ListBox ItemsSource="{Binding ModelParam.LogMessages}" 
+                     BorderThickness="0" Background="#1E1E1E"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Foreground="#DCDCDC" FontFamily="Consolas" FontSize="11" Margin="2"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </WxGroupBox:WxGroupBox>
+    </Grid>
+</UserControl>

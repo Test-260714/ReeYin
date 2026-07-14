@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ALGO\**\*.cs" />
+    <Compile Remove="Models\**\*.cs" />
+    <Compile Remove="obj\**\*.cs" />
+    <Compile Remove="obj-codex\**\*.cs" />
+    <Compile Remove="Trajectory\**\*.cs" />
+    <Compile Remove="ViewModels\**\*.cs" />
+    <Compile Remove="Views\**\*.cs" />
+    <Page Remove="Trajectory\**\*.xaml" />
+    <Page Remove="Views\**\*.xaml" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(SkipModuleCopy)' != 'true'">
+    <PropertyGroup>
+      <ModuleSolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\</ModuleSolutionDir>
+      <ModuleSolutionDir Condition="'$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</ModuleSolutionDir>
+      <DebugModuleTarget>$(ModuleSolutionDir)OutputExe\Debug\net8.0-windows\Modules\</DebugModuleTarget>
+      <ReleaseModuleTarget>$(ModuleSolutionDir)OutputExe\Release\net8.0-windows\Modules\</ReleaseModuleTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <DebugModuleFiles Include="$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll" Condition="Exists('$(ProjectDir)bin\Debug\net8.0-windows\$(ProjectName).dll')" />
+      <DebugModuleFiles Include="$(ProjectDir)bin\Debug\net8.0-windows\SkiaSharp*.dll" />
+      <DebugModuleFiles Include="$(ProjectDir)bin\Debug\net8.0-windows\System.Drawing.Common.dll" Condition="Exists('$(ProjectDir)bin\Debug\net8.0-windows\System.Drawing.Common.dll')" />
+      <DebugModuleFiles Include="$(ProjectDir)bin\Debug\net8.0-windows\runtimes\win-x64\native\libSkiaSharp.dll" Condition="Exists('$(ProjectDir)bin\Debug\net8.0-windows\runtimes\win-x64\native\libSkiaSharp.dll')" />
+
+      <ReleaseModuleFiles Include="$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll" Condition="Exists('$(ProjectDir)bin\Release\net8.0-windows\$(ProjectName).dll')" />
+      <ReleaseModuleFiles Include="$(ProjectDir)bin\Release\net8.0-windows\SkiaSharp*.dll" />
+      <ReleaseModuleFiles Include="$(ProjectDir)bin\Release\net8.0-windows\System.Drawing.Common.dll" Condition="Exists('$(ProjectDir)bin\Release\net8.0-windows\System.Drawing.Common.dll')" />
+      <ReleaseModuleFiles Include="$(ProjectDir)bin\Release\net8.0-windows\runtimes\win-x64\native\libSkiaSharp.dll" Condition="Exists('$(ProjectDir)bin\Release\net8.0-windows\runtimes\win-x64\native\libSkiaSharp.dll')" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(DebugModuleFiles)"
+          DestinationFolder="$(DebugModuleTarget)"
+          SkipUnchangedFiles="true"
+          Condition="'@(DebugModuleFiles)' != ''" />
+    <Copy SourceFiles="@(ReleaseModuleFiles)"
+          DestinationFolder="$(ReleaseModuleTarget)"
+          SkipUnchangedFiles="true"
+          Condition="'@(ReleaseModuleFiles)' != ''" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
+    <ProjectReference Include="..\..\Core\ReeYin_V.UI\ReeYin_V.UI.csproj" />
+    <ProjectReference Include="..\..\Hardware\ControlCard\ReeYin_V.Hardware.ControlCard\ReeYin_V.Hardware.ControlCard.csproj" />
+    <ProjectReference Include="..\..\Hardware\PLC\ReeYin_V.Hardware.PLC\ReeYin_V.Hardware.PLC.csproj" />
+    <ProjectReference Include="..\..\Hardware\Sensor\ReeYin.Hardware.Sensor\ReeYin.Hardware.Sensor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Arction.DirectX">
+      <HintPath>..\..\packages\LightingChartOld\Arction.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingDefinitions">
+      <HintPath>..\..\packages\LightingChartOld\Arction.RenderingDefinitions.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.Charting.LightningChart">
+      <HintPath>..\..\packages\LightingChartOld\Arction.Wpf.Charting.LightningChart.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.ChartingMVVM.LightningChart">
+      <HintPath>..\..\packages\LightingChartOld\Arction.Wpf.ChartingMVVM.LightningChart.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

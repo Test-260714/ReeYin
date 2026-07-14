@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="Custom.EVEMFDJC.Views.EveAlarmLogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Custom.EVEMFDJC.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="450"
+             xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="0.2*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0">
+            <WxGroupBox:WxGroupBox Header="报警信息" >
+                <DataGrid  AutoGenerateColumns="False" Style="{StaticResource DefaultDataGridStyle}" EnableColumnVirtualization="True" EnableRowVirtualization="False"
+             VirtualizingPanel.IsVirtualizing="True" ItemsSource="{Binding ModelParam.PlcAlarmInformation}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"  FontSize="12"  RowHeaderWidth="20"
+             SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="All" IsReadOnly="False" CanUserAddRows="False"    Height="800">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="序号" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Id, Mode=TwoWay}" ToolTip="{Binding Id}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="触发时间" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                 <TextBox Text="{Binding Triggertime,Mode=TwoWay}" ToolTip="{Binding Triggertime}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="报警信息" IsReadOnly="False" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                    <TextBox Text="{Binding Information,Mode=TwoWay}" ToolTip="{Binding Information}" HorizontalAlignment="Center" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                </DataGrid.Columns>
+            </DataGrid>
+            </WxGroupBox:WxGroupBox>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" FontSize="16" Command="{Binding GeneralCommand}" CommandParameter="开启监听"
+                    Height="30" Width="80" Style="{StaticResource GeneralButtonStyle}" Content="开启监听"
+                          />
+            <Button Grid.Column="1" FontSize="16" Command="{Binding GeneralCommand}" CommandParameter="停止监听"
+                    Height="30" Width="80" Style="{StaticResource GeneralButtonStyle}" Content="停止监听"
+                           />
+            <Button Grid.Column="2" FontSize="16" Command="{Binding GeneralCommand}" CommandParameter="添加报警"
+                    Height="30" Width="80" Style="{StaticResource GeneralButtonStyle}" Content="添加报警"
+                           />
+            <Button Grid.Column="3"  FontSize="16" Command="{Binding GeneralCommand}" CommandParameter="历史信息"
+                           Style="{StaticResource GeneralButtonStyle}" Height="30" Width="80" Content="历史信息"
+                           />
+        </Grid>
+    </Grid>
+</UserControl>

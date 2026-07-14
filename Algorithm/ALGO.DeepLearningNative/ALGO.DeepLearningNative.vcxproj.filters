@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\interface">
+      <UniqueIdentifier>{76812395-f2df-472d-888f-d9f17bdc8c26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{b5abfea6-ee6b-4ef4-b3d9-b0b2bcdda7b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{304d3893-11af-4927-b9b7-aa2b8a22090c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application">
+      <UniqueIdentifier>{04affd56-bd03-4529-afd9-750bed42d169}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine">
+      <UniqueIdentifier>{e46874ec-9238-4de2-8b94-445b16a0e3f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino">
+      <UniqueIdentifier>{eb3b8f70-b31b-48a8-becd-b42e04b88e45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt">
+      <UniqueIdentifier>{10922101-cbec-4feb-be11-61feeadff49c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\openvino">
+      <UniqueIdentifier>{704abdde-834d-40cf-a81a-9f17b892369c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\tensorrt">
+      <UniqueIdentifier>{65c7c020-380e-47cf-960e-050153869fbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\tensorrt\onnxplugin">
+      <UniqueIdentifier>{83bb1e38-11cc-4955-a3af-d15eb9e1a0c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\tensorrt\onnxplugin\plugins">
+      <UniqueIdentifier>{95547098-c47a-4aa5-9b33-dcbe06baa8d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\tensorrt\infer">
+      <UniqueIdentifier>{d06f6678-4abe-47a0-81ea-3d0a45768a83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\tensorrt\common">
+      <UniqueIdentifier>{77db5b1a-27d1-4ba5-ba13-53c88d965a57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\tensorrt\builder">
+      <UniqueIdentifier>{681277b4-c92b-492f-b8f3-0159852af0cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\classification">
+      <UniqueIdentifier>{4e103323-cf18-4a7e-aee8-e20825883a55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\engine\openvino\common">
+      <UniqueIdentifier>{5c0526c4-4758-4a08-ba26-19691ba52dc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common">
+      <UniqueIdentifier>{a40b453e-73e5-4995-a0e1-077d33e9acbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\anomalyDetection">
+      <UniqueIdentifier>{2dd7b0ee-8c4e-4e9a-b46d-b4c945a0e617}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\classification">
+      <UniqueIdentifier>{625bff6c-7562-43af-be3c-54a1fa2c2832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\anomalyDetection">
+      <UniqueIdentifier>{982fa71a-6b61-4ebb-9a72-87995c5e2a0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\classification">
+      <UniqueIdentifier>{a2255638-e2b4-46c5-a1e8-01367037e173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\segmentation">
+      <UniqueIdentifier>{fe3738ef-1752-4cfb-8562-10ccb145c7a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\segmentation">
+      <UniqueIdentifier>{39e93cd3-433b-4a18-a912-75a527b5c3b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\segmentation">
+      <UniqueIdentifier>{e2ee19c1-d192-49ea-b27c-4bcec73fa743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\detectionBbox">
+      <UniqueIdentifier>{9e3505bb-355f-409f-9249-950ee95a4cf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\detectionBbox">
+      <UniqueIdentifier>{c5b74eb6-f321-4340-9d47-33febd31bc59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\detectionSeg">
+      <UniqueIdentifier>{48ea7de4-8b9b-4768-8ab6-7a5982173094}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\detectionBbox">
+      <UniqueIdentifier>{4fb67a9b-0f21-4187-b0fa-54f285c51b07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\detectionSeg">
+      <UniqueIdentifier>{03d6380c-d2c3-4424-a405-80fd5bf1c648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\detectionSeg">
+      <UniqueIdentifier>{5413f9fa-79a0-441a-a130-9524393eb30e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\detectionKpt">
+      <UniqueIdentifier>{4a69403f-2572-48c5-bd3f-c56a0d52eace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\common\detectionObbox">
+      <UniqueIdentifier>{53273173-fea6-4833-8398-6317ca358b55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\detectionObbox">
+      <UniqueIdentifier>{a99cb354-ee4e-430c-9c50-832f6cfa0a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\openvino\detectionKpt">
+      <UniqueIdentifier>{68bece27-66c1-436a-9cc1-abda40a3016b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\detectionKpt">
+      <UniqueIdentifier>{85013efb-c4d3-4d76-99cb-79fc008afd07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\detectionObbox">
+      <UniqueIdentifier>{35163d26-4b7f-4b2b-a227-05b7a26d214d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\application\tensorrt\anomalyDetection">
+      <UniqueIdentifier>{b01fb2b2-7ddf-4bc9-801c-07b7d2d4a0cc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\interface\interface.cpp">
+      <Filter>src\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\ilogger.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\json.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\import_lib.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\tensorrt\onnxplugin\onnxplugin.cpp">
+      <Filter>src\core\engine\tensorrt\onnxplugin</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\tensorrt\onnxplugin\plugin_binary_io.cpp">
+      <Filter>src\core\engine\tensorrt\onnxplugin</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\tensorrt\infer\trt_infer.cpp">
+      <Filter>src\core\engine\tensorrt\infer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\tensorrt\common\cuda_tools.cpp">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\tensorrt\common\trt_tensor.cpp">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\tensorrt\builder\trt_builder.cpp">
+      <Filter>src\core\engine\tensorrt\builder</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\model_factory.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\classification\trt_app_classification.cpp">
+      <Filter>src\core\application\tensorrt\classification</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\classification\trt_classification.cpp">
+      <Filter>src\core\application\tensorrt\classification</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\anomalyDetection\common_anomaly_detection.cpp">
+      <Filter>src\core\application\common\anomalyDetection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\classification\common_classification.cpp">
+      <Filter>src\core\application\common\classification</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\anomalyDetection\ov_app_anomaly_detection.cpp">
+      <Filter>src\core\application\openvino\anomalyDetection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\anomalyDetection\ov_anomaly_detection.cpp">
+      <Filter>src\core\application\openvino\anomalyDetection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\classification\ov_app_classification.cpp">
+      <Filter>src\core\application\openvino\classification</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\classification\ov_classification.cpp">
+      <Filter>src\core\application\openvino\classification</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\segmentation\common_segmentation.cpp">
+      <Filter>src\core\application\common\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\segmentation\trt_app_segmentation.cpp">
+      <Filter>src\core\application\tensorrt\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\segmentation\trt_segmentation.cpp">
+      <Filter>src\core\application\tensorrt\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\segmentation\ov_app_segmentation.cpp">
+      <Filter>src\core\application\openvino\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\segmentation\ov_segmentation.cpp">
+      <Filter>src\core\application\openvino\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\openvino\common\ov_preprocess.cpp">
+      <Filter>src\core\engine\openvino\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionBbox\trt_app_detectionBbox.cpp">
+      <Filter>src\core\application\tensorrt\detectionBbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionBbox\trt_detectionBbox.cpp">
+      <Filter>src\core\application\tensorrt\detectionBbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionBbox\ov_app_detectionBbox.cpp">
+      <Filter>src\core\application\openvino\detectionBbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionBbox\ov_detectionBbox.cpp">
+      <Filter>src\core\application\openvino\detectionBbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionSeg\trt_app_detectionSeg.cpp">
+      <Filter>src\core\application\tensorrt\detectionSeg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionSeg\trt_detectionSeg.cpp">
+      <Filter>src\core\application\tensorrt\detectionSeg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\detectionBbox\common_detectionBbox.cpp">
+      <Filter>src\core\application\common\detectionBbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\detectionSeg\common_detectionSeg.cpp">
+      <Filter>src\core\application\common\detectionSeg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionSeg\ov_app_detectionSeg.cpp">
+      <Filter>src\core\application\openvino\detectionSeg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionSeg\ov_detectionSeg.cpp">
+      <Filter>src\core\application\openvino\detectionSeg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\detectionKpt\common_detectionKpt.cpp">
+      <Filter>src\core\application\common\detectionKpt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\detectionObbox\common_detectionObbox.cpp">
+      <Filter>src\core\application\common\detectionObbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionObbox\ov_app_detectionObbox.cpp">
+      <Filter>src\core\application\openvino\detectionObbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionObbox\ov_detectionObbox.cpp">
+      <Filter>src\core\application\openvino\detectionObbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionKpt\ov_app_detectionKpt.cpp">
+      <Filter>src\core\application\openvino\detectionKpt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\openvino\detectionKpt\ov_detectionKpt.cpp">
+      <Filter>src\core\application\openvino\detectionKpt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionKpt\trt_app_detectionKpt.cpp">
+      <Filter>src\core\application\tensorrt\detectionKpt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionKpt\trt_detectionKpt.cpp">
+      <Filter>src\core\application\tensorrt\detectionKpt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionObbox\trt_app_detectionObbox.cpp">
+      <Filter>src\core\application\tensorrt\detectionObbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\detectionObbox\trt_detectionObbox.cpp">
+      <Filter>src\core\application\tensorrt\detectionObbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\anomalyDetection\trt_app_anomaly_detection.cpp">
+      <Filter>src\core\application\tensorrt\anomalyDetection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\tensorrt\anomalyDetection\trt_anomaly_detection.cpp">
+      <Filter>src\core\application\tensorrt\anomalyDetection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\application\common\utils.cpp">
+      <Filter>src\core\application\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\engine\openvino\common\ov_model_loader.cpp">
+      <Filter>src\core\engine\openvino\common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\framework.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interface\interface.h">
+      <Filter>src\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ilogger.hpp">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\json.hpp">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\onnxplugin\onnxplugin.hpp">
+      <Filter>src\core\engine\tensorrt\onnxplugin</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\onnxplugin\plugin_binary_io.hpp">
+      <Filter>src\core\engine\tensorrt\onnxplugin</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\infer\trt_infer.hpp">
+      <Filter>src\core\engine\tensorrt\infer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\common\cuda_tools.hpp">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\common\preprocess_kernel.cuh">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\common\trt_tensor.hpp">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\builder\trt_builder.hpp">
+      <Filter>src\core\engine\tensorrt\builder</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\model_factory.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\model_base.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\classification\trt_app_classification.h">
+      <Filter>src\core\application\tensorrt\classification</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\classification\trt_classification.h">
+      <Filter>src\core\application\tensorrt\classification</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\monopoly_allocator.hpp">
+      <Filter>src\core\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\classification\common_classification.h">
+      <Filter>src\core\application\common\classification</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\classification\ov_app_classification.h">
+      <Filter>src\core\application\openvino\classification</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\classification\ov_classification.h">
+      <Filter>src\core\application\openvino\classification</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\tensorrt\common\trt_infer_controller.hpp">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\openvino\common\ov_infer_controller.hpp">
+      <Filter>src\core\engine\openvino\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\segmentation\common_segmentation.h">
+      <Filter>src\core\application\common\segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\anomalyDetection\common_anomaly_detection.h">
+      <Filter>src\core\application\common\anomalyDetection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\segmentation\trt_app_segmentation.h">
+      <Filter>src\core\application\tensorrt\segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\segmentation\trt_segmentation.h">
+      <Filter>src\core\application\tensorrt\segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\segmentation\ov_app_segmentation.h">
+      <Filter>src\core\application\openvino\segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\segmentation\ov_segmentation.h">
+      <Filter>src\core\application\openvino\segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\anomalyDetection\ov_app_anomaly_detection.h">
+      <Filter>src\core\application\openvino\anomalyDetection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\anomalyDetection\ov_anomaly_detection.h">
+      <Filter>src\core\application\openvino\anomalyDetection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\openvino\common\ov_preprocess.h">
+      <Filter>src\core\engine\openvino\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionBbox\trt_app_detectionBbox.h">
+      <Filter>src\core\application\tensorrt\detectionBbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionBbox\trt_detectionBbox.h">
+      <Filter>src\core\application\tensorrt\detectionBbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionBbox\ov_app_detectionBbox.h">
+      <Filter>src\core\application\openvino\detectionBbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionBbox\ov_detectionBbox.h">
+      <Filter>src\core\application\openvino\detectionBbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionSeg\trt_app_detectionSeg.h">
+      <Filter>src\core\application\tensorrt\detectionSeg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionSeg\trt_detectionSeg.h">
+      <Filter>src\core\application\tensorrt\detectionSeg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\detectionBbox\common_detectionBbox.h">
+      <Filter>src\core\application\common\detectionBbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\detectionSeg\common_detectionSeg.h">
+      <Filter>src\core\application\common\detectionSeg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionSeg\ov_app_detectionSeg.h">
+      <Filter>src\core\application\openvino\detectionSeg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionSeg\ov_detectionSeg.h">
+      <Filter>src\core\application\openvino\detectionSeg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\detectionKpt\common_detectionKpt.h">
+      <Filter>src\core\application\common\detectionKpt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\detectionObbox\common_detectionObbox.h">
+      <Filter>src\core\application\common\detectionObbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionObbox\ov_app_detectionObbox.h">
+      <Filter>src\core\application\openvino\detectionObbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionObbox\ov_detectionObbox.h">
+      <Filter>src\core\application\openvino\detectionObbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionKpt\ov_app_detectionKpt.h">
+      <Filter>src\core\application\openvino\detectionKpt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\openvino\detectionKpt\ov_detectionKpt.h">
+      <Filter>src\core\application\openvino\detectionKpt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionKpt\trt_app_detectionKpt.h">
+      <Filter>src\core\application\tensorrt\detectionKpt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionKpt\trt_detectionKpt.h">
+      <Filter>src\core\application\tensorrt\detectionKpt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionObbox\trt_app_detectionObbox.h">
+      <Filter>src\core\application\tensorrt\detectionObbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\detectionObbox\trt_detectionObbox.h">
+      <Filter>src\core\application\tensorrt\detectionObbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\anomalyDetection\trt_app_anomaly_detection.h">
+      <Filter>src\core\application\tensorrt\anomalyDetection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\tensorrt\anomalyDetection\trt_anomaly_detection.h">
+      <Filter>src\core\application\tensorrt\anomalyDetection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\application\common\utils.h">
+      <Filter>src\core\application\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\engine\openvino\common\ov_model_loader.h">
+      <Filter>src\core\engine\openvino\common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\core\engine\tensorrt\common\preprocess_kernel.cu">
+      <Filter>src\core\engine\tensorrt\common</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\application\tensorrt\segmentation\trt_segmentation.cu">
+      <Filter>src\core\application\tensorrt\segmentation</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\application\tensorrt\detectionBbox\trt_detectionBbox.cu">
+      <Filter>src\core\application\tensorrt\detectionBbox</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\application\tensorrt\detectionSeg\trt_detectionSeg.cu">
+      <Filter>src\core\application\tensorrt\detectionSeg</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\application\tensorrt\detectionKpt\trt_detectionKpt.cu">
+      <Filter>src\core\application\tensorrt\detectionKpt</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\application\tensorrt\detectionObbox\trt_detectionObbox.cu">
+      <Filter>src\core\application\tensorrt\detectionObbox</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>

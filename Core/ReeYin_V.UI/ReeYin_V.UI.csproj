@@ -1,0 +1,98 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <BaseOutputPath>..\OutputExe</BaseOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="bin\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <None Remove="bin\**" />
+    <Page Remove="bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="UserControls\GrayAndHeightChartView.xaml.cs" />
+    <Compile Remove="UserControls\GrayChartView.xaml.cs" />
+    <Compile Remove="UserControls\PointCloudDisplay\Models\PointCloudDisplayModel.Fixed.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Font\FontAwesome.otf" />
+    <None Remove="Font\iconfont.ttf" />
+    <None Remove="Icon\login_bg.png" />
+    <None Remove="Icon\login_card.png" />
+    <None Remove="Icon\login_logo.png" />
+    <None Remove="Icon\main_logo_dark.png" />
+    <None Remove="Icon\main_logo_light.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HandyControl" Version="3.5.1" />
+    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Font\FontAwesome.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Font\iconfont.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icon\login_bg.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icon\login_card.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icon\login_logo.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icon\main_logo_dark.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icon\main_logo_light.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReeYin-V.Core\ReeYin_V.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Arction.DirectX">
+      <HintPath>..\..\packages\LightingChartOld\Arction.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingDefinitions">
+      <HintPath>..\..\packages\LightingChartOld\Arction.RenderingDefinitions.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.Charting.LightningChart">
+      <HintPath>..\..\packages\LightingChartOld\Arction.Wpf.Charting.LightningChart.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.ChartingMVVM.LightningChart">
+      <HintPath>..\..\packages\LightingChartOld\Arction.Wpf.ChartingMVVM.LightningChart.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Style\Dialogs\SingleInstanceDialogWindowView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Style\Dialogs\Views\MessageView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="UserControls\PointCloudDisplay\Views\" />
+    <Folder Include="UserControls\PointCloudDisplay\Models\" />
+    <Folder Include="UserControls\PointCloudDisplay\ViewModels\" />
+  </ItemGroup>
+
+</Project>
