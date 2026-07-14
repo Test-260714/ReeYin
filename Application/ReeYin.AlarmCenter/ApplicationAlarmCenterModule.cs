@@ -23,7 +23,7 @@ namespace ReeYin.AlarmCenter
             containerRegistry.RegisterForNavigation<AlarmHistoryView>();
             containerRegistry.RegisterForNavigation<AlarmStatisticsView>();
             containerRegistry.RegisterForNavigation<AlarmDefinitionsView>();
-
+            
             containerRegistry.RegisterDialogAndDynamic<AlarmWorkbenchShellView>(null, new DynamicView
             {
                 Type = DynamicViewType.General,
