@@ -27,6 +27,8 @@ namespace Custom.DefectOverview.Models
 
         public string FrameIdText { get; init; } = string.Empty;
 
+        public long CycleId { get; init; }
+
         public DateTime CreatedUtc { get; init; } = DateTime.UtcNow;
 
         public DefectOverviewFrameLayout FrameLayout { get; init; } = DefectOverviewFrameLayout.DualPath;

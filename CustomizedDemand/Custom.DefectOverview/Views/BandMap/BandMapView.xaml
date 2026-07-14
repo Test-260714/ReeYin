@@ -25,6 +25,8 @@
         </Style>
 
         <Style x:Key="GroupContentCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="BorderBrush" Value="#B7C4D0"/>
+            <Setter Property="BorderThickness" Value="1.25"/>
             <Setter Property="CornerRadius" Value="0,0,10,10"/>
         </Style>
 
@@ -49,9 +51,9 @@
         </Style>
 
         <Style x:Key="ModuleButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#C69300"/>
+            <Setter Property="Background" Value="#34414C"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#B88300"/>
+            <Setter Property="BorderBrush" Value="#6E7E8E"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -73,11 +75,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#B88300"/>
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#9D7000"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#2D3843"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#8A98A7"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#9D7000"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#26313B"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
@@ -89,9 +91,9 @@
         </Style>
 
         <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ModuleButtonStyle}">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#8A6100"/>
-            <Setter Property="BorderBrush" Value="#D4A938"/>
+            <Setter Property="Background" Value="#F6F8FA"/>
+            <Setter Property="Foreground" Value="#2F3B46"/>
+            <Setter Property="BorderBrush" Value="#C8D3DD"/>
             <Setter Property="MinWidth" Value="86"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -107,11 +109,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#FFF7D6"/>
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#C69300"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#E9EFF5"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#98A8B7"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#F7E6B2"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#DDE6EE"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
@@ -123,26 +125,131 @@
         </Style>
 
         <Style x:Key="PointModeComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="25"/>
-            <Setter Property="Width" Value="86"/>
-            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Width" Value="84"/>
+            <Setter Property="FontSize" Value="11.3"/>
+            <Setter Property="Foreground" Value="#2F3B46"/>
+            <Setter Property="Background" Value="#F6F8FA"/>
+            <Setter Property="BorderBrush" Value="#C8D3DD"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Height" Value="24"/>
+                        <Setter Property="Padding" Value="8,2"/>
+                        <Setter Property="FontSize" Value="11.3"/>
+                        <Setter Property="Foreground" Value="#2F3B46"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="ItemBorder"
+                                            Background="Transparent"
+                                            CornerRadius="4"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#E9EFF5"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#DFE8F0"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="ComboBorder"
+                                                Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                CornerRadius="6">
+                                            <Grid>
+                                                <ContentPresenter Margin="8,0,24,0"
+                                                                  HorizontalAlignment="Left"
+                                                                  VerticalAlignment="Center"
+                                                                  Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  ContentTemplate="{Binding SelectionBoxItemTemplate, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  ContentStringFormat="{Binding SelectionBoxItemStringFormat, RelativeSource={RelativeSource AncestorType=ComboBox}}"/>
+                                                <Path Width="8"
+                                                      Height="4"
+                                                      Margin="0,0,8,0"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center"
+                                                      Fill="#5D6B78"
+                                                      Data="M 0 0 L 4 4 L 8 0 Z"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ComboBorder" Property="Background" Value="#E9EFF5"/>
+                                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="#98A8B7"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="ComboBorder" Property="Background" Value="#DFE8F0"/>
+                                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="#8092A3"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Fade"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}">
+                                <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="{Binding MaxDropDownHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Background="#FFFFFF"
+                                        BorderBrush="#B8C4CF"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="2">
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="MapToolbarStyle" TargetType="Border">
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="BorderBrush" Value="#D7E2EC"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="7,4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
         </Style>
 
         <Style x:Key="PointModePanelStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="7"/>
-            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
         </Style>
 
         <Style x:Key="MapToolbarLabelStyle" TargetType="TextBlock">
@@ -152,32 +259,123 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
+        <Style x:Key="MapVisualModeButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="MinWidth" Value="82"/>
+            <Setter Property="Padding" Value="10,2"/>
+            <Setter Property="FontSize" Value="11.3"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style x:Key="MapToolbarActionButtonStyle" TargetType="Button" BasedOn="{StaticResource ModuleButtonStyle}">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="MinWidth" Value="82"/>
+            <Setter Property="Padding" Value="10,2"/>
+            <Setter Property="FontSize" Value="11.3"/>
+        </Style>
+
+        <Style x:Key="CameraSnapshotCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D8E1EA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style x:Key="CameraSnapshotHeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontSize" Value="12.2"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="CameraSnapshotMetaTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="FontSize" Value="10.8"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="CameraSnapshotDotStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Fill" Value="#F59E0B"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding StatusState}" Value="OK">
+                    <Setter Property="Fill" Value="#16A34A"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusState}" Value="Live">
+                    <Setter Property="Fill" Value="#16A34A"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusState}" Value="NG">
+                    <Setter Property="Fill" Value="#DC2626"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusState}" Value="ConnectionError">
+                    <Setter Property="Fill" Value="#F59E0B"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusState}" Value="Offline">
+                    <Setter Property="Fill" Value="#F59E0B"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CameraSnapshotImageBorderStyle" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#34434E" Offset="0"/>
+                        <GradientStop Color="#263440" Offset="0.55"/>
+                        <GradientStop Color="#3B4A55" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#596875"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="7"/>
+        </Style>
+
         <Style x:Key="BatchTagStyle" TargetType="Border">
-            <Setter Property="Background" Value="#DBEAFE"/>
-            <Setter Property="BorderBrush" Value="#BFDBFE"/>
+            <Setter Property="Background" Value="#EEF3F7"/>
+            <Setter Property="BorderBrush" Value="#B7C4D0"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14"/>
             <Setter Property="Padding" Value="12,5"/>
         </Style>
 
         <Style x:Key="HeaderMetricCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="BorderBrush" Value="#D7E2EC"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="14,9"/>
-            <Setter Property="MinHeight" Value="92"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#44515D" Offset="0"/>
+                        <GradientStop Color="#3A4652" Offset="0.52"/>
+                        <GradientStop Color="#303B46" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#7F90A0"/>
+            <Setter Property="BorderThickness" Value="1.25"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="MinHeight" Value="96"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="18"
+                                      ShadowDepth="2"
+                                      Direction="270"
+                                      Color="#22303A"
+                                      Opacity="0.34"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="HeaderStatusCardStyle" TargetType="Border" BasedOn="{StaticResource HeaderMetricCardStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding CurrentStatusCode}" Value="OK">
-                    <Setter Property="Background" Value="#F0FDF4"/>
-                    <Setter Property="BorderBrush" Value="#86EFAC"/>
+                    <Setter Property="BorderBrush" Value="#41E66F"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding CurrentStatusCode}" Value="NG">
-                    <Setter Property="Background" Value="#FFF1F2"/>
-                    <Setter Property="BorderBrush" Value="#FDA4AF"/>
+                    <Setter Property="BorderBrush" Value="#FF4D64"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -185,152 +383,399 @@
         <Style x:Key="HeaderDataCardStyle" TargetType="Border" BasedOn="{StaticResource HeaderMetricCardStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding StreamState}" Value="Warn">
-                    <Setter Property="Background" Value="#FFFBEB"/>
-                    <Setter Property="BorderBrush" Value="#FDE68A"/>
+                    <Setter Property="BorderBrush" Value="#FFD166"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding StreamState}" Value="Stale">
-                    <Setter Property="Background" Value="#FEF2F2"/>
-                    <Setter Property="BorderBrush" Value="#FCA5A5"/>
+                    <Setter Property="BorderBrush" Value="#FF4D64"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="HeaderWidthCardStyle" TargetType="Border" BasedOn="{StaticResource HeaderMetricCardStyle}">
-            <Setter Property="Background" Value="#EFF6FF"/>
-            <Setter Property="BorderBrush" Value="#93C5FD"/>
+            <Setter Property="BorderBrush" Value="#92A5B4C4"/>
+        </Style>
+
+        <Style x:Key="HeaderStripBlockStyle" TargetType="Border" BasedOn="{StaticResource HeaderMetricCardStyle}">
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="MinHeight" Value="96"/>
+        </Style>
+
+        <Style x:Key="HeaderCameraStatusCardStyle" TargetType="Border" BasedOn="{StaticResource HeaderMetricCardStyle}">
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+
+        <Style x:Key="HeaderActionPanelStyle" TargetType="Border" BasedOn="{StaticResource HeaderMetricCardStyle}">
+            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+        </Style>
+
+        <Style x:Key="HeaderActionButtonBaseStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3A4652"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#7C8B9B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="MinWidth" Value="76"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#D6E4F0"/>
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.94"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderActionStartButtonStyle" TargetType="Button" BasedOn="{StaticResource HeaderActionButtonBaseStyle}">
+            <Setter Property="Background" Value="#168A4A"/>
+            <Setter Property="BorderBrush" Value="#49E38A"/>
+        </Style>
+
+        <Style x:Key="HeaderActionStopButtonStyle" TargetType="Button" BasedOn="{StaticResource HeaderActionButtonBaseStyle}">
+            <Setter Property="Background" Value="#9F2E35"/>
+            <Setter Property="BorderBrush" Value="#FF6B78"/>
+        </Style>
+
+        <Style x:Key="HeaderActionUtilityButtonStyle" TargetType="Button" BasedOn="{StaticResource HeaderActionButtonBaseStyle}">
+            <Setter Property="Background" Value="#43505C"/>
+            <Setter Property="BorderBrush" Value="#A2AFBC"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
         </Style>
 
         <Style x:Key="HeaderMetricLabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="FontSize" Value="10.8"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, DengXian, Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
         <Style x:Key="HeaderMetricValueStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="FontSize" Value="26"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed, Bahnschrift, Microsoft YaHei UI"/>
+            <Setter Property="FontSize" Value="42"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
         <Style x:Key="HeaderMetricHintStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="FontSize" Value="10.2"/>
+            <Setter Property="Foreground" Value="#C7D0DA"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, DengXian, Segoe UI"/>
+            <Setter Property="FontSize" Value="12.5"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
         <Style x:Key="HeaderMetricStrongHintStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricHintStyle}">
-            <Setter Property="Foreground" Value="#334155"/>
-            <Setter Property="FontSize" Value="10.8"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="FontWeight" Value="Medium"/>
         </Style>
 
         <Style x:Key="HeaderMetricUnitStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="FontSize" Value="10.8"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#D8DEE6"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, DengXian, Segoe UI"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="Margin" Value="5,0,0,3"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        </Style>
+
+        <Style x:Key="HeaderHighlightUnitStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricUnitStyle}">
+            <Setter Property="Foreground" Value="#D8DEE6"/>
+            <Setter Property="FontSize" Value="15"/>
         </Style>
 
         <Style x:Key="HeaderBatchValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
-            <Setter Property="Foreground" Value="#1D4ED8"/>
-            <Setter Property="FontSize" Value="17"/>
-            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, DengXian, Bahnschrift SemiCondensed, Bahnschrift"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="LineHeight" Value="24"/>
+            <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="TextTrimming" Value="None"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="MaxHeight" Value="48"/>
         </Style>
 
+        <Style x:Key="HeaderBatchTemplateStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderBatchValueStyle}"/>
+
         <Style x:Key="HeaderWidthValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
-            <Setter Property="Foreground" Value="#0369A1"/>
-            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="Foreground" Value="#39FF14"/>
+            <Setter Property="FontSize" Value="46"/>
+        </Style>
+
+        <Style x:Key="HeaderSpeedValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
+            <Setter Property="Foreground" Value="#39FF14"/>
+            <Setter Property="FontSize" Value="46"/>
+        </Style>
+
+        <Style x:Key="HeaderMetersValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
+            <Setter Property="Foreground" Value="#39FF14"/>
+            <Setter Property="FontSize" Value="46"/>
         </Style>
 
         <Style x:Key="HeaderStatusValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
-            <Setter Property="FontSize" Value="36"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="42"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="Margin" Value="0"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding CurrentStatusCode}" Value="OK">
-                    <Setter Property="Foreground" Value="#16A34A"/>
+                    <Setter Property="Foreground" Value="#39FF14"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding CurrentStatusCode}" Value="NG">
-                    <Setter Property="Foreground" Value="#E11D48"/>
-                    <Setter Property="FontSize" Value="40"/>
+                    <Setter Property="Foreground" Value="#FF3B55"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding CurrentStatusCode}" Value="Idle">
-                    <Setter Property="Foreground" Value="#334155"/>
-                    <Setter Property="FontSize" Value="30"/>
+                    <Setter Property="Foreground" Value="#E2E8F0"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderStripStatusValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
+            <Setter Property="FontSize" Value="36"/>
+            <Setter Property="LineHeight" Value="38" />
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="OK">
+                    <Setter Property="Foreground" Value="#39FF14"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="NG">
+                    <Setter Property="Foreground" Value="#FF3B55"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="Idle">
+                    <Setter Property="Foreground" Value="#39FF14"/>
+                    <Setter Property="FontSize" Value="32"/>
+                    <Setter Property="LineHeight" Value="34"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderStatusBadgeStyle" TargetType="Border">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="92"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="OK">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="NG">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="Idle">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderStatusBadgeTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#EAF2F8"/>
+            <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed, Bahnschrift, Microsoft YaHei UI"/>
+            <Setter Property="FontSize" Value="46"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="LineHeight" Value="48"/>
+            <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="OK">
+                    <Setter Property="Foreground" Value="#39FF14"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="NG">
+                    <Setter Property="Foreground" Value="#FF3B55"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusCode}" Value="Idle">
+                    <Setter Property="Foreground" Value="#39FF14"/>
+                    <Setter Property="FontSize" Value="32"/>
+                    <Setter Property="LineHeight" Value="34"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderCameraChannelTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, DengXian, Bahnschrift SemiCondensed, Bahnschrift"/>
+            <Setter Property="FontSize" Value="12.4"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        </Style>
+
+        <Style x:Key="HeaderCameraChannelPillStyle" TargetType="Border">
+            <Setter Property="Margin" Value="3,2"/>
+            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="Background" Value="#293743"/>
+            <Setter Property="BorderBrush" Value="#607181"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding StatusCode}" Value="OK">
+                    <Setter Property="Background" Value="#213A2B"/>
+                    <Setter Property="BorderBrush" Value="#39B866"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusCode}" Value="NG">
+                    <Setter Property="Background" Value="#3C3037"/>
+                    <Setter Property="BorderBrush" Value="#E85D70"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusCode}" Value="ConnectionError">
+                    <Setter Property="Background" Value="#3C3527"/>
+                    <Setter Property="BorderBrush" Value="#E7A23A"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderCameraChannelDotStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Fill" Value="#FFB020"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="7"
+                                      ShadowDepth="0"
+                                      Color="#FFB020"
+                                      Opacity="0.62"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding StatusCode}" Value="OK">
+                    <Setter Property="Fill" Value="#39FF14"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="7"
+                                              ShadowDepth="0"
+                                              Color="#39FF14"
+                                              Opacity="0.62"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusCode}" Value="NG">
+                    <Setter Property="Fill" Value="#FF3B55"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="7"
+                                              ShadowDepth="0"
+                                              Color="#FF3B55"
+                                              Opacity="0.62"/>
+                        </Setter.Value>
+                    </Setter>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="HeaderDataValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricValueStyle}">
-            <Setter Property="FontSize" Value="24"/>
-            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="FontSize" Value="42"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding StreamState}" Value="Warn">
-                    <Setter Property="Foreground" Value="#B45309"/>
+                    <Setter Property="Foreground" Value="#FFD166"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding StreamState}" Value="Stale">
-                    <Setter Property="Foreground" Value="#DC2626"/>
+                    <Setter Property="Foreground" Value="#FF3B55"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="HeaderOkInlineTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#15803D"/>
-            <Setter Property="FontSize" Value="13.2"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#39FF14"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="HeaderOkStatLabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#15803D"/>
-            <Setter Property="FontSize" Value="11.6"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#39FF14"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="HeaderNgStatLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderOkStatLabelStyle}">
-            <Setter Property="Foreground" Value="#E11D48"/>
+            <Setter Property="Foreground" Value="#FF3B55"/>
         </Style>
 
         <Style x:Key="HeaderOkStatValueStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#15803D"/>
-            <Setter Property="FontSize" Value="26"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#39FF14"/>
+            <Setter Property="FontSize" Value="46"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="34"/>
-            <Setter Property="LineHeight" Value="27"/>
+            <Setter Property="MinWidth" Value="38"/>
+            <Setter Property="LineHeight" Value="48"/>
         </Style>
 
         <Style x:Key="HeaderNgStatValueStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderOkStatValueStyle}">
-            <Setter Property="Foreground" Value="#E11D48"/>
+            <Setter Property="Foreground" Value="#FF3B55"/>
         </Style>
 
         <Style x:Key="HeaderNgInlineTextStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderOkInlineTextStyle}">
-            <Setter Property="Foreground" Value="#E11D48"/>
+            <Setter Property="Foreground" Value="#FF3B55"/>
         </Style>
 
         <Style x:Key="HeaderOkNgValueTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="FontSize" Value="13.2"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="4,0,0,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="HeaderTotalFrameTextStyle" TargetType="TextBlock" BasedOn="{StaticResource HeaderMetricHintStyle}">
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="FontSize" Value="42"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="HeaderProductionMetersTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
         </Style>
 
         <Style x:Key="HeaderStatusAccentBarStyle" TargetType="Border">
@@ -362,9 +807,9 @@
         </Style>
 
         <Style x:Key="PopupToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#8A6100"/>
-            <Setter Property="BorderBrush" Value="#D4A938"/>
+            <Setter Property="Background" Value="#F6F8FA"/>
+            <Setter Property="Foreground" Value="#2F3B46"/>
+            <Setter Property="BorderBrush" Value="#C8D3DD"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -386,15 +831,60 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#FFF7D6"/>
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#C69300"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#E9EFF5"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#98A8B7"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#F7E6B2"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#DDE6EE"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#F7E6B2"/>
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#B88300"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#34414C"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#8A98A7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderActionToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Background" Value="#3A4652"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#A79A7A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="27"/>
+            <Setter Property="MinWidth" Value="76"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#D6E4F0"/>
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.94"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background" Value="#52616E"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#B89A63"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
@@ -504,74 +994,6 @@
             </Setter>
         </Style>
 
-        <Style x:Key="LegendCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Margin" Value="0,0,6,0"/>
-            <Setter Property="Padding" Value="7,3"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="10.4"/>
-            <Setter Property="Foreground" Value="#1F2937"/>
-            <Setter Property="Background" Value="#F4F7FA"/>
-            <Setter Property="BorderBrush" Value="#C4D0DB"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Border x:Name="RootBorder"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="14"
-                                Padding="{TemplateBinding Padding}">
-                            <Grid VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="14"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Border x:Name="CheckBadge"
-                                        Width="12"
-                                        Height="12"
-                                        CornerRadius="6"
-                                        Background="White"
-                                        BorderBrush="#94A3B8"
-                                        BorderThickness="1"
-                                        VerticalAlignment="Center">
-                                    <Path x:Name="CheckGlyph"
-                                          Data="M3,7 L6,10 L11,4"
-                                          Stroke="White"
-                                          StrokeThickness="1.9"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          StrokeLineJoin="Round"
-                                          Visibility="Collapsed"/>
-                                </Border>
-                                <ContentPresenter Grid.Column="1"
-                                                  Margin="6,0,0,0"
-                                                  VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#FFFFFF"/>
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#94A3B8"/>
-                                <Setter TargetName="CheckBadge" Property="Background" Value="#1F2937"/>
-                                <Setter TargetName="CheckBadge" Property="BorderBrush" Value="#1F2937"/>
-                                <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="False">
-                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.74"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#7C8EA1"/>
-                                <Setter TargetName="RootBorder" Property="Background" Value="#FFFFFF"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </UserControl.Resources>
 
     <i:Interaction.Triggers>
@@ -586,53 +1008,27 @@
     <Grid Margin="6,6,6,6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="4"/>
+            <RowDefinition Height="8"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Padding="10,7" MinHeight="118">
+        <Border Grid.Row="0"
+                Style="{StaticResource CardStyle}"
+                Background="#47525C"
+                BorderBrush="#8594A3"
+                BorderThickness="1.25"
+                Padding="6"
+                MinHeight="108">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="6"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="2.8*"/>
+                </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="0"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
-                    <Button Style="{StaticResource ModuleButtonStyle}"
-                            MinWidth="76"
-                            Content="开始检测"
-                            Command="{Binding StartDetectionCommand}"/>
-                    <Button Margin="6,0,0,0"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            MinWidth="76"
-                            Content="结束检测"
-                            Command="{Binding EndDetectionCommand}"/>
-                    <Button Margin="6,0,0,0"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            MinWidth="64"
-                            Content="记录"
-                            Click="OnOpenBrjReportPageClick"/>
-                    <Button Margin="6,0,0,0"
-                            Style="{StaticResource ModuleButtonStyle}"
-                            MinWidth="64"
-                            Content="换卷"
-                            Command="{Binding ChangeBatchCommand}"/>
-                    <ToggleButton x:Name="SlittingPopupToggleButton"
-                                  Margin="6,0,0,0"
-                                  VerticalAlignment="Center"
-                                  Style="{StaticResource PopupToggleButtonStyle}"
-                                  Content="切刀设置"/>
-                </StackPanel>
-
-                <Grid Grid.Row="2">
+                <Grid Grid.Column="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="8"/>
-                        <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="8"/>
@@ -641,132 +1037,218 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Style="{StaticResource HeaderMetricCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="生产节拍" Style="{StaticResource HeaderMetricLabelStyle}"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <TextBlock Text="{Binding CurrentSpeedDisplayText}" Style="{StaticResource HeaderMetricValueStyle}"/>
-                            <TextBlock Text="m/min" Style="{StaticResource HeaderMetricUnitStyle}"/>
-                        </StackPanel>
-                        <TextBlock Grid.Row="2"
-                                   Text="{Binding CumulativeMeters, StringFormat=累计 {0:F2} m}"
-                                   Style="{StaticResource HeaderProductionMetersTextStyle}"/>
-                    </Grid>
-                    </Border>
-
-                    <Border Grid.Column="2" Style="{StaticResource HeaderStatusCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="当前判定" Style="{StaticResource HeaderMetricLabelStyle}"/>
-                        <Grid Grid.Row="1" Margin="0,5,0,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="26"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding CurrentStatusText, FallbackValue=未运行}"
-                                       Style="{StaticResource HeaderStatusValueStyle}"/>
-                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="OK" Style="{StaticResource HeaderOkStatLabelStyle}"/>
-                                <TextBlock Text="{Binding OkFrames}" Style="{StaticResource HeaderOkStatValueStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                <TextBlock Text="NG" Style="{StaticResource HeaderNgStatLabelStyle}"/>
-                                <TextBlock Text="{Binding NgFrames}" Style="{StaticResource HeaderNgStatValueStyle}"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="6"
-                                       Text="{Binding TotalFrames, StringFormat=总 {0}}"
-                                       Style="{StaticResource HeaderTotalFrameTextStyle}"/>
-                        </Grid>
-                        <TextBlock Grid.Row="2"
-                                   Text="{Binding QualityRiskText}"
-                                   Style="{StaticResource HeaderMetricHintStyle}"/>
-                    </Grid>
-                    </Border>
-
-                    <Border Grid.Column="4" Style="{StaticResource HeaderDataCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="数据链路" Style="{StaticResource HeaderMetricLabelStyle}"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,1">
-                            <Ellipse Width="11"
-                                     Height="11"
-                                     Margin="0,0,7,0"
+                    <Border Grid.Column="0" Style="{StaticResource HeaderMetricCardStyle}">
+                        <Grid>
+                            <Viewbox Stretch="Uniform"
+                                     StretchDirection="DownOnly"
+                                     HorizontalAlignment="Left"
                                      VerticalAlignment="Center"
-                                     Style="{StaticResource StateDotStyle}"/>
-                            <TextBlock Text="{Binding DataPrimaryText}" Style="{StaticResource HeaderDataValueStyle}"/>
-                        </StackPanel>
-                        <TextBlock Grid.Row="2"
-                                   Text="{Binding DataSummaryText}"
-                                   Style="{StaticResource HeaderMetricStrongHintStyle}"/>
-                    </Grid>
+                                     Margin="8,0,0,0"
+                                     MaxWidth="210"
+                                     MaxHeight="62">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding BatchNumberDisplayText}"
+                                               Style="{StaticResource HeaderBatchValueStyle}"/>
+                                    <TextBlock Text="模板："
+                                               Style="{StaticResource HeaderBatchTemplateStyle}"
+                                               Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Viewbox>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource HeaderStripBlockStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="运行状态" Style="{StaticResource HeaderMetricLabelStyle}"/>
+                            <Grid Grid.Row="1" VerticalAlignment="Center">
+                                <Border Style="{StaticResource HeaderStatusBadgeStyle}">
+                                    <TextBlock Text="{Binding CurrentStatusText, FallbackValue=未运行}"
+                                               Style="{StaticResource HeaderStatusBadgeTextStyle}"/>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="4" Style="{StaticResource HeaderCameraStatusCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="相机状态" Style="{StaticResource HeaderMetricLabelStyle}"/>
+                            <ItemsControl ItemsSource="{Binding CameraChannelStatuses}"
+                                          Grid.Row="1"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Rows="3" Columns="2"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource HeaderCameraChannelPillStyle}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           Style="{StaticResource HeaderCameraChannelTextStyle}"/>
+                                                <Ellipse Grid.Column="1"
+                                                         Style="{StaticResource HeaderCameraChannelDotStyle}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
                     </Border>
 
                     <Border Grid.Column="6" Style="{StaticResource HeaderWidthCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="实时幅宽" Style="{StaticResource HeaderMetricLabelStyle}"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <TextBlock Text="{Binding RealtimeWidthDisplayText}" Style="{StaticResource HeaderWidthValueStyle}"/>
-                            <TextBlock Text="mm" Style="{StaticResource HeaderMetricUnitStyle}"/>
-                        </StackPanel>
-                        <TextBlock Grid.Row="2"
-                                   Text="{Binding LineDistanceSummaryText}"
-                                   Style="{StaticResource HeaderMetricStrongHintStyle}"/>
-                    </Grid>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="实时幅宽(mm)" Style="{StaticResource HeaderMetricLabelStyle}"/>
+                            <StackPanel Grid.Row="1"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{Binding RealtimeWidthDisplayText}" Style="{StaticResource HeaderWidthValueStyle}"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
 
-                    <Border Grid.Column="8" Style="{StaticResource HeaderMetricCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="卷号 / 路别" Style="{StaticResource HeaderMetricLabelStyle}"/>
-                        <TextBlock Grid.Row="1" Margin="0,4,0,0" Text="{Binding BatchNumberText}" Style="{StaticResource HeaderBatchValueStyle}"/>
-                        <TextBlock Grid.Row="2"
-                                   Text="{Binding RouteSummaryText}"
-                                   Style="{StaticResource HeaderMetricStrongHintStyle}"/>
-                        <TextBlock Grid.Row="3"
-                                   Text="{Binding RollTraceSummaryText}"
-                                   Style="{StaticResource HeaderMetricHintStyle}"/>
-                    </Grid>
+                </Grid>
+
+                <Grid Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource HeaderMetricCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="生产节拍(m/min)" Style="{StaticResource HeaderMetricLabelStyle}"/>
+                            <StackPanel Grid.Row="1"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentSpeedDisplayText}" Style="{StaticResource HeaderSpeedValueStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource HeaderMetricCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="累计米数(m)" Style="{StaticResource HeaderMetricLabelStyle}"/>
+                            <StackPanel Grid.Row="1"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CumulativeMeters, StringFormat={}{0:F2}}" Style="{StaticResource HeaderMetersValueStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="4" Style="{StaticResource HeaderMetricCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="总NG" Style="{StaticResource HeaderMetricLabelStyle}"/>
+                            <TextBlock Grid.Row="1"
+                                       Text="{Binding NgFrames}"
+                                       Style="{StaticResource HeaderNgStatValueStyle}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="6" Style="{StaticResource HeaderActionPanelStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="2"/>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="2"/>
+                                <RowDefinition Height="25"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="7"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Row="0"
+                                    Grid.Column="0"
+                                    Style="{StaticResource HeaderActionStartButtonStyle}"
+                                    Content="开始检测"
+                                    Command="{Binding StartDetectionCommand}"/>
+                            <Button Grid.Row="0"
+                                    Grid.Column="2"
+                                    Style="{StaticResource HeaderActionStopButtonStyle}"
+                                    Content="结束检测"
+                                    Command="{Binding EndDetectionCommand}"/>
+                            <Button Grid.Row="2"
+                                    Grid.Column="0"
+                                    Style="{StaticResource HeaderActionUtilityButtonStyle}"
+                                    Content="记录"
+                                    Click="OnOpenBrjReportPageClick"/>
+                            <Button Grid.Row="2"
+                                    Grid.Column="2"
+                                    Style="{StaticResource HeaderActionUtilityButtonStyle}"
+                                    Content="换卷"
+                                    Command="{Binding ChangeBatchCommand}"/>
+                            <ToggleButton x:Name="SlittingPopupToggleButton"
+                                          Grid.Row="4"
+                                          Grid.Column="0"
+                                          Grid.ColumnSpan="3"
+                                          Style="{StaticResource HeaderActionToggleButtonStyle}"
+                                          Content="切刀设置"/>
+                        </Grid>
                     </Border>
                 </Grid>
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2">
+        <Border Grid.Row="1"
+                Height="1"
+                Margin="6,3"
+                VerticalAlignment="Center"
+                Background="#B8C4CF"
+                Opacity="0.75"/>
+
+        <Grid Grid.Row="2" Margin="6,0,6,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3.1*"/>
-                <ColumnDefinition Width="8"/>
-                <ColumnDefinition Width="2.7*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="2.8*"/>
             </Grid.ColumnDefinitions>
 
-            <WxGroupBox:WxGroupBox Header="带材地图">
+            <WxGroupBox:WxGroupBox Header="主视图区"
+                                   Background="#34414C"
+                                   HeaderForeground="#F5E3B3">
                 <Border Style="{StaticResource GroupContentCardStyle}" Padding="4">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -777,98 +1259,98 @@
 
                         <Border Style="{StaticResource MapToolbarStyle}" Margin="0,0,0,4">
                             <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                                    </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0"
-                                        Style="{StaticResource PointModePanelStyle}"
-                                        HorizontalAlignment="Left">
-                                <StackPanel
+                                <StackPanel Grid.Column="0"
                                             Orientation="Horizontal"
-                                            VerticalAlignment="Center"
-                                            ToolTip="{Binding PointDisplayModeHintText}">
-                                    <TextBlock Text="点位"
-                                               Style="{StaticResource MapToolbarLabelStyle}"
-                                               Margin="0,0,6,0"/>
-                                    <ComboBox Style="{StaticResource PointModeComboBoxStyle}"
-                                              SelectedValue="{Binding PointDisplayMode, Mode=TwoWay}"
-                                              SelectedValuePath="Tag">
-                                        <ComboBoxItem Content="精确"
-                                                      Tag="{x:Static models:BandMapPointDisplayMode.Precise}"/>
-                                        <ComboBoxItem Content="聚合"
-                                                      Tag="{x:Static models:BandMapPointDisplayMode.Aggregate}"/>
-                                    </ComboBox>
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center">
+                                    <Border Background="Transparent"
+                                            BorderBrush="Transparent"
+                                            BorderThickness="0"
+                                            CornerRadius="0"
+                                            Padding="0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="带材地图"
+                                                    Command="{Binding ShowBandMapCommand}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource MapVisualModeButtonStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsBandMapMode}" Value="True">
+                                                                <Setter Property="Background" Value="#34414C"/>
+                                                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                                                                <Setter Property="BorderBrush" Value="#8A98A7"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            <Button Content="相机快照"
+                                                    Margin="4,0,0,0"
+                                                    Command="{Binding ShowCameraSnapshotCommand}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource MapVisualModeButtonStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsCameraSnapshotMode}" Value="True">
+                                                                <Setter Property="Background" Value="#34414C"/>
+                                                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                                                                <Setter Property="BorderBrush" Value="#8A98A7"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border HorizontalAlignment="Left"
+                                            Margin="8,0,0,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource PointModePanelStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCameraSnapshotMode}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center"
+                                                    ToolTip="{Binding PointDisplayModeHintText}">
+                                            <TextBlock Text="点位"
+                                                       Style="{StaticResource MapToolbarLabelStyle}"
+                                                       Margin="0,0,6,0"/>
+                                            <ComboBox Style="{StaticResource PointModeComboBoxStyle}"
+                                                      SelectedValue="{Binding PointDisplayMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="精确"
+                                                              Tag="{x:Static models:BandMapPointDisplayMode.Precise}"/>
+                                                <ComboBoxItem Content="聚合"
+                                                              Tag="{x:Static models:BandMapPointDisplayMode.Aggregate}"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
-                                </Border>
 
-                                <Border Grid.Column="1"
+
+                                <Button Grid.Column="1"
+                                        Content="刷新全部"
                                         Margin="6,0,0,0"
-                                        Padding="8,2"
-                                        CornerRadius="10"
-                                        Background="#ECFDF5"
-                                        BorderBrush="#A7F3D0"
-                                        BorderThickness="1">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
+                                        Command="{Binding RefreshCameraSnapshotsCommand}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MapToolbarActionButtonStyle}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ShowPathStatusBadges}" Value="True">
+                                                <DataTrigger Binding="{Binding IsCameraSnapshotMode}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </Border.Style>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Path1Header, FallbackValue=左路}"
-                                                   Foreground="#166534"
-                                                   FontSize="10.3"
-                                                   FontWeight="SemiBold"/>
-                                        <TextBlock Text=" " Foreground="#166534" FontSize="10.3" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Path1Result, FallbackValue=-}"
-                                                   Foreground="#166534"
-                                                   FontSize="10.3"
-                                                   FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Grid.Column="2"
-                                        Margin="6,0,0,0"
-                                        Padding="8,2"
-                                        CornerRadius="10"
-                                        Background="#FFF7ED"
-                                        BorderBrush="#FDBA74"
-                                        BorderThickness="1">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ShowPathStatusBadges}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Path2Header, FallbackValue=右路}"
-                                                   Foreground="#C2410C"
-                                                   FontSize="10.3"
-                                                   FontWeight="SemiBold"/>
-                                        <TextBlock Text=" " Foreground="#C2410C" FontSize="10.3" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Path2Result, FallbackValue=-}"
-                                                   Foreground="#C2410C"
-                                                   FontSize="10.3"
-                                                   FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                </Border>
+                                    </Button.Style>
+                                </Button>
 
                                 <Popup PlacementTarget="{Binding ElementName=SlittingPopupToggleButton}"
                                        Placement="Bottom"
@@ -878,7 +1360,7 @@
                                        StaysOpen="False"
                                        IsOpen="{Binding IsChecked, ElementName=SlittingPopupToggleButton, Mode=TwoWay}">
                                     <Border Background="#FFFFFF"
-                                            BorderBrush="#D4A938"
+                                            BorderBrush="#B89A63"
                                             BorderThickness="1"
                                             CornerRadius="10"
                                             Padding="12"
@@ -913,7 +1395,7 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="8"/>
                                                     <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
+                                                    </Grid.ColumnDefinitions>
 
                                                 <StackPanel>
                                                     <TextBlock Text="单帧走料 (mm)" Foreground="#6B7280" FontSize="11"/>
@@ -948,7 +1430,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="8"/>
                                                         <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
+                                                        </Grid.ColumnDefinitions>
 
                                                     <StackPanel>
                                                         <TextBlock Text="切刀间距 (mm)" Foreground="#6B7280" FontSize="11"/>
@@ -972,7 +1454,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="8"/>
                                                         <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
+                                                        </Grid.ColumnDefinitions>
 
                                                     <StackPanel>
                                                         <TextBlock Text="横向幅宽 (mm)" Foreground="#6B7280" FontSize="11"/>
@@ -1015,118 +1497,6 @@
                                     </Border>
                                 </Popup>
                             </Grid>
-
-                            <ItemsControl Grid.Row="1"
-                                          Margin="0,5,0,0"
-                                          ItemsSource="{Binding LegendItems}">
-                                <ItemsControl.Style>
-                                    <Style TargetType="ItemsControl">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasLegendItems}" Value="False">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ItemsControl.Style>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Style="{StaticResource LegendCheckBoxStyle}"
-                                                  IsChecked="{Binding IsChecked, Mode=OneWay}"
-                                                  Command="{Binding DataContext.ToggleLegendCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  CommandParameter="{Binding}">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Viewbox Width="14" Height="14" Margin="0,0,5,0">
-                                                    <Grid Width="24" Height="24">
-                                                        <Path x:Name="LegendTriangle"
-                                                              Data="M12,4 L18.8,19 L5.2,19 Z"
-                                                              Fill="{Binding Fill}"
-                                                              Stroke="{Binding Stroke}"
-                                                              StrokeThickness="1.4"
-                                                              StrokeLineJoin="Round"
-                                                              Visibility="Collapsed">
-                                                            <Path.Style>
-                                                                <Style TargetType="Path">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding MarkerKind}" Value="Triangle">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Path.Style>
-                                                        </Path>
-                                                        <Ellipse x:Name="LegendCircle"
-                                                                 Width="15"
-                                                                 Height="15"
-                                                                 HorizontalAlignment="Center"
-                                                                 VerticalAlignment="Center"
-                                                                 Fill="{Binding Fill}"
-                                                                 Stroke="{Binding Stroke}"
-                                                                 StrokeThickness="1.4"
-                                                                 Visibility="Collapsed">
-                                                            <Ellipse.Style>
-                                                                <Style TargetType="Ellipse">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding MarkerKind}" Value="Circle">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Ellipse.Style>
-                                                        </Ellipse>
-                                                        <Grid x:Name="LegendCross" Visibility="Collapsed">
-                                                            <Grid.Style>
-                                                                <Style TargetType="Grid">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding MarkerKind}" Value="Cross">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Grid.Style>
-                                                            <Path Data="M5,5 L19,19"
-                                                                  Stroke="{Binding Stroke}"
-                                                                  StrokeThickness="4.8"
-                                                                  Opacity="0.28"
-                                                                  StrokeStartLineCap="Round"
-                                                                  StrokeEndLineCap="Round"/>
-                                                            <Path Data="M19,5 L5,19"
-                                                                  Stroke="{Binding Stroke}"
-                                                                  StrokeThickness="4.8"
-                                                                  Opacity="0.28"
-                                                                  StrokeStartLineCap="Round"
-                                                                  StrokeEndLineCap="Round"/>
-                                                            <Path Data="M5,5 L19,19"
-                                                                  Stroke="{Binding Fill}"
-                                                                  StrokeThickness="3.1"
-                                                                  StrokeStartLineCap="Round"
-                                                                  StrokeEndLineCap="Round"/>
-                                                            <Path Data="M19,5 L5,19"
-                                                                  Stroke="{Binding Fill}"
-                                                                  StrokeThickness="3.1"
-                                                                  StrokeStartLineCap="Round"
-                                                                  StrokeEndLineCap="Round"/>
-                                                        </Grid>
-                                                    </Grid>
-                                                </Viewbox>
-                                                <TextBlock Text="{Binding SummaryText}"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="#1F2937"
-                                                           FontSize="10.2"/>
-                                            </StackPanel>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            </Grid>
                         </Border>
 
                         <Grid Grid.Row="1"
@@ -1136,16 +1506,28 @@
                               PreviewMouseMove="OnMapViewportPreviewMouseMove"
                               PreviewMouseUp="OnMapViewportPreviewMouseUp"
                               LostMouseCapture="OnMapViewportLostMouseCapture">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCameraSnapshotMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="20"/>
-                            </Grid.ColumnDefinitions>
+                                </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0"
                                     x:Name="MapCanvasHost"
-                                    Background="Transparent"
-                                    ClipToBounds="False"
+                                    Background="#A8AFB7"
+                                    BorderBrush="#B89A63"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    ClipToBounds="True"
                                     Loaded="OnMapCanvasHostLoaded"
                                     SizeChanged="OnMapCanvasHostSizeChanged">
                                 <local:LightningBandMapView PointSelected="OnLightningMapPointSelected"/>
@@ -1161,7 +1543,7 @@
                                    HorizontalOffset="{Binding SelectedMapPointPopupOffsetX}"
                                    VerticalOffset="{Binding SelectedMapPointPopupOffsetY}">
                                 <Border Background="#F8FAFC"
-                                        BorderBrush="#C69300"
+                                        BorderBrush="#B89A63"
                                         BorderThickness="1"
                                         CornerRadius="8"
                                         Padding="10,7"
@@ -1193,17 +1575,123 @@
                                        LargeChange="{Binding ViewportScrollLargeChange}"
                                        ToolTip="可拖动滚动条，也可按住鼠标中键上下拖动查看历史缺陷"
                                        IsEnabled="{Binding CanScrollViewport}"/>
+                        </Grid>
 
-                            <TextBlock Grid.Column="2"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       Text="累计米数 (m)"
-                                       Foreground="#475569"
-                                       FontSize="10">
-                                <TextBlock.LayoutTransform>
-                                    <RotateTransform Angle="90"/>
-                                </TextBlock.LayoutTransform>
-                            </TextBlock>
+                        <Grid Grid.Row="1"
+                              ClipToBounds="True">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCameraSnapshotMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <ItemsControl ItemsSource="{Binding CameraSnapshots}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="3" Rows="2"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Margin" Value="4"/>
+                                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                        <Setter Property="VerticalAlignment" Value="Stretch"/>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource CameraSnapshotCardStyle}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="30"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="26"/>
+                                                </Grid.RowDefinitions>
+
+                                                <Border BorderBrush="#EEF2F6"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="8,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    VerticalAlignment="Center">
+                                                            <Ellipse Style="{StaticResource CameraSnapshotDotStyle}"
+                                                                     Margin="0,0,6,0"/>
+                                                            <TextBlock Text="{Binding CameraName}"
+                                                                       Style="{StaticResource CameraSnapshotHeaderTextStyle}"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding StatusText}"
+                                                                   Style="{StaticResource CameraSnapshotMetaTextStyle}"/>
+                                                    </Grid>
+                                                </Border>
+
+                                                <Border Grid.Row="1"
+                                                        Style="{StaticResource CameraSnapshotImageBorderStyle}"
+                                                        Margin="8,7,8,6">
+                                                    <Grid ClipToBounds="True">
+                                                        <Image Source="{Binding SnapshotImage}"
+                                                               Stretch="Uniform"
+                                                               SnapsToDevicePixels="True"
+                                                               RenderOptions.BitmapScalingMode="NearestNeighbor">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding HasSnapshotImage}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
+
+                                                        <Border HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Background="#B823303A"
+                                                                BorderBrush="#64748B"
+                                                                BorderThickness="1"
+                                                                CornerRadius="8"
+                                                                Padding="18,10">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding HasSnapshotImage}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock Text="暂无快照"
+                                                                       Foreground="#E5E7EB"
+                                                                       FontSize="13"
+                                                                       FontWeight="SemiBold"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+
+                                                <Border Grid.Row="2"
+                                                        BorderBrush="#EEF2F6"
+                                                        BorderThickness="0,1,0,0"
+                                                        Padding="8,0">
+                                                    <TextBlock Text="{Binding LastRefreshText}"
+                                                               Style="{StaticResource CameraSnapshotMetaTextStyle}"
+                                                               HorizontalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Grid>
 
                     </Grid>

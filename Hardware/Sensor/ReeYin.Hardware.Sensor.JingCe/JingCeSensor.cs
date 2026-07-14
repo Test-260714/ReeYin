@@ -21,8 +21,9 @@ namespace ReeYin.Hardware.Sensor.JingCe
         private readonly object _cacheLock = new object(); // 缓存锁
         private DealWithSurfaces? _surfacesCallback;
         [JsonIgnore]
+        private readonly ManualResetEventSlim _collectCompletedEvent = new ManualResetEventSlim(false);
+        [JsonIgnore]
         private JinceCMOSConfig _cmosConfig = new JinceCMOSConfig();
-        private volatile bool _surfaceCollectionFinished;
         private int _receiveLayerCount;
         #endregion
 
@@ -340,7 +341,11 @@ namespace ReeYin.Hardware.Sensor.JingCe
         /// <exception cref="InvalidOperationException"></exception>
         public override void StartCollect()
         {
-            _surfaceCollectionFinished = false;
+            _collectCompletedEvent.Reset();
+            lock (_cacheLock)
+            {
+                _capturedSurfaces.Clear();
+            }
             State = HardwareState.Running;
             FocalSDKWrapper.OpenTrigger(deviceId);
             int grabResult = FocalSDKWrapper.GrabSurfaces(deviceId, CmosTriggerConfig.YAxisResolution, CmosTriggerConfig.CapturedFrames, _surfacesCallback);
@@ -505,7 +510,10 @@ namespace ReeYin.Hardware.Sensor.JingCe
                         }
                     }
 
-                    _surfaceCollectionFinished = _capturedSurfaces.Count > 0;
+                    if (_capturedSurfaces.Count > 0)
+                    {
+                        _collectCompletedEvent.Set();
+                    }
                 }
             }
             catch (Exception ex)
@@ -527,10 +535,12 @@ namespace ReeYin.Hardware.Sensor.JingCe
                 if (_capturedSurfaces.Count == 0)
                 {
                     Console.WriteLine("武汉精测生成数据失败，请检查采集是否开始\r\n");
+                    _collectCompletedEvent.Reset();
                     return null;
                 }
                 surfacesToProcess.AddRange(_capturedSurfaces);
                 _capturedSurfaces.Clear();
+                _collectCompletedEvent.Reset();
             }
 
             List<List<float[]>> heightLayers = new();
@@ -588,16 +598,22 @@ namespace ReeYin.Hardware.Sensor.JingCe
         /// <returns></returns>
         public bool TryStopCollect()
         {
-            if (!_surfaceCollectionFinished)
+            bool completed = _collectCompletedEvent.Wait(CmosTriggerConfig.CollectionWaitTimeMs);
+            if (!completed)
             {
-                Console.WriteLine("武汉精测传感器数据采集还没完成");
-                return false;
+                Console.WriteLine("武汉精测传感器数据采集等待超时");
             }
 
             FocalSDKWrapper.CloseTrigger(deviceId);
             FocalSDKWrapper.Stop(deviceId);
             State = HardwareState.Complete;
+            _collectCompletedEvent.Reset();
             return true;
+        }
+
+        public Task<bool> TryStopCollectAsync()
+        {
+            return Task.Run(TryStopCollect);
         }
     }
 
@@ -834,6 +850,17 @@ namespace ReeYin.Hardware.Sensor.JingCe
         {
             get { return _yaxisresolution; }
             set { _yaxisresolution = value; RaisePropertyChanged(); }
+        }
+
+        /// <summary>
+        /// 数据采集等待时间(ms)
+        /// </summary>
+        [JsonIgnore]
+        private int _collectionWaitTimeMs = 1000;
+        public int CollectionWaitTimeMs
+        {
+            get { return _collectionWaitTimeMs; }
+            set { _collectionWaitTimeMs = Math.Max(0, value); RaisePropertyChanged(); }
         }
     }
 }

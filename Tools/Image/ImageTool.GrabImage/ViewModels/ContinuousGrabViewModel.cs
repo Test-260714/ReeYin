@@ -16,6 +16,10 @@ namespace ImageTool.GrabImage.ViewModels
     [Serializable]
     public class ContinuousGrabViewModel : DialogViewModelBase, IViewModuleParam
     {
+        private const string RealOutputSourceDisplay = "真机输出";
+        private const string PseudoOutputSourceDisplay = "伪采输出";
+        private const string ManualOutputSourceDisplay = "手动添加";
+
         #region Properties
         public new ContinuousGrabModel ModelParam
         {
@@ -93,6 +97,7 @@ namespace ImageTool.GrabImage.ViewModels
                 ModelParam.Serial = Serial;
 
             ModelParam?.LoadKeyParam();
+            EnsureOutputSourceDescriptions();
             SelectedMultiCameraCandidate ??= ModelParam?.CameraModels?.FirstOrDefault();
         });
 
@@ -205,7 +210,7 @@ namespace ImageTool.GrabImage.ViewModels
 
         public DelegateCommand AddMultiCameraOutputsCommand => new DelegateCommand(() =>
         {
-            AddOutputs(Model?.GetRealCameraOutputNames());
+            AddOutputs(Model?.GetRealCameraOutputNames(), RealOutputSourceDisplay);
         });
 
         public DelegateCommand AddRealCameraOutputsCommand => new DelegateCommand(() =>
@@ -213,7 +218,7 @@ namespace ImageTool.GrabImage.ViewModels
             if (Model == null)
                 return;
 
-            AddOutputs(Model.GetRealCameraOutputNames());
+            AddOutputs(Model.GetRealCameraOutputNames(), RealOutputSourceDisplay);
         });
 
         public DelegateCommand AddPseudoCameraOutputsCommand => new DelegateCommand(() =>
@@ -221,28 +226,61 @@ namespace ImageTool.GrabImage.ViewModels
             if (Model == null)
                 return;
 
-            AddOutputs(Model.GetPseudoCameraOutputNames());
+            AddOutputs(Model.GetPseudoCameraOutputNames(), PseudoOutputSourceDisplay);
         });
 
-        private void AddOutputs(System.Collections.Generic.IEnumerable<string> outputNames)
+        private void AddOutputs(System.Collections.Generic.IEnumerable<string> outputNames, string sourceDisplay)
         {
             if (Model == null)
-                return;
-
-            var dataPointValues = OutputParamCollector.GetDataPointValues(Model);
-            foreach (var outputName in outputNames ?? Enumerable.Empty<string>())
             {
-                if (string.IsNullOrWhiteSpace(outputName))
-                    continue;
+                System.Windows.MessageBox.Show("节点参数未初始化，无法生成输出。");
+                return;
+            }
 
-                if (Model.OutputParams.Any(param => param.ParamName == outputName))
-                    continue;
+            var requestedNames = (outputNames ?? Enumerable.Empty<string>())
+                .Where(outputName => !string.IsNullOrWhiteSpace(outputName))
+                .Select(outputName => outputName.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            if (requestedNames.Count == 0)
+            {
+                System.Windows.MessageBox.Show("没有可生成的输出：请先在真机/伪相机列表添加相机。");
+                return;
+            }
 
-                var resource = Model.OutputParamResource.Values
-                    .OfType<TransmitParam>()
-                    .FirstOrDefault(param => param.Name == outputName);
-                if (resource == null)
+            Model.OutputParamResource ??= new System.Collections.Generic.Dictionary<string, object>();
+            if (Model.OutputParamResource.Count == 0)
+            {
+                Model.InitOutputParamResource(Guid);
+                Model.OutputParamNames = Model.OutputParamResource.Select(item => item.Key).ToList();
+            }
+
+            var outputResources = Model.OutputParamResource.Values
+                .OfType<TransmitParam>()
+                .Where(param => !string.IsNullOrWhiteSpace(param.Name))
+                .GroupBy(param => param.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+            var dataPointValues = OutputParamCollector.GetDataPointValues(Model);
+            var addedNames = new System.Collections.Generic.List<string>();
+            var existingNames = new System.Collections.Generic.List<string>();
+            var missingNames = new System.Collections.Generic.List<string>();
+
+            foreach (var outputName in requestedNames)
+            {
+                if (Model.OutputParams.Any(param =>
+                        param != null &&
+                        (string.Equals(param.ParamName, outputName, StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(param.Name, outputName, StringComparison.OrdinalIgnoreCase))))
+                {
+                    existingNames.Add(outputName);
                     continue;
+                }
+
+                if (!outputResources.TryGetValue(outputName, out var resource))
+                {
+                    missingNames.Add(outputName);
+                    continue;
+                }
 
                 Model.OutputParams.Add(new TransmitParam
                 {
@@ -254,7 +292,26 @@ namespace ImageTool.GrabImage.ViewModels
                     Type = DataType._object,
                     Value = dataPointValues.TryGetValue(resource.Name, out var value) ? value?.DeepCopy() : null,
                     ResourcePath = resource.ResourcePath,
+                    Describe = sourceDisplay,
                 });
+                addedNames.Add(resource.Name);
+            }
+
+            if (addedNames.Count > 0)
+            {
+                System.Windows.MessageBox.Show($"已生成输出：{string.Join("、", addedNames)}");
+                return;
+            }
+
+            if (missingNames.Count > 0)
+            {
+                System.Windows.MessageBox.Show($"生成未完成：未找到输出资源 {string.Join("、", missingNames)}。请关闭后重新打开节点配置窗口。");
+                return;
+            }
+
+            if (existingNames.Count > 0)
+            {
+                System.Windows.MessageBox.Show($"输出已存在，无需重复生成：{string.Join("、", existingNames)}");
             }
         }
 
@@ -379,10 +436,42 @@ namespace ImageTool.GrabImage.ViewModels
                         Type = DataType._object,
                         Value = OutputParamCollector.GetDataPointValues(Model)[curSltParam.Name]?.DeepCopy(),
                         ResourcePath = curSltParam.ResourcePath,
+                        Describe = ManualOutputSourceDisplay,
                     });
                     break;
             }
         });
+
+        private void EnsureOutputSourceDescriptions()
+        {
+            if (Model?.OutputParams == null)
+                return;
+
+            var realOutputNames = BuildOutputNameSet(Model.GetRealCameraOutputNames());
+            var pseudoOutputNames = BuildOutputNameSet(Model.GetPseudoCameraOutputNames());
+
+            foreach (var outputParam in Model.OutputParams.Where(item => item != null && string.IsNullOrWhiteSpace(item.Describe)))
+            {
+                var outputName = string.IsNullOrWhiteSpace(outputParam.ParamName)
+                    ? outputParam.Name
+                    : outputParam.ParamName;
+                bool isRealOutput = !string.IsNullOrWhiteSpace(outputName) && realOutputNames.Contains(outputName);
+                bool isPseudoOutput = !string.IsNullOrWhiteSpace(outputName) && pseudoOutputNames.Contains(outputName);
+
+                if (isRealOutput && !isPseudoOutput)
+                    outputParam.Describe = RealOutputSourceDisplay;
+                else if (isPseudoOutput && !isRealOutput)
+                    outputParam.Describe = PseudoOutputSourceDisplay;
+            }
+        }
+
+        private static System.Collections.Generic.HashSet<string> BuildOutputNameSet(System.Collections.Generic.IEnumerable<string> outputNames)
+        {
+            return (outputNames ?? Enumerable.Empty<string>())
+                .Where(outputName => !string.IsNullOrWhiteSpace(outputName))
+                .Select(outputName => outputName.Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
         #endregion
     }
 }

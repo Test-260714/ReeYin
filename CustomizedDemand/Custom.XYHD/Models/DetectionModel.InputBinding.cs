@@ -59,7 +59,7 @@ namespace Custom.XYHD.Models
 
         [JsonIgnore]
         private TransmitParam _leftInputImage = new TransmitParam();
-        [InputParam("左路图像", "左路缺陷墙裁图图像", false)]
+        [InputParam("左路图像", "左路缺陷总览裁图图像", false)]
         public TransmitParam LeftInputImage
         {
             get => _leftInputImage;
@@ -99,7 +99,7 @@ namespace Custom.XYHD.Models
 
         [JsonIgnore]
         private TransmitParam _rightInputImage = new TransmitParam();
-        [InputParam("右路图像", "右路缺陷墙裁图图像", false)]
+        [InputParam("右路图像", "右路缺陷总览裁图图像", false)]
         public TransmitParam RightInputImage
         {
             get => _rightInputImage;

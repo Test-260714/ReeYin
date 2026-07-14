@@ -17,6 +17,7 @@ namespace ReeYin.Hardware.Sensor.MEGAPHASE
         private readonly List<MeasureData> _pendingMeasureData = new List<MeasureData>();
         private TaskCompletionSource<bool>? _collectOnceTaskSource;
         private bool _isRefreshingSettings;
+        private readonly object _softwarePreprocessLock = new object();
 
         #endregion
 
@@ -192,6 +193,8 @@ namespace ReeYin.Hardware.Sensor.MEGAPHASE
                 Settings.UserRTMatrixT0 = userRTMatrix.T0;
                 Settings.UserRTMatrixT1 = userRTMatrix.T1;
                 Settings.UserRTMatrixT2 = userRTMatrix.T2;
+
+                RefreshSoftwarePreprocessSettingsFromDevice();
             }
             catch (Exception ex)
             {
@@ -683,6 +686,25 @@ namespace ReeYin.Hardware.Sensor.MEGAPHASE
 
             switch (e.PropertyName)
             {
+                case nameof(MegAphaseSensorSettings.SoftwarePreprocessEnabled):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsMode):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsWinSize):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsWinSize2):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsSlopeLevel):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsNeighborCloseLevel):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsNeighborNumLevel):
+                case nameof(MegAphaseSensorSettings.RemoveBurrsEdgeSuppressLevel):
+                case nameof(MegAphaseSensorSettings.MendMode):
+                case nameof(MegAphaseSensorSettings.MendWinSize):
+                case nameof(MegAphaseSensorSettings.MendWinSize2):
+                case nameof(MegAphaseSensorSettings.MendMethod):
+                case nameof(MegAphaseSensorSettings.FiltrateMode):
+                case nameof(MegAphaseSensorSettings.FiltrateWinSize):
+                case nameof(MegAphaseSensorSettings.FiltrateNeighborCloseLevel):
+                case nameof(MegAphaseSensorSettings.FiltrateNeighborNumLevel):
+                case nameof(MegAphaseSensorSettings.FiltrateMendPointOnly):
+                    ApplySoftwarePreprocessSettings();
+                    break;
                 case nameof(MegAphaseSensorSettings.WorkingMode):
                     SetSensorValue(() => _sensor.WorkingMode = Settings.WorkingMode);
                     break;
@@ -817,6 +839,132 @@ namespace ReeYin.Hardware.Sensor.MEGAPHASE
                     break;
             }
         }
+
+        /// <summary>
+        /// 按当前设置重建SDK软件预处理链。
+        /// </summary>
+        private void ApplySoftwarePreprocessSettings()
+        {
+            SetSensorValue(() =>
+            {
+                lock (_softwarePreprocessLock)
+                {
+                    _sensor.SetSoftwarePreprocessEnable(false);
+                    _sensor.SoftwarePreprocessClear();
+
+                    if (!Settings.SoftwarePreprocessEnabled)
+                    {
+                        return;
+                    }
+
+                    bool hasStep = false;
+                    if (Settings.RemoveBurrsMode != SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off)
+                    {
+                        if (!_sensor.AppendSoftwarePreprocess_RemoveBurrs(Settings.RemoveBurrsMode, Settings.RemoveBurrsWinSize, Settings.RemoveBurrsWinSize2, Settings.RemoveBurrsSlopeLevel, Settings.RemoveBurrsNeighborCloseLevel, Settings.RemoveBurrsNeighborNumLevel, Settings.RemoveBurrsEdgeSuppressLevel))
+                        {
+                            return;
+                        }
+
+                        hasStep = true;
+                    }
+
+                    if (Settings.MendMode != SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off)
+                    {
+                        if (!_sensor.AppendSoftwarePreprocess_Mend(Settings.MendMode, Settings.MendWinSize, Settings.MendWinSize2, Settings.MendMethod))
+                        {
+                            _sensor.SetSoftwarePreprocessEnable(false);
+                            return;
+                        }
+
+                        hasStep = true;
+                    }
+
+                    if (Settings.FiltrateMode != SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off)
+                    {
+                        byte filtrateMendPointOnly = (byte)(Settings.FiltrateMendPointOnly ? 1 : 0);
+                        if (!_sensor.AppendSoftwarePreprocess_Filtrate(Settings.FiltrateMode, Settings.FiltrateWinSize, Settings.FiltrateNeighborCloseLevel, Settings.FiltrateNeighborNumLevel, filtrateMendPointOnly))
+                        {
+                            _sensor.SetSoftwarePreprocessEnable(false);
+                            return;
+                        }
+
+                        hasStep = true;
+                    }
+
+                    _sensor.SetSoftwarePreprocessEnable(hasStep);
+                }
+            });
+        }
+
+        /// <summary>
+        /// 读取设备当前软件预处理链，只映射本页面支持的三类算法。
+        /// </summary>
+        private void RefreshSoftwarePreprocessSettingsFromDevice()
+        {
+            lock (_softwarePreprocessLock)
+            {
+                Settings.RemoveBurrsMode = SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off;
+                Settings.MendMode = SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off;
+                Settings.FiltrateMode = SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off;
+
+                if (!_sensor.GetSoftwarePreprocessEnable(out bool enable))
+                {
+                    Settings.SoftwarePreprocessEnabled = false;
+                    return;
+                }
+
+                Settings.SoftwarePreprocessEnabled = enable;
+                if (!_sensor.GetSoftwarePreprocessCount(out uint count))
+                {
+                    return;
+                }
+
+                for (uint i = 0; i < count; i++)
+                {
+                    _sensor.GetSoftwarePreprocessTypeAt(i, out SoftwarePreprocessType type);
+                    if (!_sensor.GetSoftwarePreprocessModeAt(i, out SoftwarePreprocessModeType mode))
+                    {
+                        continue;
+                    }
+
+                    switch (type)
+                    {
+                        case SoftwarePreprocessType.SoftwareProcessType_RemoveBurrs:
+                            Settings.RemoveBurrsMode = mode;
+                            if (_sensor.GetSoftwarePreprocess_RemoveBurrsAt(i, mode, out byte removeWinSize, out byte removeWinSize2, out byte slopeLevel, out byte removeNeighborCloseLevel, out byte removeNeighborNumLevel, out byte edgeSuppressLevel))
+                            {
+                                Settings.RemoveBurrsWinSize = removeWinSize;
+                                Settings.RemoveBurrsWinSize2 = removeWinSize2;
+                                Settings.RemoveBurrsSlopeLevel = slopeLevel;
+                                Settings.RemoveBurrsNeighborCloseLevel = removeNeighborCloseLevel;
+                                Settings.RemoveBurrsNeighborNumLevel = removeNeighborNumLevel;
+                                Settings.RemoveBurrsEdgeSuppressLevel = edgeSuppressLevel;
+                            }
+                            break;
+                        case SoftwarePreprocessType.SoftwareProcessType_Mend:
+                            Settings.MendMode = mode;
+                            if (_sensor.GetSoftwarePreprocess_MendAt(i, mode, out byte mendWinSize, out byte mendWinSize2, out byte mendMethod))
+                            {
+                                Settings.MendWinSize = mendWinSize;
+                                Settings.MendWinSize2 = mendWinSize2;
+                                Settings.MendMethod = mendMethod;
+                            }
+                            break;
+                        case SoftwarePreprocessType.SoftwareProcessType_Filtrate:
+                            Settings.FiltrateMode = mode;
+                            if (_sensor.GetSoftwarePreprocess_FiltrateAt(i, mode, out byte filtrateWinSize, out byte filtrateNeighborCloseLevel, out byte filtrateNeighborNumLevel, out byte filtrateMendPointOnly))
+                            {
+                                Settings.FiltrateWinSize = filtrateWinSize;
+                                Settings.FiltrateNeighborCloseLevel = filtrateNeighborCloseLevel;
+                                Settings.FiltrateNeighborNumLevel = filtrateNeighborNumLevel;
+                                Settings.FiltrateMendPointOnly = filtrateMendPointOnly != 0;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// 页面参数变更时写入设备；刷新页面数据时不反写设备
         /// </summary>

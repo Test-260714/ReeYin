@@ -31,6 +31,7 @@ namespace ReeYin.Hardware.Sensor.JingCe.CustomUI.ViewModels
         private HObject? _grayImage;
         private ImageResultsDisplay? _heightDisplayResult;
         private int _selectedLayerIndex;
+        private bool _isStoppingCollect;
 
         public HObject? GrayImage
         {
@@ -306,7 +307,7 @@ namespace ReeYin.Hardware.Sensor.JingCe.CustomUI.ViewModels
         });
 
 
-        public DelegateCommand<string> SensorCtrlCommand => new DelegateCommand<string>((order) =>
+        public DelegateCommand<string> SensorCtrlCommand => new DelegateCommand<string>(async (order) =>
         {
             if (ModelParam?.JingCeSensor == null)
                 return;
@@ -323,11 +324,21 @@ namespace ReeYin.Hardware.Sensor.JingCe.CustomUI.ViewModels
                     ModelParam.JingCeSensor.StartCollect();
                     break;
                 case "停止采集":
-                    if (!ModelParam.JingCeSensor.TryStopCollect())
+                    if (_isStoppingCollect)
                     {
                         return;
                     }
-                    RenderCollectedData();
+
+                    _isStoppingCollect = true;
+                    try
+                    {
+                        await ModelParam.JingCeSensor.TryStopCollectAsync();
+                        RenderCollectedData();
+                    }
+                    finally
+                    {
+                        _isStoppingCollect = false;
+                    }
                     break;
                 default:
                     break;

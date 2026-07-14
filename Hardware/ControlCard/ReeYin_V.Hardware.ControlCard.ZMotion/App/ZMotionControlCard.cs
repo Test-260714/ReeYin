@@ -5,7 +5,6 @@ using ReeYin_V.Hardware.ControlCard.Models;
 using ReeYin_V.Hardware.ControlCard.ZMotion.Api;
 using System;
 using System.Linq;
-using System.Threading;
 
 namespace ReeYin_V.Hardware.ControlCard.ZMotion.App
 {
@@ -22,6 +21,8 @@ namespace ReeYin_V.Hardware.ControlCard.ZMotion.App
         /// 控制卡句柄
         /// </summary>
         private IntPtr g_handle = IntPtr.Zero;
+
+        private readonly object diagnosticSync = new();
 
         /// <summary>
         /// 连接类型 0-串口 1-以太网
@@ -292,63 +293,8 @@ namespace ReeYin_V.Hardware.ControlCard.ZMotion.App
 
         protected override bool DoGoHome(out string message)
         {
-            message = "";
-            try
-            {
-                // 使用Modbus寄存器发送回零命令
-                UInt16[] pdata = new UInt16[1];
-                pdata[0] = 1; // 1表示回零命令
-                
-                int ret = Zmcaux.ZAux_Modbus_Set4x(g_handle, 50, 1, pdata);
-                
-                if (ret != 0)
-                {
-                    message = $"回零命令发送失败，错误码：{ret}";
-                    return false;
-                }
-
-                // 等待回零完成
-                bool allHomed = false;
-                int timeout = 30000; // 30秒超时
-                int elapsed = 0;
-                
-                while (!allHomed && elapsed < timeout)
-                {
-                    allHomed = true;
-                    foreach (var axis in Config.AllAxis)
-                    {
-                        int idleStatus = 0;
-                        Zmcaux.ZAux_Direct_GetIfIdle(g_handle, axis.AxisNo - 1, ref idleStatus);
-                        
-                        if (idleStatus == 0) // 还在运动
-                        {
-                            allHomed = false;
-                            break;
-                        }
-                    }
-                    
-                    if (!allHomed)
-                    {
-                        Thread.Sleep(100);
-                        elapsed += 100;
-                    }
-                }
-
-                if (elapsed >= timeout)
-                {
-                    message = "回零超时";
-                    return false;
-                }
-
-                message = "回零完成";
-                return true;
-            }
-            catch (Exception ex)
-            {
-                message = $"回零失败：{ex.Message}";
-                Console.WriteLine($"DoGoHome()_轴回零失败：{ex.Message}");
-                return false;
-            }
+            message = "正运动通用控制卡未配置回零方式，请由具体设备模块实现回零流程";
+            return false;
         }
 
         public override bool GetAllPosInfos(ref double[] allPosInfos, short core = 2)
@@ -463,26 +409,6 @@ namespace ReeYin_V.Hardware.ControlCard.ZMotion.App
                 Console.WriteLine($"GetEncoderSpeed()_异常：{ex.Message}");
                 return 0;
             }
-        }
-
-        /// <summary>
-        /// 根据编码器速度计算线扫相机行频
-        /// </summary>
-        /// <param name="encoderSpeed">编码器速度（脉冲/秒）</param>
-        /// <param name="encoderResolution">编码器分辨率（脉冲/mm）</param>
-        /// <param name="pixelSize">像素尺寸（mm/像素）</param>
-        /// <returns>行频（Hz）</returns>
-        public static float CalculateLineRate(float encoderSpeed, float encoderResolution, float pixelSize)
-        {
-            // 走带速度 = 编码器速度 / 编码器分辨率 (mm/s)
-            // 行频 = 走带速度 / 像素尺寸 (Hz)
-            if (encoderResolution <= 0 || pixelSize <= 0)
-                return 0;
-                
-            float beltSpeed = encoderSpeed / encoderResolution; // mm/s
-            float lineRate = beltSpeed / pixelSize; // Hz
-            
-            return lineRate;
         }
 
         public override bool GetAllInput(out bool[] Status)
@@ -615,6 +541,174 @@ namespace ReeYin_V.Hardware.ControlCard.ZMotion.App
                 return false;
             }
         }
+
+        public bool TryGetAxisDiagnostic(
+            short axisId,
+            out float position,
+            out bool isEnabled,
+            out bool isIdle,
+            out int errorCode,
+            out string message)
+        {
+            position = 0;
+            isEnabled = false;
+            isIdle = false;
+            errorCode = 0;
+
+            if (!TryGetConfiguredAxis(axisId, out _, out message))
+            {
+                return false;
+            }
+
+            lock (diagnosticSync)
+            {
+                int enableStatus = 0;
+                int idleStatus = 0;
+
+                errorCode = Zmcaux.ZAux_Direct_GetDpos(g_handle, axisId, ref position);
+                if (errorCode == 0)
+                {
+                    errorCode = Zmcaux.ZAux_Direct_GetAxisEnable(g_handle, axisId, ref enableStatus);
+                }
+
+                if (errorCode == 0)
+                {
+                    errorCode = Zmcaux.ZAux_Direct_GetIfIdle(g_handle, axisId, ref idleStatus);
+                }
+
+                if (errorCode != 0)
+                {
+                    message = $"读取轴 {axisId} 状态失败，SDK 错误码：{errorCode}";
+                    return false;
+                }
+
+                isEnabled = enableStatus == 1;
+                isIdle = idleStatus == -1;
+                message = string.Empty;
+                return true;
+            }
+        }
+
+        public bool TrySetAxisEnabled(short axisId, bool isEnabled, out int errorCode, out string message)
+        {
+            errorCode = 0;
+            if (!TryGetConfiguredAxis(axisId, out _, out message))
+            {
+                return false;
+            }
+
+            lock (diagnosticSync)
+            {
+                errorCode = Zmcaux.ZAux_Direct_SetAxisEnable(g_handle, axisId, isEnabled ? 1 : 0);
+            }
+
+            message = errorCode == 0
+                ? $"轴 {axisId} 已{(isEnabled ? "使能" : "去使能")}" 
+                : $"设置轴 {axisId} 使能状态失败，SDK 错误码：{errorCode}";
+            return errorCode == 0;
+        }
+
+        public bool TryStartJog(short axisId, MoveDirection direction, out int errorCode, out string message)
+        {
+            errorCode = 0;
+            if (!TryGetConfiguredAxis(axisId, out var axis, out message))
+            {
+                return false;
+            }
+
+            lock (diagnosticSync)
+            {
+                if (!TryEnsureAxisCanMove(axisId, out errorCode, out message))
+                {
+                    return false;
+                }
+
+                float speed = GetAxisSpeed(axis.AxisNum);
+                if (!float.IsFinite(speed) || speed <= 0)
+                {
+                    message = $"轴 {axisId} 的工作速度配置无效";
+                    return false;
+                }
+
+                bool reverse = direction == MoveDirection.反向;
+                if (axis.MovingDirNe)
+                {
+                    reverse = !reverse;
+                }
+
+                errorCode = Zmcaux.ZAux_Direct_Single_Vmove(g_handle, axisId, reverse ? -speed : speed);
+            }
+
+            message = errorCode == 0
+                ? $"轴 {axisId} 开始{(direction == MoveDirection.反向 ? "反向" : "正向")}点动"
+                : $"轴 {axisId} 点动失败，SDK 错误码：{errorCode}";
+            return errorCode == 0;
+        }
+
+        public bool TryMoveAbsolute(short axisId, double targetPosition, out int errorCode, out string message)
+        {
+            errorCode = 0;
+            if (!double.IsFinite(targetPosition))
+            {
+                message = "目标位置必须是有效数值";
+                return false;
+            }
+
+            if (targetPosition < -float.MaxValue || targetPosition > float.MaxValue)
+            {
+                message = "目标位置超出控制器可接受范围";
+                return false;
+            }
+
+            if (!TryGetConfiguredAxis(axisId, out var axis, out message))
+            {
+                return false;
+            }
+
+            if (!TryRefreshAxisPositions(out errorCode, out message))
+            {
+                return false;
+            }
+
+            if (!ValidateLimitPosition(axis.AxisNum, targetPosition, out message))
+            {
+                return false;
+            }
+
+            lock (diagnosticSync)
+            {
+                if (!TryEnsureAxisCanMove(axisId, out errorCode, out message))
+                {
+                    return false;
+                }
+
+                errorCode = Zmcaux.ZAux_Direct_Single_MoveAbs(g_handle, axisId, (float)targetPosition);
+            }
+
+            message = errorCode == 0
+                ? $"轴 {axisId} 已下发绝对定位：{targetPosition:F3}"
+                : $"轴 {axisId} 绝对定位失败，SDK 错误码：{errorCode}";
+            return errorCode == 0;
+        }
+
+        public bool TryStopAxis(short axisId, out int errorCode, out string message)
+        {
+            errorCode = 0;
+            if (!TryGetConfiguredAxis(axisId, out _, out message))
+            {
+                return false;
+            }
+
+            lock (diagnosticSync)
+            {
+                errorCode = Zmcaux.ZAux_Direct_Single_Cancel(g_handle, axisId, 2);
+            }
+
+            message = errorCode == 0
+                ? $"轴 {axisId} 已停止"
+                : $"停止轴 {axisId} 失败，SDK 错误码：{errorCode}";
+            return errorCode == 0;
+        }
         #endregion
 
         #region Helper Methods
@@ -643,6 +737,93 @@ namespace ReeYin_V.Hardware.ControlCard.ZMotion.App
                 }
             }
             return 100f;
+        }
+
+        private bool TryGetConfiguredAxis(short axisId, out SingleAxisParam axis, out string message)
+        {
+            axis = null!;
+            if (!IsConnected || g_handle == IntPtr.Zero)
+            {
+                message = "ZMotion 控制卡未连接";
+                return false;
+            }
+
+            axis = Config.AllAxis.FirstOrDefault(item => item.AxisNo - 1 == axisId)!;
+            if (axis == null)
+            {
+                message = $"轴 {axisId} 未配置";
+                return false;
+            }
+
+            message = string.Empty;
+            return true;
+        }
+
+        private bool TryEnsureAxisCanMove(short axisId, out int errorCode, out string message)
+        {
+            int enableStatus = 0;
+            errorCode = Zmcaux.ZAux_Direct_GetAxisEnable(g_handle, axisId, ref enableStatus);
+            if (errorCode != 0)
+            {
+                message = $"读取轴 {axisId} 使能状态失败，SDK 错误码：{errorCode}";
+                return false;
+            }
+
+            if (enableStatus != 1)
+            {
+                message = $"轴 {axisId} 未使能";
+                return false;
+            }
+
+            int idleStatus = 0;
+            errorCode = Zmcaux.ZAux_Direct_GetIfIdle(g_handle, axisId, ref idleStatus);
+            if (errorCode != 0)
+            {
+                message = $"读取轴 {axisId} 运行状态失败，SDK 错误码：{errorCode}";
+                return false;
+            }
+
+            if (idleStatus != -1)
+            {
+                message = $"轴 {axisId} 正在运动";
+                return false;
+            }
+
+            message = string.Empty;
+            return true;
+        }
+
+        private bool TryRefreshAxisPositions(out int errorCode, out string message)
+        {
+            errorCode = 0;
+            var configuredAxes = Config.AllAxis.Where(item => item.AxisNo > 0).ToList();
+            int requiredLength = configuredAxes.Count == 0
+                ? 0
+                : configuredAxes.Max(item => item.AxisNo);
+            if (CurPos == null || CurPos.Length < requiredLength)
+            {
+                CurPos = new double[requiredLength];
+            }
+
+            lock (diagnosticSync)
+            {
+                foreach (var axis in configuredAxes)
+                {
+                    float position = 0;
+                    int axisId = axis.AxisNo - 1;
+                    errorCode = Zmcaux.ZAux_Direct_GetDpos(g_handle, axisId, ref position);
+                    if (errorCode != 0)
+                    {
+                        message = $"读取轴 {axisId} 位置失败，SDK 错误码：{errorCode}";
+                        return false;
+                    }
+
+                    CurPos[axisId] = position;
+                }
+            }
+
+            message = string.Empty;
+            return true;
         }
 
         private bool EnsureIoReady(string caller)

@@ -249,7 +249,6 @@ namespace ReeYin.Hardware.Sensor.JueXin_LineSpectrum.CustomUI.ViewModels
             {
                 return;
             }
-
             float[] distances = latest.AreaData[0] ?? Array.Empty<float>();
             float[] peaks = latest.AreaData.Count > 1 ? latest.AreaData[1] ?? Array.Empty<float>() : Array.Empty<float>();
             UpdateSignalChart(DistanceChartView, distances, !_distanceChartUserAdjusted);
@@ -298,9 +297,11 @@ namespace ReeYin.Hardware.Sensor.JueXin_LineSpectrum.CustomUI.ViewModels
                     Color = ParseColor(lineColor),
                     Width = 2
                 },
-                Points = values.Length == 0
-                    ? Array.Empty<SeriesPoint>()
-                    : values.Select((value, index) => new SeriesPoint(index, value)).ToArray()
+                Points = values
+                .Select((value, index) => (value, index))
+                .Where(item => IsValidSignalValue(item.value))
+                .Select(item => new SeriesPoint(item.index, item.value))
+                .ToArray()
             };
 
             ViewXY view = new ViewXY
@@ -360,9 +361,11 @@ namespace ReeYin.Hardware.Sensor.JueXin_LineSpectrum.CustomUI.ViewModels
                 return;
             }
 
-            series.Points = values.Length == 0
-                ? Array.Empty<SeriesPoint>()
-                : values.Select((value, index) => new SeriesPoint(index, value)).ToArray();
+            series.Points = values
+                .Select((value, index) => (value, index))
+                .Where(item => IsValidSignalValue(item.value))
+                .Select(item => new SeriesPoint(item.index, item.value))
+                .ToArray();
 
             if (!fitAxes)
             {
@@ -384,17 +387,18 @@ namespace ReeYin.Hardware.Sensor.JueXin_LineSpectrum.CustomUI.ViewModels
         }
 
         /// <summary>
-        /// 计算 Y 轴范围，并为曲线留出显示边距。
+        /// 计算Y轴范围，并为曲线留出显示边距。
         /// </summary>
         private static (double Minimum, double Maximum) GetAxisRange(float[] values)
         {
-            if (values.Length == 0)
+            float[] validValues = values.Where(IsValidSignalValue).ToArray();
+            if (validValues.Length == 0)
             {
                 return (-1, 1);
             }
 
-            double minimum = values.Min();
-            double maximum = values.Max();
+            double minimum = validValues.Min();
+            double maximum = validValues.Max();
             if (Math.Abs(maximum - minimum) < 0.000001)
             {
                 double padding = Math.Max(1, Math.Abs(maximum) * 0.1);
@@ -403,6 +407,11 @@ namespace ReeYin.Hardware.Sensor.JueXin_LineSpectrum.CustomUI.ViewModels
 
             double range = maximum - minimum;
             return (minimum - range * 0.1, maximum + range * 0.1);
+        }
+
+        private static bool IsValidSignalValue(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value);
         }
 
         /// <summary>

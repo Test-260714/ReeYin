@@ -223,11 +223,11 @@
                 <!--操作-->
                 <Expander Header="点击此处显示或隐藏" Background="Gray" BorderThickness="0" HorizontalContentAlignment="Center"
                   IsExpanded="True" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Bottom">
-                    <Border  MaxHeight="200"  CornerRadius="3">
+                    <Border  MaxHeight="250"  CornerRadius="3">
                         <Border.Background>
                             <SolidColorBrush Color="Gray" Opacity="0.7" />
                         </Border.Background>
-                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" Height="200" Width="400" >
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" Height="250" Width="400" >
                             <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <!--参数设置按钮 - 改为ToggleButton-->
@@ -289,6 +289,46 @@
 											ToolTip="调整视距 (50-500) &#x0A;+/- 键快速调整" IsEnabled="{Binding Model.IsEnabeld}" x:Name="slider_ViewDistance"/>
                                     <TextBlock Text="180" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{DynamicResource MainPrimaryTextBrush}"
 										FontSize="10" Width="30" x:Name="tb_ViewDistance"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0 5 0 0">
+                                    <TextBlock
+										Text="宽度缩放:"
+										VerticalAlignment="Center"
+										Margin="0,0,5,0"
+										Foreground="{DynamicResource MainPrimaryTextBrush}"
+										FontSize="10" />
+                                    <hc:NumericUpDown
+										Width="80"
+										Value="1.0"
+										Minimum="0.1"
+										Maximum="10.0"
+										Increment="0.1"
+										DecimalPlaces="1"
+										ToolTip="调整3D视图的X轴缩放 (0.1 - 10.0)"
+										IsEnabled="{Binding Model.IsEnabeld}"
+										KeyDown="Nud_3DScale_KeyDown" x:Name="nud_3DWidthScale"
+										LostFocus="Nud_3DScale_LostFocus" />
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0 5 0 0">
+                                    <TextBlock
+										Text="长度缩放:"
+										VerticalAlignment="Center"
+										Margin="0,0,5,0"
+										Foreground="{DynamicResource MainPrimaryTextBrush}"
+										FontSize="10" />
+                                    <hc:NumericUpDown
+										Width="80"
+										Value="1.0"
+										Minimum="0.1"
+										Maximum="10.0"
+										Increment="0.1"
+										DecimalPlaces="1"
+										ToolTip="调整3D视图的Z轴缩放 (0.1 - 10.0)"
+										IsEnabled="{Binding Model.IsEnabeld}"
+										KeyDown="Nud_3DScale_KeyDown" x:Name="nud_3DLengthScale"
+										LostFocus="Nud_3DScale_LostFocus" />
                                 </StackPanel>
 
                                 <!-- 3D高度维度控制 -->

@@ -44,12 +44,9 @@ namespace Custom.DefectOverview.Services
 		}
 		_wallCurrentPage = num4;
 		HistoryItem historyItem = FindHistoryItemByDefectKey(history, _selectedDefectKey);
-		Dictionary<string, int> legendCounts = new Dictionary<string, int>(_legendCounts, StringComparer.OrdinalIgnoreCase);
-		bool value;
-		HashSet<string> enabledLegendKeys = legendCounts.Keys.Where((string key) => !string.IsNullOrWhiteSpace(key) && (!_legendFilters.TryGetValue(key, out value) || value)).ToHashSet<string>(StringComparer.OrdinalIgnoreCase);
 		RenderMetrics renderMetrics = BuildRenderMetricsLocked();
 		List<BandMapGuideLineItem> guideLines = BuildGuideLines(renderMetrics, slittingSettings);
-		List<BandMapPointItem> list2 = BuildVisibleMapPoints(history, minMeters, maxMeters, safeFrameSpan, safeWindow, enabledLegendKeys, renderMetrics, slittingSettings);
+		List<BandMapPointItem> list2 = BuildVisibleMapPoints(history, minMeters, maxMeters, safeFrameSpan, safeWindow, renderMetrics, slittingSettings);
 		List<BandMapRecentDefectItem> recentDefects = BuildRecentDefects(history, safeFrameSpan, slittingSettings);
 		List<BandMapWallItem> list3 = wallList.Skip((num4 - 1) * WallPageSize).Take(WallPageSize).Select(delegate(HistoryItem item)
 		{
@@ -59,21 +56,6 @@ namespace Custom.DefectOverview.Services
 			.ToList();
 		List<BandMapAxisTickItem> xAxisTicks = BuildXAxisTicks(renderMetrics);
 		List<BandMapAxisTickItem> yAxisTicks = BuildYAxisTicks(renderMetrics, minMeters, maxMeters);
-		int value2;
-		List<BandMapLegendItem> legendItems = (from item in _legendStyles.Values
-			orderby item.DisplayOrder
-			where legendCounts.ContainsKey(item.LegendKey)
-			select new BandMapLegendItem
-			{
-				LegendKey = item.LegendKey,
-				ClassName = item.ClassName,
-				MarkerKind = item.MarkerKind,
-				Fill = item.Fill,
-				Stroke = item.Stroke,
-				IsChecked = (!_legendFilters.TryGetValue(item.LegendKey, out value) || value),
-				DefectCount = (legendCounts.TryGetValue(item.LegendKey, out value2) ? value2 : 0),
-				SummaryText = $"{item.ClassName} ({value2})"
-			}).ToList();
 		string batchNumberText = BuildBatchNumberText(_batchStartedLocalTime, _batchNumber);
 		BandMapWallItem selectedWallItem = list3.FirstOrDefault((BandMapWallItem item) => item.DefectKey == _selectedDefectKey) ?? list3.FirstOrDefault() ?? ((historyItem == null) ? null : CreateWallItem(historyItem, (double)historyItem.FrameSequence * safeFrameSpan / 1000.0, isSelected: true, slittingSettings));
 		int recentNgFrameCount = _recentFrameResults.Count((bool item) => item);
@@ -120,16 +102,17 @@ namespace Custom.DefectOverview.Services
 			Path2Result = _path2Result,
 			Path1DefectCount = _path1DefectCount,
 			Path2DefectCount = _path2DefectCount,
+			TotalDefectCount = history.Count,
 			SelectedDefectKey = _selectedDefectKey,
 			SelectionVersion = _selectionVersion,
 			GuideLines = guideLines,
-			LegendItems = legendItems,
 			DefectPoints = list2,
 			XAxisTicks = xAxisTicks,
 			YAxisTicks = yAxisTicks,
 			RecentDefects = recentDefects,
 			WallItems = list3,
 			ReportRows = Array.Empty<BandMapReportRow>(),
+			CameraSnapshots = _cameraSnapshots,
 			SelectedWallItem = selectedWallItem,
 			WallSummaryText = $"最近看板 {wallList.Count} / 记录 {history.Count} 条",
 			WallCurrentPage = num4,
@@ -163,12 +146,11 @@ namespace Custom.DefectOverview.Services
 		double maxMeters,
 		double safeFrameSpan,
 		double safeWindow,
-		ISet<string> enabledLegendKeys,
 		RenderMetrics renderMetrics,
 		BandMapSlittingSettings slittingSettings)
 	{
 		var points = new List<BandMapPointItem>(Math.Min(MaxVisibleMapPoints, Math.Max(0, history?.Count ?? 0)));
-		if (history == null || history.Count == 0 || enabledLegendKeys == null || enabledLegendKeys.Count == 0)
+		if (history == null || history.Count == 0)
 		{
 			return points;
 		}
@@ -190,11 +172,6 @@ namespace Custom.DefectOverview.Services
 			if (meter < minMeters)
 			{
 				break;
-			}
-
-			if (!enabledLegendKeys.Contains(item.LegendKey ?? string.Empty))
-			{
-				continue;
 			}
 
 			double yRatio = safeWindow <= 0.0 ? 0.0 : (meter - minMeters) / safeWindow;

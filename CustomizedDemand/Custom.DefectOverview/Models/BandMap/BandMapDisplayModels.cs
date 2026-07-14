@@ -46,6 +46,7 @@ namespace Custom.DefectOverview.Models
     public sealed class BandMapFrameInput
     {
         public string FrameIdText { get; init; }
+        public long CycleId { get; init; }
         public BandMapPathInput Left { get; init; }
         public BandMapPathInput Right { get; init; }
     }
@@ -159,18 +160,6 @@ namespace Custom.DefectOverview.Models
         public bool IsCrossSlit { get; init; }
     }
 
-    public sealed class BandMapLegendItem
-    {
-        public string LegendKey { get; init; }
-        public string ClassName { get; init; }
-        public string MarkerKind { get; init; }
-        public Brush Fill { get; init; }
-        public Brush Stroke { get; init; }
-        public bool IsChecked { get; init; } = true;
-        public int DefectCount { get; init; }
-        public string SummaryText { get; init; }
-    }
-
     public sealed class BandMapGuideLineItem
     {
         public double X1 { get; init; }
@@ -189,6 +178,17 @@ namespace Custom.DefectOverview.Models
         public double? StripWidthMillimeters { get; init; }
         public int SlitCount { get; init; }
         public string SummaryText { get; init; } = "切刀分切未启用";
+    }
+
+    public sealed class BandMapCameraSnapshotItem
+    {
+        public int SortIndex { get; init; }
+        public string CameraKey { get; init; }
+        public string CameraName { get; init; }
+        public string StatusText { get; init; } = "暂无图像";
+        public string StatusState { get; init; } = "Offline";
+        public string LastRefreshText { get; init; } = "暂无缓存";
+        public ImageSource SnapshotImage { get; init; }
     }
 
     public sealed class BandMapStateSnapshot
@@ -233,16 +233,17 @@ namespace Custom.DefectOverview.Models
         public string Path2Result { get; init; }
         public int Path1DefectCount { get; init; }
         public int Path2DefectCount { get; init; }
+        public int TotalDefectCount { get; init; }
         public string SelectedDefectKey { get; init; }
         public long SelectionVersion { get; init; }
         public IReadOnlyList<BandMapGuideLineItem> GuideLines { get; init; } = Array.Empty<BandMapGuideLineItem>();
-        public IReadOnlyList<BandMapLegendItem> LegendItems { get; init; } = Array.Empty<BandMapLegendItem>();
         public IReadOnlyList<BandMapPointItem> DefectPoints { get; init; } = Array.Empty<BandMapPointItem>();
         public IReadOnlyList<BandMapAxisTickItem> XAxisTicks { get; init; } = Array.Empty<BandMapAxisTickItem>();
         public IReadOnlyList<BandMapAxisTickItem> YAxisTicks { get; init; } = Array.Empty<BandMapAxisTickItem>();
         public IReadOnlyList<BandMapRecentDefectItem> RecentDefects { get; init; } = Array.Empty<BandMapRecentDefectItem>();
         public IReadOnlyList<BandMapWallItem> WallItems { get; init; } = Array.Empty<BandMapWallItem>();
         public IReadOnlyList<BandMapReportRow> ReportRows { get; init; } = Array.Empty<BandMapReportRow>();
+        public IReadOnlyList<BandMapCameraSnapshotItem> CameraSnapshots { get; init; } = Array.Empty<BandMapCameraSnapshotItem>();
         public BandMapWallItem SelectedWallItem { get; init; }
         public string WallSummaryText { get; init; } = "最近缺陷 0 条";
         public int WallCurrentPage { get; init; } = 1;

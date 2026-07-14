@@ -169,6 +169,40 @@
                             </StackPanel>
                         </TabItem>
 
+                        <TabItem Header="扫码枪配置" Width="120" Height="45" FontSize="20" Style="{StaticResource TabItemExWithUnderLineStyle}">
+                            <StackPanel Orientation="Vertical">
+                                <WxGroupBox:WxGroupBox Header="扫码枪 TCP 配置" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                    <UniformGrid Columns="2" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <TextBlock Text="扫码枪IP:" Foreground="Black" VerticalAlignment="Center"/>
+                                        <TextBox Width="220" Height="25" BorderThickness="0 0 0 1" Margin="5 0" Text="{Binding ModelParam.ScannerIp,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center"/>
+
+                                        <TextBlock Text="TCP端口:" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <WxNumericUpDown:WxNumericUpDown Minimum="1" Maximum="65535" Width="220" Margin="5 8 0 0" SmallChange="1" BorderThickness="0 0 0 1"
+                                            Value="{Binding ModelParam.ScannerTriggerPort,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        <TextBlock Text="触发HEX:" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <TextBox Width="220" Height="25" BorderThickness="0 0 0 1" Margin="5 8 0 0" Text="{Binding ModelParam.ScannerTriggerHex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center"/>
+
+                                        <TextBlock Text="超时时间(ms):" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <WxNumericUpDown:WxNumericUpDown Minimum="1" Maximum="99999999" Width="220" Margin="5 8 0 0" SmallChange="100" BorderThickness="0 0 0 1"
+                                            Value="{Binding ModelParam.ScannerTimeoutMs,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        <TextBlock Text="手动触发扫码:" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <Button Content="触发扫码" Width="120" Height="30" Margin="5 8 0 0" HorizontalAlignment="Left" Style="{StaticResource GeneralButtonStyle}"
+                                            Command="{Binding GeneralCommand}" CommandParameter="触发扫码枪"/>
+
+                                        <TextBlock Text="扫码结果:" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <TextBox Width="220" Height="25" BorderThickness="0 0 0 1" Margin="5 8 0 0" Text="{Binding ModelParam.ScannerLastCode,Mode=OneWay}" IsReadOnly="True" HorizontalContentAlignment="Center"/>
+
+                                        <TextBlock Text="扫码成功写PLC:" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <CheckBox Width="220" Margin="5 8 0 0" IsChecked="{Binding ModelParam.ScannerWritePlcOnSuccess,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        <TextBlock Text="成功PLC地址:" Foreground="Black" VerticalAlignment="Center" Margin="0 8 0 0"/>
+                                        <TextBox Width="220" Height="25" BorderThickness="0 0 0 1" Margin="5 8 0 0" Text="{Binding ModelParam.ScannerSuccessPlcAddress,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center"/>
+                                    </UniformGrid>
+                                </WxGroupBox:WxGroupBox>
+                            </StackPanel>
+                        </TabItem>
                         <TabItem Header="图像参数" Width="100" Height="45" FontSize="20" Style="{StaticResource TabItemExWithUnderLineStyle}">
                             <StackPanel Orientation="Vertical">
                                 <WxGroupBox:WxGroupBox  Header="文件设置>>"  VerticalAlignment="Top"  HorizontalAlignment="Stretch">
@@ -179,6 +213,14 @@
                                         <StackPanel Orientation="Horizontal" Margin="10 " HorizontalAlignment="Center">
                                             <TextBlock Text="存图路径:" Foreground="Black" VerticalAlignment="Center" Margin="0 0 0 0" />
                                             <WxLink:WxLink Width="500" Margin="5 0" Order="OpenFile" Text="{Binding ModelParam.OtherConfig.SavePath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+
+                                        <CheckBox Content="启用结果图存图" Width="auto" Margin="10 10 0 10" HorizontalAlignment="Left" FontSize="16"
+                                                               IsChecked="{Binding ModelParam.OtherConfig.IsSaveResultImage,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        <StackPanel Orientation="Horizontal" Margin="10 " HorizontalAlignment="Center">
+                                            <TextBlock Text="结果图路径:" Foreground="Black" VerticalAlignment="Center" Margin="0 0 0 0" />
+                                            <WxLink:WxLink Width="500" Margin="5 0" Order="OpenFile" Text="{Binding ModelParam.OtherConfig.ResultImageSavePath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
                                         <UniformGrid Columns="2" Margin="0,0,0,8" HorizontalAlignment="Center" VerticalAlignment="Top">
                                             <TextBlock Text="保存天数:" Foreground="Black" VerticalAlignment="Center" />

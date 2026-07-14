@@ -1,14 +1,6 @@
 ﻿using ReeYin_V.Core.Config;
-using ReeYin_V.Core.Interfaces;
 using ReeYin_V.Core.IOC;
 using ReeYin_V.Hardware.PLC.Models;
-using ReeYin_V.UI.Style.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Custom.EVEMFDJC.ViewModels
 {

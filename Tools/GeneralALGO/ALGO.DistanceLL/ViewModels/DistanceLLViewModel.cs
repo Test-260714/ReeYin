@@ -60,7 +60,6 @@ namespace ALGO.DistanceLL.ViewModels
         public override void InitParam()
         {
             ModelParam = InitModelParam<DistanceLLModel>();
-            // 基类 InitOutputParamResource 统一写死 _object，这里按成员真实类型重建，
             // 让 Distance 等数值输出落到 DataType.Double。
             RebuildOutputParamResource();
             ModelParam.LoadKeyParam();

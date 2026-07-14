@@ -1,4 +1,4 @@
-﻿using HalconDotNet;
+using HalconDotNet;
 using Newtonsoft.Json;
 using Prism.Events;
 using Prism.Mvvm;
@@ -39,7 +39,6 @@ namespace ImageTool.GrabImage.Models
     {
         #region Fields
         private const int MaxRetainedOutputSnapshotCount = 4;
-        private static long _flowCycleSeed;
 
         [NonSerialized]
         private System.Timers.Timer _watchdogTimer;
@@ -1696,13 +1695,7 @@ namespace ImageTool.GrabImage.Models
 
                         // 5. 发布 SwitchWorkStatusEvent → TriggerWork → ExecuteMulti
                         var triggerSw = Stopwatch.StartNew();
-<<<<<<< .mine
-                        long cycleId = Interlocked.Increment(ref _flowCycleSeed);
-||||||| .r1186
                         long cycleId = FlowCycleContext.CreateAndRegister(Serial);
-=======
-                        long cycleId = FlowCycleContext.CreateAndRegister(Serial);
->>>>>>> .r1220
                         WriteVerboseContinuousGrabLog($"[连续采集] ▶ 触发流程, CycleId={cycleId}, 帧#{_frameCount}, 剩余队列={GetActiveFrameQueueCount()}");
                         if (!requireGrabbing)
                         {

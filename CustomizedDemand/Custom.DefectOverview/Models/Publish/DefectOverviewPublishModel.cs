@@ -295,6 +295,12 @@ namespace Custom.DefectOverview.Models
         private IDefectOverviewPostProcessService _postProcessService;
 
         [JsonIgnore]
+        private IBandMapStateService _bandMapStateService;
+
+        [JsonIgnore]
+        private DateTime _lastGroupedCameraSnapshotCacheUtc = DateTime.MinValue;
+
+        [JsonIgnore]
         public override Func<ExecuteModuleOutput> TriggerModuleRun { get; set; }
 
         public override bool OnceInit()

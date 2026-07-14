@@ -1,4 +1,5 @@
 using Custom.LineScan.Views;
+using Custom.LineScan.Services;
 using Prism.Ioc;
 using Prism.Modularity;
 using ReeYin_V.Core;
@@ -17,6 +18,7 @@ namespace Custom.LineScan
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterAssembly(Assembly.GetExecutingAssembly());
+            containerRegistry.RegisterSingleton<IZMotionPlatformService, ZMotionPlatformService>();
 
             // 注册线扫测试平台节点（集成正运动控制卡和埃科相机）
             containerRegistry.RegisterDialogAndMenu<LineScanTestPlatformView>(null, new MenuInfo

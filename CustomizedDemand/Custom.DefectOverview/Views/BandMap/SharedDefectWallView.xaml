@@ -33,18 +33,20 @@
         </Style>
 
         <Style x:Key="GroupContentCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="BorderBrush" Value="#B7C4D0"/>
+            <Setter Property="BorderThickness" Value="1.25"/>
             <Setter Property="CornerRadius" Value="0,0,10,10"/>
         </Style>
 
         <Style x:Key="ModuleButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#C69300"/>
+            <Setter Property="Background" Value="#34414C"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#B88300"/>
+            <Setter Property="BorderBrush" Value="#6E7E8E"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Height" Value="26"/>
-            <Setter Property="MinWidth" Value="48"/>
+            <Setter Property="MinWidth" Value="58"/>
             <Setter Property="Padding" Value="8,1"/>
             <Setter Property="Margin" Value="4,0,0,0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -62,11 +64,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#B88300"/>
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#9D7000"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#2D3843"/>
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="#8A98A7"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="#9D7000"/>
+                                <Setter TargetName="RootBorder" Property="Background" Value="#26313B"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="RootBorder" Property="Opacity" Value="0.45"/>
@@ -79,7 +81,7 @@
 
         <Style x:Key="DefectWallCardButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#D8E1EA"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -92,18 +94,26 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
+                                CornerRadius="9">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#C69300"/>
-                                <Setter TargetName="CardBorder" Property="Background" Value="#FFF9E8"/>
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#B89A63"/>
+                                <Setter TargetName="CardBorder" Property="Background" Value="#FFFBF2"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#C69300"/>
-                                <Setter TargetName="CardBorder" Property="BorderThickness" Value="3"/>
-                                <Setter TargetName="CardBorder" Property="Background" Value="#FFF7D6"/>
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#B89A63"/>
+                                <Setter TargetName="CardBorder" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="CardBorder" Property="Background" Value="#FFF8E8"/>
+                                <Setter TargetName="CardBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="16"
+                                                          ShadowDepth="0"
+                                                          Color="#B89A63"
+                                                          Opacity="0.42"/>
+                                    </Setter.Value>
+                                </Setter>
                             </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -112,15 +122,16 @@
         </Style>
 
         <Style x:Key="WallInfoTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="9.8"/>
-            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontSize" Value="10.2"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, DengXian, Bahnschrift"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="WallInfoMutedTextStyle" TargetType="TextBlock" BasedOn="{StaticResource WallInfoTextStyle}">
-            <Setter Property="FontSize" Value="8.9"/>
-            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="FontSize" Value="9.4"/>
+            <Setter Property="Foreground" Value="#475569"/>
         </Style>
 
         <Style x:Key="WallInfoLabelStyle" TargetType="Run">
@@ -129,11 +140,11 @@
         </Style>
 
         <Style x:Key="WallConfidenceBadgeStyle" TargetType="Border">
-            <Setter Property="Background" Value="#E0F2FE"/>
-            <Setter Property="BorderBrush" Value="#BAE6FD"/>
+            <Setter Property="Background" Value="#E7F7FF"/>
+            <Setter Property="BorderBrush" Value="#8FD9FF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="5,1"/>
+            <Setter Property="Padding" Value="5,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -141,26 +152,29 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Bahnschrift, Microsoft YaHei UI"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
         <Style x:Key="KeepLatestButtonStyle" TargetType="Button" BasedOn="{StaticResource ModuleButtonStyle}">
             <Setter Property="MinWidth" Value="82"/>
-            <Setter Property="Background" Value="#FFF7D6"/>
-            <Setter Property="Foreground" Value="#8A6100"/>
-            <Setter Property="BorderBrush" Value="#D4A938"/>
+            <Setter Property="Background" Value="#F6F8FA"/>
+            <Setter Property="Foreground" Value="#2F3B46"/>
+            <Setter Property="BorderBrush" Value="#C8D3DD"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeepingLatestSharedDefectWallPage}" Value="True">
-                    <Setter Property="Background" Value="#8A6100"/>
+                    <Setter Property="Background" Value="#B89A63"/>
                     <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="BorderBrush" Value="#6E4D00"/>
+                    <Setter Property="BorderBrush" Value="#947846"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
 
     <Grid>
-        <WxGroupBox:WxGroupBox Header="缺陷墙">
+        <WxGroupBox:WxGroupBox Header="缺陷墙"
+                               Background="#34414C"
+                               HeaderForeground="#F5E3B3">
             <Border Style="{StaticResource GroupContentCardStyle}" Padding="4,4,4,5">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -185,24 +199,22 @@
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="*"/>
-                                                    <RowDefinition Height="54"/>
+                                                    <RowDefinition Height="48"/>
                                                 </Grid.RowDefinitions>
 
-                                                <Border Background="#0F172A"
+                                                <Border Background="#E6ECF2"
                                                         CornerRadius="8,8,0,0"
                                                         ClipToBounds="True">
                                                     <Grid x:Name="WallImageHost">
-                                                        <Border Width="{Binding ActualHeight, ElementName=WallImageHost}"
-                                                                Height="{Binding ActualHeight, ElementName=WallImageHost}"
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Background="#0F172A">
+                                                        <Border HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                Background="#E6ECF2">
                                                             <Grid>
                                                                 <Image Source="{Binding WallImage}"
                                                                        Stretch="Uniform"
                                                                        RenderOptions.BitmapScalingMode="LowQuality"/>
 
-                                                                <Border Background="#172036">
+                                                                <Border Background="#E8EEF4">
                                                                     <Border.Style>
                                                                         <Style TargetType="Border">
                                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -215,12 +227,12 @@
                                                                     </Border.Style>
                                                                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                                                         <TextBlock Text="暂无缺陷图"
-                                                                                   Foreground="#CBD5E1"
+                                                                                   Foreground="#64748B"
                                                                                    FontSize="14"
                                                                                    HorizontalAlignment="Center"/>
                                                                         <TextBlock Margin="0,6,0,0"
                                                                                    Text="{Binding FrameIdText}"
-                                                                                   Foreground="#94A3B8"
+                                                                                   Foreground="#8796A6"
                                                                                    FontSize="10"
                                                                                    HorizontalAlignment="Center"
                                                                                    TextTrimming="CharacterEllipsis"/>
@@ -255,7 +267,7 @@
                                                                         HorizontalAlignment="Right"
                                                                         VerticalAlignment="Top"
                                                                         CornerRadius="8"
-                                                                        Background="#CC0F172A">
+                                                                        Background="#B825323D">
                                                                     <TextBlock Text="{Binding MeterText}"
                                                                                Style="{StaticResource WallPillTextStyle}"/>
                                                                 </Border>
@@ -267,12 +279,11 @@
                                                 <Border Grid.Row="1"
                                                         Background="#FFFFFF"
                                                         CornerRadius="0,0,8,8"
-                                                        Padding="6,3">
+                                                        Padding="6,4">
                                                     <Grid>
                                                         <Grid.RowDefinitions>
+                                                            <RowDefinition Height="20"/>
                                                             <RowDefinition Height="18"/>
-                                                            <RowDefinition Height="16"/>
-                                                            <RowDefinition Height="14"/>
                                                         </Grid.RowDefinitions>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -291,21 +302,14 @@
                                                             <TextBlock Text="{Binding ConfidenceText}"
                                                                        Foreground="#0369A1"
                                                                        FontSize="8.9"
-                                                                       FontWeight="Bold"/>
-                                                        </Border>
+                                                                       FontWeight="Bold"
+                                                                       FontFamily="Bahnschrift, Microsoft YaHei UI"/>
+                                                       </Border>
                                                         <TextBlock Grid.Row="1"
                                                                    Grid.ColumnSpan="2"
-                                                                   Style="{StaticResource WallInfoTextStyle}">
-                                                            <Run Style="{StaticResource WallInfoLabelStyle}" Text="位置 "/>
+                                                                   Style="{StaticResource WallInfoMutedTextStyle}">
                                                             <Run Text="{Binding PositionSummaryText}"/>
-                                                        </TextBlock>
-                                                        <TextBlock Grid.Row="2"
-                                                                   Style="{StaticResource WallInfoMutedTextStyle}"
-                                                                   Grid.ColumnSpan="2">
-                                                            <Run Style="{StaticResource WallInfoLabelStyle}" Text="尺寸 "/>
-                                                            <Run Text="{Binding SizeText}"/>
-                                                            <Run Text="  ·  "/>
-                                                            <Run Style="{StaticResource WallInfoLabelStyle}" Text="帧 "/>
+                                                            <Run Text="  |  "/>
                                                             <Run Text="{Binding MeterText}"/>
                                                         </TextBlock>
                                                     </Grid>
@@ -373,16 +377,17 @@
 
                             <Border Grid.Column="1"
                                     Margin="8,0,0,0"
-                                    Background="#DBEAFE"
-                                    BorderBrush="#93C5FD"
+                                    Background="#EEF3F7"
+                                    BorderBrush="#B7C4D0"
                                     BorderThickness="1"
                                     CornerRadius="12"
                                     Padding="8,2"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding SharedDefectWallPageText}"
-                                           Foreground="#1D4ED8"
+                                           Foreground="#34414C"
                                            FontSize="10.5"
-                                           FontWeight="SemiBold"/>
+                                           FontWeight="SemiBold"
+                                           FontFamily="Bahnschrift, Microsoft YaHei UI"/>
                             </Border>
 
                             <Button Grid.Column="2"

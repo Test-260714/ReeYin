@@ -365,7 +365,7 @@ namespace Custom.XYHD.Models
             }
             if (targetImages == null)
             {
-                AddLog($"[Parse] 缺陷墙目标图固定输入无值: Path={pathName ?? "-"}, Serial={serial}, Source={hitSource}, 缺陷={results.Count}", "DEBUG");
+                AddLog($"[Parse] 缺陷总览目标图固定输入无值: Path={pathName ?? "-"}, Serial={serial}, Source={hitSource}, 缺陷={results.Count}", "DEBUG");
                 return;
             }
 
@@ -403,13 +403,13 @@ namespace Custom.XYHD.Models
             if (attachedCount > 0)
             {
                 AddLog(
-                    $"[Parse] 已绑定缺陷墙目标图: Path={pathName ?? "-"}, Serial={serial}, Source={hitSource ?? "-"}, 缺陷={attachedCount}",
+                    $"[Parse] 已绑定缺陷总览目标图: Path={pathName ?? "-"}, Serial={serial}, Source={hitSource ?? "-"}, 缺陷={attachedCount}",
                     "DEBUG");
             }
             else if (missCount > 0)
             {
                 AddLog(
-                    $"[Parse] 缺陷墙目标图存在但转换失败: Path={pathName ?? "-"}, Serial={serial}, Source={hitSource ?? "-"}, Miss={missCount}",
+                    $"[Parse] 缺陷总览目标图存在但转换失败: Path={pathName ?? "-"}, Serial={serial}, Source={hitSource ?? "-"}, Miss={missCount}",
                     "WARN");
             }
         }

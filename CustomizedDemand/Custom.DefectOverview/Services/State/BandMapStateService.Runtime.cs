@@ -70,7 +70,6 @@ namespace Custom.DefectOverview.Services
 					LocalImagePath = localImagePath
 				};
 				_history.Add(historyItem);
-				IncrementLegendCount(historyItem.LegendKey);
 			}
 		}
 	}
@@ -193,10 +192,9 @@ namespace Custom.DefectOverview.Services
 	}
 
 	private void ResetRuntimeLocked()
-	{
-		_history.Clear();
-		_legendCounts.Clear();
-		_recentFrameResults.Clear();
+		{
+			_history.Clear();
+			_recentFrameResults.Clear();
 		_processedFrameKeyOrder.Clear();
 		_processedFrameKeys.Clear();
 		_batchStartedLocalTime = DateTime.Now;

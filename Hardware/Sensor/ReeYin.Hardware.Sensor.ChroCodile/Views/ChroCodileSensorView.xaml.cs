@@ -32,46 +32,5 @@ namespace ReeYin.Hardware.Sensor.ChroCodile.Views
         {
             InitializeComponent();
         }
-
-        private void CbSensorModel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if(CbSensorModel.SelectedItem.ToString() == "CHRMultiChannel")
-            {
-                tbOutputSignal.Text = "83,16640,16641";
-            }
-            else
-            {
-                tbOutputSignal.Text = "83,65,256,257";
-            }
-        }
-
-        private void CbTriggerMode_Checked(object sender, RoutedEventArgs e)
-        {
-            ApplyTriggerMode(true);
-        }
-
-        private void CbTriggerMode_Unchecked(object sender, RoutedEventArgs e)
-        {
-            ApplyTriggerMode(false);
-        }
-
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ChroCodileSensorViewModel viewModel &&
-                viewModel.ValueChangedCommand.CanExecute("手动设置宽度"))
-            {
-                viewModel.ValueChangedCommand.Execute("手动设置宽度");
-            }
-        }
-
-        private void ApplyTriggerMode(bool enabled)
-        {
-            if (DataContext is not ChroCodileSensorViewModel viewModel)
-            {
-                return;
-            }
-
-            viewModel.ModelParam.ChroCodileSensor.CurrentConfig.TriggerModeEnabled = enabled;
-        }
     }
 }

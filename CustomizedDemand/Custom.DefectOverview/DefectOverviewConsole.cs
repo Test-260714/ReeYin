@@ -12,6 +12,7 @@ namespace Custom.DefectOverview
         private const int MaxConsoleQueueSize = 256;
         private static readonly BlockingCollection<string> ConsoleQueue = new(MaxConsoleQueueSize);
         private static readonly bool VerboseOutputEnabled = ResolveVerboseOutputEnabled();
+        private static readonly bool FrameTraceEnabled = IsEnvironmentFlagEnabled("REEYIN_FRAME_TRACE_LOG");
         private static readonly int TraceSampleInterval = ResolveTraceSampleInterval();
         private static long _traceSequence;
         private static readonly Task ConsoleWriterTask = Task.Factory.StartNew(
@@ -20,12 +21,34 @@ namespace Custom.DefectOverview
 
         public static bool IsVerboseEnabled => VerboseOutputEnabled;
 
+        public static bool IsFrameTraceEnabled => FrameTraceEnabled;
+
         public static void WriteLine(string message)
         {
             string safeMessage = message ?? string.Empty;
 
             if (ShouldWriteTrace(safeMessage))
                 TryLogTrace(safeMessage);
+
+            if (VerboseOutputEnabled)
+                TryQueueConsoleWrite(safeMessage);
+        }
+
+        public static void WriteFrameTrace(string message)
+        {
+            if (!FrameTraceEnabled)
+                return;
+
+            string safeMessage = message ?? string.Empty;
+
+            try
+            {
+                Logs.LogInfo(safeMessage);
+            }
+            catch
+            {
+                // Diagnostic logging must not affect production flow.
+            }
 
             if (VerboseOutputEnabled)
                 TryQueueConsoleWrite(safeMessage);

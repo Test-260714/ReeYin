@@ -15,6 +15,31 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ReeYin_V.NodifyManager;component/UI/Style/Converter.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="InlineControlCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="#F8FAFC"/>
+                <Setter Property="BorderBrush" Value="#D8E1EA"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="7"/>
+                <Setter Property="Padding" Value="10,8"/>
+            </Style>
+
+            <Style x:Key="RawImageSaveCardStyle" TargetType="Border" BasedOn="{StaticResource InlineControlCardStyle}">
+                <Setter Property="Background" Value="#FFF8E1"/>
+                <Setter Property="BorderBrush" Value="#D4A938"/>
+                <Setter Property="Padding" Value="12,9"/>
+                <Setter Property="MinHeight" Value="42"/>
+            </Style>
+
+            <Style x:Key="OutputSourceBadgeTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#64748B"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="TextAlignment" Value="Center"/>
+            </Style>
+
         </ResourceDictionary>
     </UserControl.Resources>
     
@@ -120,16 +145,6 @@
                                     <DataGridTextColumn Header="发图" Binding="{Binding SendStatus}" Width="*"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,7,8,8">
-                                <Button Content="开始真机" Width="95" Height="30" Margin="0,0,8,0"
-                                        Style="{DynamicResource GeneralButtonStyle}"
-                                        Background="#4CAF50" Foreground="White"
-                                        Command="{Binding StartGrabCommand}"/>
-                                <Button Content="停止真机" Width="95" Height="30"
-                                        Style="{DynamicResource GeneralButtonStyle}"
-                                        Background="#F44336" Foreground="White"
-                                        Command="{Binding StopGrabCommand}"/>
-                            </StackPanel>
                         </Grid>
                     </Border>
 
@@ -200,28 +215,20 @@
                                     <DataGridTextColumn Header="发图" Binding="{Binding SendStatus}" Width="70"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,7,8,8">
-                                <Button Content="开始伪采集" Width="105" Height="30" Margin="0,0,8,0"
-                                        Style="{DynamicResource GeneralButtonStyle}"
-                                        Background="#4CAF50" Foreground="White"
-                                        Command="{Binding StartPseudoGrabCommand}"/>
-                                <Button Content="停止伪采集" Width="105" Height="30"
-                                        Style="{DynamicResource GeneralButtonStyle}"
-                                        Background="#F44336" Foreground="White"
-                                        Command="{Binding StopPseudoGrabCommand}"/>
-                            </StackPanel>
                         </Grid>
                     </Border>
 
-                    <TextBlock Grid.Row="3" Text="原图保存" VerticalAlignment="Center" Margin="0,0,0,12"/>
-                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,12">
+                    <Border Grid.Row="3" Grid.ColumnSpan="2" Margin="-6,-5,-6,6" Style="{StaticResource RawImageSaveCardStyle}"/>
+                    <TextBlock Grid.Row="3" Text="原图保存" VerticalAlignment="Center" Margin="0,0,0,12"
+                               FontWeight="SemiBold" Foreground="#8A6100"/>
+                    <WrapPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
                         <Button Content="目录..." Width="62" Height="30" Margin="0,0,8,0"
                                 Style="{DynamicResource GeneralButtonStyle}"
                                 Command="{Binding SelectDebugRawImageSaveDirectoryCommand}"/>
                         <TextBlock Text="{Binding Model.DebugRawImageSaveRootDirectoryDisplay}"
-                                   Width="150"
+                                   Width="220"
                                    VerticalAlignment="Center"
-                                   Foreground="#6B7280"
+                                   Foreground="#374151"
                                    TextTrimming="CharacterEllipsis"
                                    ToolTip="{Binding Model.DebugRawImageSaveRootDirectoryDisplay}"
                                    Margin="0,0,10,0"/>
@@ -233,12 +240,7 @@
                                 Style="{DynamicResource GeneralButtonStyle}"
                                 Background="#F44336" Foreground="White"
                                 Command="{Binding StopDebugRawImageSaveCommand}"/>
-                        <TextBlock Text="{Binding Model.DebugRawImageSaveSummary}"
-                                   VerticalAlignment="Center"
-                                   Foreground="#6B7280"
-                                   Width="170"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
+                    </WrapPanel>
 
                     <TextBlock Grid.Row="4" Text="伪发图间隔:" VerticalAlignment="Center" Margin="0,0,0,12"/>
                     <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,12">
@@ -272,20 +274,41 @@
                         <TextBlock Text="{Binding Model.PseudoModeSummary}" Foreground="#6B7280" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
 
-                    <TextBlock Grid.Row="8" Text="采集状态:" VerticalAlignment="Center" Margin="0,0,0,12"/>
-                    <TextBlock Grid.Row="8" Grid.Column="1" FontSize="14" VerticalAlignment="Center" Margin="0,0,0,12"
-                               Text="{Binding Model.GrabStatusSummary}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#757575"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Model.IsGrabbing}" Value="True">
-                                        <Setter Property="Foreground" Value="#FF9800"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <TextBlock Grid.Row="8" Text="采集控制:" VerticalAlignment="Center" Margin="0,0,0,12"/>
+                    <StackPanel Grid.Row="8" Grid.Column="1" Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="真机" Width="38" VerticalAlignment="Center" Foreground="#6B7280"/>
+                            <Button Content="开始" Width="58" Height="28" Margin="0,0,6,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Background="#4CAF50" Foreground="White"
+                                    Command="{Binding StartGrabCommand}"/>
+                            <Button Content="停止" Width="58" Height="28" Margin="0,0,14,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Background="#F44336" Foreground="White"
+                                    Command="{Binding StopGrabCommand}"/>
+                            <TextBlock Text="伪采集" Width="50" VerticalAlignment="Center" Foreground="#6B7280"/>
+                            <Button Content="开始" Width="58" Height="28" Margin="0,0,6,0"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Background="#4CAF50" Foreground="White"
+                                    Command="{Binding StartPseudoGrabCommand}"/>
+                            <Button Content="停止" Width="58" Height="28"
+                                    Style="{DynamicResource GeneralButtonStyle}"
+                                    Background="#F44336" Foreground="White"
+                                    Command="{Binding StopPseudoGrabCommand}"/>
+                        </StackPanel>
+                        <TextBlock FontSize="12" Margin="0,5,0,0" Text="{Binding Model.GrabStatusSummary}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#757575"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Model.IsGrabbing}" Value="True">
+                                            <Setter Property="Foreground" Value="#FF9800"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
 
                 </Grid>
             </WxGroupBox:WxGroupBox>
@@ -304,7 +327,9 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Text="{Binding Model.PseudoCurrentImageSummary}"
-                                   Foreground="#374151" FontSize="12" Margin="0,0,0,6"/>
+                                   ToolTip="{Binding Model.PseudoCurrentImageSummary}"
+                                   Foreground="#374151" FontSize="12" Margin="0,0,0,6"
+                                   TextWrapping="Wrap"/>
 
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Model.PseudoCameraItems}"
@@ -370,6 +395,46 @@
                                   ColumnHeaderHeight="34">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="参数名称" Binding="{Binding Name}" Width="*" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Header="来源" Width="92" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border x:Name="OutputSourceBadge"
+                                                    MinWidth="68"
+                                                    Height="22"
+                                                    Padding="8,1"
+                                                    CornerRadius="11"
+                                                    Background="#F1F5F9"
+                                                    BorderBrush="#CBD5E1"
+                                                    BorderThickness="1"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock x:Name="OutputSourceText"
+                                                           Text="未标记"
+                                                           Style="{StaticResource OutputSourceBadgeTextStyle}"/>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Describe}" Value="真机输出">
+                                                    <Setter TargetName="OutputSourceBadge" Property="Background" Value="#ECFDF5"/>
+                                                    <Setter TargetName="OutputSourceBadge" Property="BorderBrush" Value="#86EFAC"/>
+                                                    <Setter TargetName="OutputSourceText" Property="Text" Value="真机输出"/>
+                                                    <Setter TargetName="OutputSourceText" Property="Foreground" Value="#15803D"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Describe}" Value="伪采输出">
+                                                    <Setter TargetName="OutputSourceBadge" Property="Background" Value="#EFF6FF"/>
+                                                    <Setter TargetName="OutputSourceBadge" Property="BorderBrush" Value="#93C5FD"/>
+                                                    <Setter TargetName="OutputSourceText" Property="Text" Value="伪采输出"/>
+                                                    <Setter TargetName="OutputSourceText" Property="Foreground" Value="#1D4ED8"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Describe}" Value="手动添加">
+                                                    <Setter TargetName="OutputSourceBadge" Property="Background" Value="#FFFBEB"/>
+                                                    <Setter TargetName="OutputSourceBadge" Property="BorderBrush" Value="#FCD34D"/>
+                                                    <Setter TargetName="OutputSourceText" Property="Text" Value="手动添加"/>
+                                                    <Setter TargetName="OutputSourceText" Property="Foreground" Value="#92400E"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridCheckBoxColumn Header="全局" Binding="{Binding IsGlobal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                 <DataGridTemplateColumn Header="删除" Width="56">
                                     <DataGridTemplateColumn.CellTemplate>

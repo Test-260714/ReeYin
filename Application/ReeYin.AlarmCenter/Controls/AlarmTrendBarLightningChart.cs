@@ -22,11 +22,12 @@ namespace ReeYin.AlarmCenter.Controls
 {
     public sealed class AlarmTrendBarLightningChart : UserControl
     {
+        #region Fileds
         public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(
-            nameof(ItemsSource),
-            typeof(IEnumerable),
-            typeof(AlarmTrendBarLightningChart),
-            new PropertyMetadata(null, OnItemsSourceChanged));
+    nameof(ItemsSource),
+    typeof(IEnumerable),
+    typeof(AlarmTrendBarLightningChart),
+    new PropertyMetadata(null, OnItemsSourceChanged));
 
         private readonly Grid _root = new Grid();
         private readonly TextBlock _fallbackText;
@@ -36,6 +37,8 @@ namespace ReeYin.AlarmCenter.Controls
         private bool _renderScheduled;
         private string? _lastRenderedSignature;
         private bool _isRenderDirty = true;
+        #endregion
+
 
         public AlarmTrendBarLightningChart()
         {

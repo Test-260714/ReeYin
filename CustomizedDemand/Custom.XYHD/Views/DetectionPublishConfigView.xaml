@@ -44,7 +44,7 @@
                 <TextBlock Foreground="#7C5A00"
                            FontSize="13"
                            TextWrapping="Wrap"
-                           Text="用途：这是 XYHD 节点的参数配置页。这里只配置原图、左右路 ResultsByImage、方向映射和保存选项；在线检测主界面请从动态页面打开。缺陷墙刷新由 XYHD_Detection 事件自动推送，不需要手动点缺陷总览发布。"/>
+                           Text="用途：这是 XYHD 节点的参数配置页。这里只配置原图、左右路 ResultsByImage、方向映射和保存选项；在线检测主界面请从动态页面打开。缺陷总览刷新由 XYHD_Detection 事件自动推送，不需要手动点缺陷总览发布。"/>
             </DockPanel>
         </Border>
 
@@ -63,7 +63,7 @@
                         <TextBlock Margin="6,0,6,8"
                                    Foreground="#666666"
                                    TextWrapping="Wrap"
-                                   Text="XYHD 推荐接 DefectPostProcess 的 ResultsByImage。缺陷墙底图会优先使用结果源 DefectPostProcess.InputImage，下面的左右路图像主要作为兜底和显示来源。"/>
+                                   Text="XYHD 推荐接 DefectPostProcess 的 ResultsByImage。缺陷总览底图会优先使用结果源 DefectPostProcess.InputImage，下面的左右路图像主要作为兜底和显示来源。"/>
 
                         <Grid>
                             <Grid.RowDefinitions>
@@ -174,7 +174,7 @@
                         <TextBlock Margin="6,0,6,8"
                                    Foreground="#666666"
                                    TextWrapping="Wrap"
-                                   Text="节点执行时会发布 XYHD_Detection；缺陷墙动态页会自动接收刷新。这里不用配置缺陷总览发布节点。"/>
+                                   Text="节点执行时会发布 XYHD_Detection；缺陷总览动态页会自动接收刷新。这里不用配置缺陷总览发布节点。"/>
 
                         <GroupBox Header="现场方向" Padding="8" Margin="0,0,0,10">
                             <StackPanel>

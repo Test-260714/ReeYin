@@ -12,8 +12,46 @@ namespace ReeYin.Hardware.Sensor.JueXin
 {
     public enum JueXinCollectMode
     {
+        Spectrum,
+        FFT,
+        SpectrumFFT,
         Thickness,
         ThickEncoder
+    }
+
+    public class JueXinThicknessChartPoint
+    {
+        public JueXinThicknessChartPoint(double x, double thickness)
+        {
+            X = x;
+            Thickness = thickness;
+        }
+
+        public double X { get; }
+
+        public double Thickness { get; }
+    }
+
+    public class JueXinEncoderThicknessChartPoint
+    {
+        public JueXinEncoderThicknessChartPoint(double index, double thickness, double encoder1, double encoder2, double encoder3)
+        {
+            Index = index;
+            Thickness = thickness;
+            Encoder1 = encoder1;
+            Encoder2 = encoder2;
+            Encoder3 = encoder3;
+        }
+
+        public double Index { get; }
+
+        public double Thickness { get; }
+
+        public double Encoder1 { get; }
+
+        public double Encoder2 { get; }
+
+        public double Encoder3 { get; }
     }
 
     /// <summary>
@@ -26,6 +64,15 @@ namespace ReeYin.Hardware.Sensor.JueXin
         private WliSdkCAPI.WliEventCallbackC _eventCallback;
         private ConcurrentQueue<MeasureData> _dataQueue = new ConcurrentQueue<MeasureData>();
         private readonly object _lockObj = new object();
+        private readonly object _displayDataLock = new object();
+        private const int DisplayPointCapacity = 5000;
+        private ushort[] _latestSpectrum = Array.Empty<ushort>();
+        private float[] _latestFft = Array.Empty<float>();
+        private readonly List<JueXinThicknessChartPoint> _thicknessChartPoints = new List<JueXinThicknessChartPoint>();
+        private readonly List<JueXinEncoderThicknessChartPoint> _encoderThicknessChartPoints = new List<JueXinEncoderThicknessChartPoint>();
+        private readonly List<uint> _spectrumPeakHistory = new List<uint>();
+        private int _chartPointIndex;
+        private double _spectrumPeakTotal;
         private JueXinCollectMode _activeCollectMode = JueXinCollectMode.Thickness;
         #endregion
 
@@ -534,12 +581,100 @@ namespace ReeYin.Hardware.Sensor.JueXin
             set { _lastThickness = value; RaisePropertyChanged(); }
         }
 
+        private float _thicknessMin;
+        [JsonIgnore]
+        public float ThicknessMin
+        {
+            get { return _thicknessMin; }
+            set { _thicknessMin = value; RaisePropertyChanged(); }
+        }
+
+        private float _thicknessMax;
+        [JsonIgnore]
+        public float ThicknessMax
+        {
+            get { return _thicknessMax; }
+            set { _thicknessMax = value; RaisePropertyChanged(); }
+        }
+
+        private float _thicknessMean;
+        [JsonIgnore]
+        public float ThicknessMean
+        {
+            get { return _thicknessMean; }
+            set { _thicknessMean = value; RaisePropertyChanged(); }
+        }
+
         private float _lastEncoder1;
         [JsonIgnore]
         public float LastEncoder1
         {
             get { return _lastEncoder1; }
             set { _lastEncoder1 = value; RaisePropertyChanged(); }
+        }
+
+        private float _lastEncoder2;
+        [JsonIgnore]
+        public float LastEncoder2
+        {
+            get { return _lastEncoder2; }
+            set { _lastEncoder2 = value; RaisePropertyChanged(); }
+        }
+
+        private float _lastEncoder3;
+        [JsonIgnore]
+        public float LastEncoder3
+        {
+            get { return _lastEncoder3; }
+            set { _lastEncoder3 = value; RaisePropertyChanged(); }
+        }
+
+        private int _spectrumFrameCount;
+        [JsonIgnore]
+        public int SpectrumFrameCount
+        {
+            get { return _spectrumFrameCount; }
+            set { _spectrumFrameCount = value; RaisePropertyChanged(); }
+        }
+
+        private int _lastSpectrumPeak;
+        [JsonIgnore]
+        public int LastSpectrumPeak
+        {
+            get { return _lastSpectrumPeak; }
+            set { _lastSpectrumPeak = value; RaisePropertyChanged(); }
+        }
+
+        private double _averageSpectrumPeak;
+        [JsonIgnore]
+        public double AverageSpectrumPeak
+        {
+            get { return _averageSpectrumPeak; }
+            set { _averageSpectrumPeak = value; RaisePropertyChanged(); }
+        }
+
+        private float _lastFftPeak;
+        [JsonIgnore]
+        public float LastFftPeak
+        {
+            get { return _lastFftPeak; }
+            set { _lastFftPeak = value; RaisePropertyChanged(); }
+        }
+
+        private float _lastFftThickness;
+        [JsonIgnore]
+        public float LastFftThickness
+        {
+            get { return _lastFftThickness; }
+            set { _lastFftThickness = value; RaisePropertyChanged(); }
+        }
+
+        private float _lastThickCoeff;
+        [JsonIgnore]
+        public float LastThickCoeff
+        {
+            get { return _lastThickCoeff; }
+            set { _lastThickCoeff = value; RaisePropertyChanged(); }
         }
 
         private string _lastSdkMessage = string.Empty;
@@ -687,9 +822,7 @@ namespace ReeYin.Hardware.Sensor.JueXin
             {
                 ClearDataQueue();
 
-                int ret = CollectMode == JueXinCollectMode.ThickEncoder
-                    ? WliSdkCAPI.WliSdk_StartThickEncoderTransfer(_sdkHandle)
-                    : WliSdkCAPI.WliSdk_StartThicknessTransfer(_sdkHandle);
+                int ret = StartTransfer(CollectMode);
                 if (ret != (int)WliSdkCAPI.WliErrorCode.WLI_ERR_NONE)
                 {
                     LastSdkMessage = $"开始采集失败，错误码: {ret}";
@@ -720,9 +853,7 @@ namespace ReeYin.Hardware.Sensor.JueXin
 
             try
             {
-                int ret = _activeCollectMode == JueXinCollectMode.ThickEncoder
-                    ? WliSdkCAPI.WliSdk_StopThickEncoderTransfer(_sdkHandle)
-                    : WliSdkCAPI.WliSdk_StopThicknessTransfer(_sdkHandle);
+                int ret = StopTransfer(_activeCollectMode);
                 if (ret == (int)WliSdkCAPI.WliErrorCode.WLI_ERR_NONE)
                 {
                     State = HardwareState.Complete;
@@ -1077,7 +1208,81 @@ namespace ReeYin.Hardware.Sensor.JueXin
             while (_dataQueue.TryDequeue(out _)) { }
             CachedDataCount = 0;
             LastThickness = 0;
+            ThicknessMin = 0;
+            ThicknessMax = 0;
+            ThicknessMean = 0;
             LastEncoder1 = 0;
+            LastEncoder2 = 0;
+            LastEncoder3 = 0;
+            LastSpectrumPeak = 0;
+            AverageSpectrumPeak = 0;
+            SpectrumFrameCount = 0;
+            LastFftPeak = 0;
+            LastFftThickness = 0;
+            LastThickCoeff = 0;
+            _spectrumPeakTotal = 0;
+
+            lock (_displayDataLock)
+            {
+                _latestSpectrum = Array.Empty<ushort>();
+                _latestFft = Array.Empty<float>();
+                _thicknessChartPoints.Clear();
+                _encoderThicknessChartPoints.Clear();
+                _spectrumPeakHistory.Clear();
+                _chartPointIndex = 0;
+            }
+        }
+
+        public double GetAverageSpectrumPeak(int frameCount)
+        {
+            lock (_displayDataLock)
+            {
+                if (_spectrumPeakHistory.Count == 0)
+                {
+                    return 0;
+                }
+
+                int count = Math.Max(1, Math.Min(frameCount, _spectrumPeakHistory.Count));
+                double total = 0;
+                for (int i = _spectrumPeakHistory.Count - count; i < _spectrumPeakHistory.Count; i++)
+                {
+                    total += _spectrumPeakHistory[i];
+                }
+
+                return total / count;
+            }
+        }
+
+        public ushort[] GetLatestSpectrumSnapshot()
+        {
+            lock (_displayDataLock)
+            {
+                return (ushort[])_latestSpectrum.Clone();
+            }
+        }
+
+        public float[] GetLatestFftSnapshot()
+        {
+            lock (_displayDataLock)
+            {
+                return (float[])_latestFft.Clone();
+            }
+        }
+
+        public List<JueXinThicknessChartPoint> GetThicknessChartPointsSnapshot()
+        {
+            lock (_displayDataLock)
+            {
+                return new List<JueXinThicknessChartPoint>(_thicknessChartPoints);
+            }
+        }
+
+        public List<JueXinEncoderThicknessChartPoint> GetEncoderThicknessChartPointsSnapshot()
+        {
+            lock (_displayDataLock)
+            {
+                return new List<JueXinEncoderThicknessChartPoint>(_encoderThicknessChartPoints);
+            }
         }
 
         #endregion
@@ -1086,6 +1291,40 @@ namespace ReeYin.Hardware.Sensor.JueXin
         private bool CheckConnection()
         {
             return _sdkHandle != IntPtr.Zero && IsConnected;
+        }
+
+        private int StartTransfer(JueXinCollectMode mode)
+        {
+            switch (mode)
+            {
+                case JueXinCollectMode.Spectrum:
+                    return WliSdkCAPI.WliSdk_StartSpectrumTransfer(_sdkHandle);
+                case JueXinCollectMode.FFT:
+                    return WliSdkCAPI.WliSdk_StartFFTTransfer(_sdkHandle);
+                case JueXinCollectMode.SpectrumFFT:
+                    return WliSdkCAPI.WliSdk_StartSpectrumFFTTransfer(_sdkHandle);
+                case JueXinCollectMode.ThickEncoder:
+                    return WliSdkCAPI.WliSdk_StartThickEncoderTransfer(_sdkHandle);
+                default:
+                    return WliSdkCAPI.WliSdk_StartThicknessTransfer(_sdkHandle);
+            }
+        }
+
+        private int StopTransfer(JueXinCollectMode mode)
+        {
+            switch (mode)
+            {
+                case JueXinCollectMode.Spectrum:
+                    return WliSdkCAPI.WliSdk_StopSpectrumTransfer(_sdkHandle);
+                case JueXinCollectMode.FFT:
+                    return WliSdkCAPI.WliSdk_StopFFTTransfer(_sdkHandle);
+                case JueXinCollectMode.SpectrumFFT:
+                    return WliSdkCAPI.WliSdk_StopSpectrumFFTTransfer(_sdkHandle);
+                case JueXinCollectMode.ThickEncoder:
+                    return WliSdkCAPI.WliSdk_StopThickEncoderTransfer(_sdkHandle);
+                default:
+                    return WliSdkCAPI.WliSdk_StopThicknessTransfer(_sdkHandle);
+            }
         }
 
         private bool ReadUInt32Attribute(string name, out uint value)
@@ -1281,6 +1520,18 @@ namespace ReeYin.Hardware.Sensor.JueXin
 
                 switch ((WliSdkCAPI.WliEventType)baseEvent.type)
                 {
+                    case WliSdkCAPI.WliEventType.WLI_SPECTRUM_EVENT_TYPE:
+                        HandleSpectrumEvent(eventPtr);
+                        break;
+
+                    case WliSdkCAPI.WliEventType.WLI_FFT_EVENT_TYPE:
+                        HandleFftEvent(eventPtr);
+                        break;
+
+                    case WliSdkCAPI.WliEventType.WLI_SPECTRUM_FFT_EVENT_TYPE:
+                        HandleSpectrumFftEvent(eventPtr);
+                        break;
+
                     case WliSdkCAPI.WliEventType.WLI_THICKNESS_EVENT_TYPE:
                         HandleThicknessEvent(eventPtr);
                         break;
@@ -1304,6 +1555,49 @@ namespace ReeYin.Hardware.Sensor.JueXin
             }
         }
 
+        private void HandleSpectrumEvent(IntPtr eventPtr)
+        {
+            var spectrumEvent = Marshal.PtrToStructure<WliSdkCAPI.WliSpectrumEventC>(eventPtr);
+
+            if (spectrumEvent.count > 0 && spectrumEvent.spectrum != IntPtr.Zero)
+            {
+                ushort[] spectrum = CopyUInt16Array(spectrumEvent.spectrum, (int)spectrumEvent.count);
+                UpdateSpectrumDisplayData(spectrum, spectrumEvent.peak);
+            }
+        }
+
+        private void HandleFftEvent(IntPtr eventPtr)
+        {
+            var fftEvent = Marshal.PtrToStructure<WliSdkCAPI.WliFFTEventC>(eventPtr);
+
+            if (fftEvent.count > 0 && fftEvent.fft != IntPtr.Zero)
+            {
+                float[] fft = new float[fftEvent.count];
+                Marshal.Copy(fftEvent.fft, fft, 0, (int)fftEvent.count);
+                UpdateFftDisplayData(fft, fftEvent.peak, fftEvent.thickness, fftEvent.thickCoeff);
+            }
+        }
+
+        private void HandleSpectrumFftEvent(IntPtr eventPtr)
+        {
+            var spectrumFftEvent = Marshal.PtrToStructure<WliSdkCAPI.WliSpectrumFFTEventC>(eventPtr);
+
+            if (spectrumFftEvent.spectrumCount > 0 && spectrumFftEvent.spectrum != IntPtr.Zero)
+            {
+                ushort[] spectrum = CopyUInt16Array(spectrumFftEvent.spectrum, (int)spectrumFftEvent.spectrumCount);
+                UpdateSpectrumDisplayData(spectrum, spectrumFftEvent.spectrumPeak);
+            }
+
+            if (spectrumFftEvent.fftCount > 0 && spectrumFftEvent.fft != IntPtr.Zero)
+            {
+                float[] fft = new float[spectrumFftEvent.fftCount];
+                Marshal.Copy(spectrumFftEvent.fft, fft, 0, (int)spectrumFftEvent.fftCount);
+                UpdateFftDisplayData(fft, spectrumFftEvent.fftPeak, spectrumFftEvent.thickness, spectrumFftEvent.thickCoeff);
+            }
+
+            AppendThicknessDisplayData(new[] { spectrumFftEvent.thickness });
+        }
+
         /// <summary>
         /// 处理厚度事件
         /// </summary>
@@ -1316,6 +1610,7 @@ namespace ReeYin.Hardware.Sensor.JueXin
                 // 读取厚度数组
                 float[] thicknesses = new float[thickEvent.count];
                 Marshal.Copy(thickEvent.thicknesses, thicknesses, 0, (int)thickEvent.count);
+                AppendThicknessDisplayData(thicknesses);
 
                 // 将厚度数据按原始通道结构写入MeasureData，保持与TronSight一致。
                 for (int i = 0; i < thicknesses.Length; i++)
@@ -1327,6 +1622,8 @@ namespace ReeYin.Hardware.Sensor.JueXin
 
                     _dataQueue.Enqueue(data);
                 }
+
+                CachedDataCount = _dataQueue.Count;
             }
         }
 
@@ -1354,6 +1651,7 @@ namespace ReeYin.Hardware.Sensor.JueXin
                     Marshal.Copy(thickEncEvent.encVals2, encVals2, 0, (int)thickEncEvent.count);
                 if (thickEncEvent.encVals3 != IntPtr.Zero)
                     Marshal.Copy(thickEncEvent.encVals3, encVals3, 0, (int)thickEncEvent.count);
+                AppendEncoderThicknessDisplayData(thicknesses, encVals1, encVals2, encVals3);
 
                 // 将厚度和编码器数据按原始通道结构写入MeasureData，保持与TronSight一致。
                 for (int i = 0; i < thicknesses.Length; i++)
@@ -1368,6 +1666,127 @@ namespace ReeYin.Hardware.Sensor.JueXin
 
                     _dataQueue.Enqueue(data);
                 }
+
+                CachedDataCount = _dataQueue.Count;
+            }
+        }
+
+        private static ushort[] CopyUInt16Array(IntPtr source, int count)
+        {
+            byte[] bytes = new byte[count * sizeof(ushort)];
+            ushort[] result = new ushort[count];
+            Marshal.Copy(source, bytes, 0, bytes.Length);
+            Buffer.BlockCopy(bytes, 0, result, 0, bytes.Length);
+            return result;
+        }
+
+        private void UpdateSpectrumDisplayData(ushort[] spectrum, uint peak)
+        {
+            lock (_displayDataLock)
+            {
+                _latestSpectrum = spectrum;
+                _spectrumPeakHistory.Add(peak);
+                TrimDisplayPoints(_spectrumPeakHistory);
+            }
+
+            SpectrumFrameCount++;
+            LastSpectrumPeak = Convert.ToInt32(peak);
+            _spectrumPeakTotal += peak;
+            AverageSpectrumPeak = SpectrumFrameCount > 0 ? _spectrumPeakTotal / SpectrumFrameCount : 0;
+        }
+
+        private void UpdateFftDisplayData(float[] fft, float peak, float thickness, float thickCoeff)
+        {
+            lock (_displayDataLock)
+            {
+                _latestFft = fft;
+            }
+
+            LastFftPeak = peak;
+            LastFftThickness = thickness;
+            LastThickCoeff = thickCoeff;
+            LastThickness = thickness;
+        }
+
+        private void AppendThicknessDisplayData(float[] thicknesses)
+        {
+            if (thicknesses.Length == 0)
+            {
+                return;
+            }
+
+            lock (_displayDataLock)
+            {
+                for (int i = 0; i < thicknesses.Length; i++)
+                {
+                    _thicknessChartPoints.Add(new JueXinThicknessChartPoint(_chartPointIndex++, thicknesses[i]));
+                }
+
+                TrimDisplayPoints(_thicknessChartPoints);
+                UpdateThicknessStatistics(_thicknessChartPoints);
+            }
+        }
+
+        private void AppendEncoderThicknessDisplayData(float[] thicknesses, float[] encVals1, float[] encVals2, float[] encVals3)
+        {
+            if (thicknesses.Length == 0)
+            {
+                return;
+            }
+
+            lock (_displayDataLock)
+            {
+                for (int i = 0; i < thicknesses.Length; i++)
+                {
+                    _thicknessChartPoints.Add(new JueXinThicknessChartPoint(_chartPointIndex, thicknesses[i]));
+                    _encoderThicknessChartPoints.Add(new JueXinEncoderThicknessChartPoint(_chartPointIndex, thicknesses[i], encVals1[i], encVals2[i], encVals3[i]));
+                    _chartPointIndex++;
+                }
+
+                TrimDisplayPoints(_thicknessChartPoints);
+                TrimDisplayPoints(_encoderThicknessChartPoints);
+                UpdateThicknessStatistics(_thicknessChartPoints);
+            }
+
+            LastEncoder1 = encVals1[thicknesses.Length - 1];
+            LastEncoder2 = encVals2[thicknesses.Length - 1];
+            LastEncoder3 = encVals3[thicknesses.Length - 1];
+        }
+
+        private void UpdateThicknessStatistics(List<JueXinThicknessChartPoint> points)
+        {
+            if (points.Count == 0)
+            {
+                LastThickness = 0;
+                ThicknessMin = 0;
+                ThicknessMax = 0;
+                ThicknessMean = 0;
+                return;
+            }
+
+            double min = points[0].Thickness;
+            double max = points[0].Thickness;
+            double total = 0;
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                double value = points[i].Thickness;
+                min = Math.Min(min, value);
+                max = Math.Max(max, value);
+                total += value;
+            }
+
+            LastThickness = Convert.ToSingle(points[points.Count - 1].Thickness);
+            ThicknessMin = Convert.ToSingle(min);
+            ThicknessMax = Convert.ToSingle(max);
+            ThicknessMean = Convert.ToSingle(total / points.Count);
+        }
+
+        private static void TrimDisplayPoints<T>(List<T> points)
+        {
+            if (points.Count > DisplayPointCapacity)
+            {
+                points.RemoveRange(0, points.Count - DisplayPointCapacity);
             }
         }
 

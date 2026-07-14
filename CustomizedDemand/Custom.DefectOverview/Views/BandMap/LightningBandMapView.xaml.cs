@@ -361,21 +361,35 @@ namespace Custom.DefectOverview.Views
             var xAxis = view.XAxes[0];
             var yAxis = view.YAxes[0];
             ApplyChartMargins(view);
+            Color axisLabelAccentColor = Color.FromRgb(248, 250, 252);
+            Color axisLineAccentColor = Color.FromRgb(198, 146, 0);
 
             xAxis.SetRange(0.0, 100.0);
             xAxis.Title.Text = "幅宽 (%)";
-            xAxis.Title.Color = Color.FromRgb(71, 85, 105);
-            xAxis.AxisColor = Color.FromRgb(91, 99, 112);
-            xAxis.LabelsColor = Color.FromRgb(71, 85, 105);
+            xAxis.Title.Color = axisLabelAccentColor;
+            xAxis.AxisColor = axisLineAccentColor;
+            xAxis.AxisThickness = 1.6;
+            xAxis.LabelsColor = axisLabelAccentColor;
+            xAxis.LabelsFont.Family = new FontFamily("Bahnschrift");
+            xAxis.LabelsFont.Size = 13.0;
+            xAxis.LabelsFont.Bold = false;
             xAxis.LabelsNumberFormat = "0";
             xAxis.MajorDiv = 10.0;
+            xAxis.MajorDivTickStyle.Color = axisLineAccentColor;
+            xAxis.MajorDivTickStyle.LineLength = 6;
             xAxis.MajorGrid.Visible = false;
 
             yAxis.SetRange(startMeters, Math.Max(startMeters + 0.001, endMeters));
             yAxis.Title.Text = string.Empty;
-            yAxis.AxisColor = Color.FromRgb(91, 99, 112);
-            yAxis.LabelsColor = Color.FromRgb(71, 85, 105);
+            yAxis.AxisColor = axisLineAccentColor;
+            yAxis.AxisThickness = 1.6;
+            yAxis.LabelsColor = axisLabelAccentColor;
+            yAxis.LabelsFont.Family = new FontFamily("Bahnschrift");
+            yAxis.LabelsFont.Size = 13.0;
+            yAxis.LabelsFont.Bold = false;
             yAxis.LabelsNumberFormat = "0.0";
+            yAxis.MajorDivTickStyle.Color = axisLineAccentColor;
+            yAxis.MajorDivTickStyle.LineLength = 6;
             yAxis.MajorGrid.Visible = true;
             yAxis.MajorGrid.Color = Color.FromRgb(95, 102, 112);
         }
@@ -492,8 +506,9 @@ namespace Custom.DefectOverview.Views
                     }
                 };
 
-                Canvas.SetLeft(badge, Math.Max(0.0, displayPoint.CenterX + AggregateBadgeOffsetX));
-                Canvas.SetTop(badge, Math.Max(0.0, displayPoint.CenterY + AggregateBadgeOffsetY));
+                Point chartPoint = ResolveChartPoint(displayPoint);
+                Canvas.SetLeft(badge, Math.Max(0.0, chartPoint.X + AggregateBadgeOffsetX));
+                Canvas.SetTop(badge, Math.Max(0.0, chartPoint.Y + AggregateBadgeOffsetY));
                 BadgeOverlay.Children.Add(badge);
             }
         }
@@ -539,8 +554,9 @@ namespace Custom.DefectOverview.Views
                 if (point == null || !double.IsFinite(point.CenterX) || !double.IsFinite(point.CenterY))
                     continue;
 
-                double centerX = point.CenterX;
-                double centerY = point.CenterY;
+                Point chartPoint = ResolveChartPoint(point);
+                double centerX = chartPoint.X;
+                double centerY = chartPoint.Y;
                 double distance = Math.Sqrt(Math.Pow(centerX - position.X, 2.0) + Math.Pow(centerY - position.Y, 2.0));
 
                 if (!double.IsFinite(distance) || distance >= bestDistance)
@@ -551,6 +567,21 @@ namespace Custom.DefectOverview.Views
             }
 
             return bestDistance <= HitTestThresholdDip ? bestPoint : null;
+        }
+
+        private Point ResolveChartPoint(DisplayPoint point)
+        {
+            if (_chart == null || point == null)
+                return new Point(point?.CenterX ?? 0.0, point?.CenterY ?? 0.0);
+
+            var view = _chart.ViewXY;
+            double x = view.XAxes[0].ValueToCoordD(point.XPercent, true);
+            double y = view.YAxes[0].ValueToCoord(point.MeterValue, true);
+
+            if (!double.IsFinite(x) || !double.IsFinite(y))
+                return new Point(point.CenterX, point.CenterY);
+
+            return new Point(x, y);
         }
 
         private static DisplayPoint ResolveDisplayPoint(

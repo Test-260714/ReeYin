@@ -51,10 +51,6 @@ namespace Custom.DefectOverview.Services
 			DisplayOrder = _legendStyles.Count
 		};
 		_legendStyles[text] = value;
-		if (!_legendFilters.ContainsKey(text))
-		{
-			_legendFilters[text] = true;
-		}
 		return value;
 	}
 

@@ -27,6 +27,8 @@ namespace Custom.DefectOverview.Services
 
             public string FrameIdText { get; init; } = string.Empty;
 
+            public long CycleId { get; init; }
+
             public BandMapPathInput Left { get; set; }
 
             public BandMapPathInput Right { get; set; }
@@ -150,6 +152,7 @@ namespace Custom.DefectOverview.Services
                 AppendFrameWithTrace(new BandMapFrameInput
                 {
                     FrameIdText = frameIdText,
+                    CycleId = packet.CycleId,
                     Left = pathInput
                 }, "single-path", string.Empty, stopwatch);
                 return;
@@ -161,6 +164,7 @@ namespace Custom.DefectOverview.Services
                 AppendFrameWithTrace(new BandMapFrameInput
                 {
                     FrameIdText = frameIdText,
+                    CycleId = packet.CycleId,
                     Left = pathInput
                 }, "empty-pending-key", string.Empty, stopwatch);
                 return;
@@ -176,7 +180,8 @@ namespace Custom.DefectOverview.Services
                 {
                     frame = new PendingFrame
                     {
-                        FrameIdText = frameIdText
+                        FrameIdText = frameIdText,
+                        CycleId = packet.CycleId
                     };
                     _pendingFrames[pendingKey] = frame;
                 }
@@ -208,6 +213,7 @@ namespace Custom.DefectOverview.Services
             AppendFrameWithTrace(new BandMapFrameInput
             {
                 FrameIdText = completedFrame.FrameIdText,
+                CycleId = completedFrame.CycleId,
                 Left = completedFrame.Left,
                 Right = completedFrame.Right
             }, "dual-complete", pendingKey, stopwatch);
@@ -298,6 +304,7 @@ namespace Custom.DefectOverview.Services
                     SourceName = packet.SourceName,
                     FrameKey = packet.FrameKey,
                     FrameIdText = packet.FrameIdText,
+                    CycleId = packet.CycleId,
                     CreatedUtc = packet.CreatedUtc,
                     FrameLayout = packet.FrameLayout,
                     PathRole = packet.PathRole,
@@ -424,6 +431,8 @@ namespace Custom.DefectOverview.Services
                 Custom.DefectOverview.DefectOverviewConsole.WriteLine(
                     $"[DefectOverviewIngest] AppendFrame start reason={reason}, key={pendingKey}, frame={frame?.FrameIdText ?? string.Empty}, left={frame?.Left?.DefectCount ?? 0}, right={frame?.Right?.DefectCount ?? 0}, elapsed={stopwatch.ElapsedMilliseconds}ms");
             }
+            Custom.DefectOverview.DefectOverviewConsole.WriteFrameTrace(
+                $"[FrameTrace][Ingest] cycle={frame?.CycleId ?? 0}, reason={reason}, key={pendingKey}, frame={frame?.FrameIdText ?? string.Empty}, left={frame?.Left?.DefectCount ?? 0}, right={frame?.Right?.DefectCount ?? 0}");
 
             _stateService.AppendFrame(frame);
 
@@ -581,6 +590,7 @@ namespace Custom.DefectOverview.Services
                 SourceName = packet.SourceName,
                 FrameKey = packet.FrameKey,
                 FrameIdText = packet.FrameIdText,
+                CycleId = packet.CycleId,
                 CreatedUtc = packet.CreatedUtc,
                 FrameLayout = packet.FrameLayout,
                 PathRole = packet.PathRole,

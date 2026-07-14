@@ -1,5 +1,4 @@
 ﻿using Custom.EVEMFDJC.Models;
-using Newtonsoft.Json;
 using ReeYin_V.Core.Enums;
 using ReeYin_V.Core.Extension;
 using ReeYin_V.Core.Helper;
@@ -9,11 +8,6 @@ using ReeYin_V.Core.Services.Project;
 using ReeYin_V.Share;
 using ReeYin_V.UI;
 using ReeYin_V.UI.Style.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using MessageBox = System.Windows.Forms.MessageBox;
@@ -137,6 +131,9 @@ namespace Custom.EVEMFDJC.ViewModels
                 case "执行":
                     ModelParam.ExecuteModule();
 
+                    break;
+                case "触发扫码枪":
+                    Task.Run(() => ModelParam.ManualScanCode());
                     break;
                 case "确认":
                     {

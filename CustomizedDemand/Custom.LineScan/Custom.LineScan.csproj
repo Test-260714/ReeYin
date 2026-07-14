@@ -12,7 +12,10 @@
     <ProjectReference Include="..\..\Core\ReeYin__V.NodifyUI\ReeYin_V.NodifyManager.csproj" />
     <ProjectReference Include="..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
     <ProjectReference Include="..\..\Hardware\Camera\ReeYin_V.Hardware.Camera\ReeYin_V.Hardware.Camera.csproj" />
+    <ProjectReference Include="..\..\Hardware\ControlCard\ReeYin_V.Hardware.ControlCard\ReeYin_V.Hardware.ControlCard.csproj" />
+    <ProjectReference Include="..\..\Hardware\ControlCard\ReeYin_V.Hardware.ControlCard.ZMotion\ReeYin_V.Hardware.ControlCard.ZMotion.csproj" />
     <ProjectReference Include="..\..\Hardware\LightController\ReeYin.Hardware.LightController\ReeYin.Hardware.LightController.csproj" />
+    <ProjectReference Include="..\..\Hardware\LightController\ReeYin.Hardware.LightController.Rsee\ReeYin.Hardware.LightController.Rsee.csproj" />
   </ItemGroup>
   
   <!-- 隔离的硬件SDK引用 - 本地Dll文件夹 -->
@@ -30,13 +33,6 @@
     </Reference>
     <Reference Include="ControllerDllCSharp">
       <HintPath>Dll\ControllerDllCSharp.dll</HintPath>
-    </Reference>
-    <!-- ZMotion运动控制卡 -->
-    <Reference Include="ReeYin_V.Hardware.ControlCard">
-      <HintPath>Dll\ReeYin_V.Hardware.ControlCard.dll</HintPath>
-    </Reference>
-    <Reference Include="ReeYin_V.Hardware.ControlCard.ZMotion">
-      <HintPath>Dll\ReeYin_V.Hardware.ControlCard.ZMotion.dll</HintPath>
     </Reference>
   </ItemGroup>
 

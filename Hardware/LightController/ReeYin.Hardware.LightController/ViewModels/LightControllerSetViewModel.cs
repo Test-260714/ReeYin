@@ -223,6 +223,7 @@ namespace ReeYin.Hardware.LightController.ViewModels
             return vendorType switch
             {
                 "CST" => "CSTLightController",  // CST光源控制器
+                "Rsee" => "RseeLightController",
                 _ => null
             };
         }
@@ -235,6 +236,7 @@ namespace ReeYin.Hardware.LightController.ViewModels
             return venderName switch
             {
                 "CST" => "CSTLightControllerView",
+                "Rsee" => "RseeLightControllerView",
                 _ => null
             };
         }

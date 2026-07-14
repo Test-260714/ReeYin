@@ -1,6 +1,3 @@
-using Custom.DefectOverview.Models;
-using Custom.DefectOverview.Services;
-using Custom.DefectOverview.Views;
 using Custom.XYHD.Models;
 using Custom.XYHD.Services;
 using HalconDotNet;
@@ -91,7 +88,6 @@ namespace Custom.XYHD.ViewModels
                     // 重置帧计数（但不重置统计）
                     FrameCount = 0;
                     LastFrameIdText = "-";
-                    ResolveBandMapStateService()?.Reset();
                     RaisePropertyChanged(nameof(BatchManager));
                     
                     MessageBox.Show($"换卷成功！\n当前批号: {_batchManager.BatchNumberText}", 

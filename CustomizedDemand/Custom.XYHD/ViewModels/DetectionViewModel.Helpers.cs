@@ -1,6 +1,3 @@
-using Custom.DefectOverview.Models;
-using Custom.DefectOverview.Services;
-using Custom.DefectOverview.Views;
 using Custom.XYHD.Models;
 using Custom.XYHD.Services;
 using HalconDotNet;

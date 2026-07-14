@@ -9,6 +9,7 @@
              xmlns:WxGroupBox="clr-namespace:ReeYin_V.UI.UserControls.WxGroupBox;assembly=ReeYin_V.UI"
              xmlns:WxNumericUpDown="clr-namespace:ReeYin_V.UI.UserControls.WxNumericUpDown;assembly=ReeYin_V.UI"
              xmlns:WxLED="clr-namespace:ReeYin_V.UI.UserControls.WxLED;assembly=ReeYin_V.UI"
+             xmlns:lc="clr-namespace:Arction.Wpf.ChartingMVVM;assembly=Arction.Wpf.ChartingMVVM.LightningChart"
              xmlns:share="clr-namespace:ReeYin_V.Share.Prism;assembly=ReeYin_V.Share"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -26,9 +27,9 @@
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="0.45*" />
                 <ColumnDefinition Width="3" />
-                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="0.55*" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Vertical" Width="auto">
                 <Border CornerRadius="0" Padding="5">
@@ -82,7 +83,7 @@
                                     <WxGroupBox:WxGroupBox Header="采样设置" Margin="5 5 5 10">
                                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="厚度采样间隔(us)：" hc:InfoElement.TitleWidth="170" Width="360" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="1" Maximum="99999999" Value="{Binding ModelParam.JueXinSensor.SampleInterval,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Margin="8" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.MeasurementRate,StringFormat=测量速率(Hz)：{0:F3}}" />
+                                            <TextBlock Foreground="Black" Margin="8" Text="{Binding ModelParam.JueXinSensor.MeasurementRate,StringFormat=测量速率(Hz)：{0:F3}}" />
                                         </StackPanel>
                                     </WxGroupBox:WxGroupBox>
                                     <WxGroupBox:WxGroupBox Header="滤波设置" Margin="5 5 5 10">
@@ -97,7 +98,7 @@
                                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
                                             <CheckBox Content="异常数据保持" FontSize="16" Margin="10" IsChecked="{Binding ModelParam.JueXinSensor.ErrorDataHold,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="异常数据点数：" hc:InfoElement.TitleWidth="160" Width="350" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="0" Maximum="999999" Value="{Binding ModelParam.JueXinSensor.ErrorDataCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBox Margin="5" Width="350" Height="28" Foreground="Black" BorderThickness="0 0 0 1" Text="{Binding ModelParam.JueXinSensor.ErrorDataDisplayValue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="5" Width="350" Height="28" BorderThickness="0 0 0 1" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.ErrorDataDisplayValue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                         </StackPanel>
                                     </WxGroupBox:WxGroupBox>
                                     <WxGroupBox:WxGroupBox Header="参数操作" Margin="5 5 5 10">
@@ -140,7 +141,7 @@
                                             <ComboBox ItemsSource="{Binding EncoderDecodeModeItems}" DisplayMemberPath="Value" SelectedValuePath="Key" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="解码模式：" hc:InfoElement.TitleWidth="90" Width="210" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" SelectedValue="{Binding ModelParam.JueXinSensor.EncoderDecodeMode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发脉冲数：" hc:InfoElement.TitleWidth="110" Width="210" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="1" Maximum="999999" Value="{Binding ModelParam.JueXinSensor.EncoderTrigCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="脉冲比例(mm/pulse)：" hc:InfoElement.TitleWidth="150" Width="260" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="0" Maximum="999999" DecimalPlaces="6" Value="{Binding ModelParam.JueXinSensor.EncoderLenPulseRatio,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Width="180" Margin="8" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.Encoder1TrigDistance,StringFormat=触发间距(mm)：{0:F6}}" />
+                                            <TextBlock Foreground="Black" Width="180" Margin="8" Text="{Binding ModelParam.JueXinSensor.Encoder1TrigDistance,StringFormat=触发间距(mm)：{0:F6}}" />
                                             <CheckBox Content="Z信号使能" FontSize="16" Width="110" Margin="5" IsChecked="{Binding ModelParam.JueXinSensor.EncoderZPhaseEnable,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z信号置位(mm)：" hc:InfoElement.TitleWidth="130" Width="230" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="-999999" Maximum="999999" DecimalPlaces="3" Value="{Binding ModelParam.JueXinSensor.EncoderZPhaseResetPosition,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <Button Margin="5" FontSize="16" Height="32" Width="90" Style="{StaticResource GeneralButtonStyle}" Content="设置" Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="ApplyEncoder1" />
@@ -156,7 +157,7 @@
                                             <ComboBox ItemsSource="{Binding EncoderDecodeModeItems}" DisplayMemberPath="Value" SelectedValuePath="Key" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="解码模式：" hc:InfoElement.TitleWidth="90" Width="210" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" SelectedValue="{Binding ModelParam.JueXinSensor.Encoder2DecodeMode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发脉冲数：" hc:InfoElement.TitleWidth="110" Width="210" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="1" Maximum="999999" Value="{Binding ModelParam.JueXinSensor.Encoder2TrigCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="脉冲比例(mm/pulse)：" hc:InfoElement.TitleWidth="150" Width="260" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="0" Maximum="999999" DecimalPlaces="6" Value="{Binding ModelParam.JueXinSensor.Encoder2LenPulseRatio,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Width="180" Margin="8" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.Encoder2TrigDistance,StringFormat=触发间距(mm)：{0:F6}}" />
+                                            <TextBlock Foreground="Black" Width="180" Margin="8" Text="{Binding ModelParam.JueXinSensor.Encoder2TrigDistance,StringFormat=触发间距(mm)：{0:F6}}" />
                                             <CheckBox Content="Z信号使能" FontSize="16" Width="110" Margin="5" IsChecked="{Binding ModelParam.JueXinSensor.Encoder2ZPhaseEnable,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z信号置位(mm)：" hc:InfoElement.TitleWidth="130" Width="230" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="-999999" Maximum="999999" DecimalPlaces="3" Value="{Binding ModelParam.JueXinSensor.Encoder2ZPhaseResetPosition,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <Button Margin="5" FontSize="16" Height="32" Width="90" Style="{StaticResource GeneralButtonStyle}" Content="设置" Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="ApplyEncoder2" />
@@ -172,7 +173,7 @@
                                             <ComboBox ItemsSource="{Binding EncoderDecodeModeItems}" DisplayMemberPath="Value" SelectedValuePath="Key" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="解码模式：" hc:InfoElement.TitleWidth="90" Width="210" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" SelectedValue="{Binding ModelParam.JueXinSensor.Encoder3DecodeMode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发脉冲数：" hc:InfoElement.TitleWidth="110" Width="210" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="1" Maximum="999999" Value="{Binding ModelParam.JueXinSensor.Encoder3TrigCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="脉冲比例(mm/pulse)：" hc:InfoElement.TitleWidth="150" Width="260" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="0" Maximum="999999" DecimalPlaces="6" Value="{Binding ModelParam.JueXinSensor.Encoder3LenPulseRatio,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Width="180" Margin="8" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.Encoder3TrigDistance,StringFormat=触发间距(mm)：{0:F6}}" />
+                                            <TextBlock Foreground="Black" Width="180" Margin="8" Text="{Binding ModelParam.JueXinSensor.Encoder3TrigDistance,StringFormat=触发间距(mm)：{0:F6}}" />
                                             <CheckBox Content="Z信号使能" FontSize="16" Width="110" Margin="5" IsChecked="{Binding ModelParam.JueXinSensor.Encoder3ZPhaseEnable,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Z信号置位(mm)：" hc:InfoElement.TitleWidth="130" Width="230" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" Minimum="-999999" Maximum="999999" DecimalPlaces="3" Value="{Binding ModelParam.JueXinSensor.Encoder3ZPhaseResetPosition,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <Button Margin="5" FontSize="16" Height="32" Width="90" Style="{StaticResource GeneralButtonStyle}" Content="设置" Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="ApplyEncoder3" />
@@ -184,41 +185,10 @@
                             </ScrollViewer>
                         </TabItem>
 
-                        <TabItem Header="采集控制" Width="100" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                <StackPanel>
-                                    <WxGroupBox:WxGroupBox Header="采集模式" Margin="5 5 5 10">
-                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                                            <ComboBox helper:ItemsControlHelper.EnumValuesToItemsSource="True" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="模式：" hc:InfoElement.TitleWidth="100" Width="300" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" SelectedItem="{Binding ModelParam.JueXinSensor.CollectMode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                        </StackPanel>
-                                    </WxGroupBox:WxGroupBox>
-                                    <WxGroupBox:WxGroupBox Header="采集操作" Margin="5 5 5 10">
-                                        <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Left">
-                                            <Button Margin="5" FontSize="16" Height="32" Width="100" Style="{StaticResource GeneralButtonStyle}" Content="开始采集" Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="StartCollect" />
-                                            <Button Margin="5" FontSize="16" Height="32" Width="100" Style="{StaticResource GeneralButtonStyle}" Content="停止采集" Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="StopCollect" />
-                                            <Button Margin="5" FontSize="16" Height="32" Width="100" Style="{StaticResource GeneralButtonStyle}" Content="清空缓存" Cursor="Hand" Command="{Binding SensorCtrlCommand}" CommandParameter="ClearCache" />
-                                        </StackPanel>
-                                    </WxGroupBox:WxGroupBox>
-                                    <WxGroupBox:WxGroupBox Header="采集状态" Margin="5 5 5 10">
-                                        <UniformGrid Columns="2" Margin="8">
-                                            <TextBlock Margin="5" Foreground="Black" Text="硬件状态：" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.State}" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="缓存点数：" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.CachedDataCount}" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="最后厚度：" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.LastThickness}" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="最后编码器1：" />
-                                            <TextBlock Margin="5" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.LastEncoder1}" />
-                                        </UniformGrid>
-                                    </WxGroupBox:WxGroupBox>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </TabItem>
-
                         <TabItem Header="诊断" Width="90" FontSize="16" Style="{DynamicResource SingleTabItemStyle}">
                             <StackPanel>
                                 <WxGroupBox:WxGroupBox Header="SDK状态" Margin="5 5 5 10">
-                                    <TextBox Margin="8" Height="80" TextWrapping="Wrap" IsReadOnly="True" BorderThickness="0 0 0 1" Text="{Binding ModelParam.JueXinSensor.LastSdkMessage}" />
+                                    <TextBox Margin="8" Height="80" TextWrapping="Wrap" IsReadOnly="True" BorderThickness="0 0 0 1" Foreground="Black" Text="{Binding ModelParam.JueXinSensor.LastSdkMessage}" />
                                 </WxGroupBox:WxGroupBox>
                             </StackPanel>
                         </TabItem>
@@ -228,37 +198,173 @@
 
             <GridSplitter Grid.Column="1" Height="730" Background="{DynamicResource BtnOverColor}" HorizontalAlignment="Stretch" />
 
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="60" />
-                    <RowDefinition />
-                    <RowDefinition Height="60" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
+            <TabControl Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" SelectedIndex="{Binding SelectedChartTabIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource TabControlStyle}">
+                <TabItem Header="光谱信号" Width="90" FontSize="14" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFE5E5E5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="38" />
+                            <RowDefinition />
+                            <RowDefinition Height="42" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Background="#FFD9D9D9">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="Black" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.IntegrationTime,StringFormat=积分时间： {0} μs}" />
+                            <TextBlock Foreground="Black" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="采样率： {0:F3} Hz / {1} μs">
+                                        <Binding Path="ModelParam.JueXinSensor.MeasurementRate" />
+                                        <Binding Path="ModelParam.JueXinSensor.SampleInterval" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="150" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,0,4,0" Background="White">
+                                <lc:LightningChart Loaded="LightningChart_Loaded" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ViewXY="{Binding SpectrumSignalChartView}" />
+                            </Grid>
+                            <StackPanel Grid.Column="1" Margin="10">
+                                <TextBlock Foreground="Black" Margin="0,10,0,8" Text="{Binding ModelParam.JueXinSensor.LastSpectrumPeak,StringFormat=峰值强度        {0}}" />
+                                <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" Text="统计帧数" />
+                                    <hc:NumericUpDown Margin="10,0,0,0" Width="55" Height="24" Minimum="1" Maximum="999999" Value="{Binding SpectrumStatisticFrameCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <TextBlock Foreground="Black" Text="{Binding DisplayAverageSpectrumPeak,StringFormat=平均峰值强度    {0:F1}}" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Grid.Row="2" Margin="4" Orientation="Horizontal">
+                            <Button Width="80" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Content="{Binding SpectrumCollectButtonText}" Command="{Binding SensorCtrlCommand}" CommandParameter="StartSpectrum" />
+                            <Button Width="80" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Content="暗校准" Command="{Binding SensorCtrlCommand}" CommandParameter="SampleDarkSignal" />
+                            <Button Width="110" Margin="0,0,6,0" HorizontalAlignment="Right" Style="{StaticResource GeneralButtonStyle}" Content="光谱连续保存" />
+                            <Button Width="110" Style="{StaticResource GeneralButtonStyle}" Content="频谱连续保存" />
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-                <Grid Grid.Row="0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="20,0,5,0"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   Text="信号控制" />
-                    </StackPanel>
-                </Grid>
+                <TabItem Header="厚度信号" Width="90" FontSize="14" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFE5E5E5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="38" />
+                            <RowDefinition />
+                            <RowDefinition Height="42" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Background="#FFD9D9D9">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="Black" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.IntegrationTime,StringFormat=积分时间： {0} μs}" />
+                            <TextBlock Foreground="Black" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="采样率： {0:F3} Hz / {1} μs">
+                                        <Binding Path="ModelParam.JueXinSensor.MeasurementRate" />
+                                        <Binding Path="ModelParam.JueXinSensor.SampleInterval" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="170" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,0,4,0" Background="White">
+                                <lc:LightningChart Loaded="LightningChart_Loaded" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ViewXY="{Binding ThicknessSignalChartView}" />
+                            </Grid>
+                            <StackPanel Grid.Column="1" Margin="10">
+                                <TextBlock Foreground="Black" Margin="0,8,0,18" FontSize="28" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastThickness,StringFormat={}{0:F3} μm}" />
+                                <TextBlock Foreground="Black" Margin="0,0,0,12" Text="{Binding ModelParam.JueXinSensor.ThicknessMin,StringFormat=最小值    {0:F3}    μm}" />
+                                <TextBlock Foreground="Black" Margin="0,0,0,12" Text="{Binding ModelParam.JueXinSensor.ThicknessMax,StringFormat=最大值    {0:F3}    μm}" />
+                                <TextBlock Foreground="Black" Text="{Binding ModelParam.JueXinSensor.ThicknessMean,StringFormat=均值      {0:F3}    μm}" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Grid.Row="2" Margin="4" Orientation="Horizontal">
+                            <Button Width="100" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Content="{Binding ThicknessCollectButtonText}" Command="{Binding SensorCtrlCommand}" CommandParameter="StartThickness" />
+                            <Button Width="110" Style="{StaticResource GeneralButtonStyle}" Content="重复精度测试" />
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-                <ContentControl Grid.Row="1" Content="{Binding SinglePointChartGrid}" />
+                <TabItem Header="光谱频谱" Width="90" FontSize="14" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFE5E5E5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="38" />
+                            <RowDefinition Height="2*" />
+                            <RowDefinition />
+                            <RowDefinition Height="42" />
+                        </Grid.RowDefinitions>
+                        <UniformGrid Grid.Row="0" Columns="5" Background="#FFD9D9D9">
+                            <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.IntegrationTime,StringFormat=积分时间： {0} μs}" />
+                            <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.SampleInterval,StringFormat=采样间隔： {0} μs}" />
+                            <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastSpectrumPeak,StringFormat=光谱峰值强度： {0}}" />
+                            <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastFftPeak,StringFormat=FFT强度： {0:F3} %}" />
+                            <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastFftThickness,StringFormat=厚度： {0:F3} μm}" />
+                        </UniformGrid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,0,4,4" Background="White">
+                                <lc:LightningChart Loaded="LightningChart_Loaded" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ViewXY="{Binding SpectrumFftSpectrumChartView}" />
+                            </Grid>
+                            <Grid Grid.Column="1" Margin="4,0,0,4" Background="White">
+                                <lc:LightningChart Loaded="LightningChart_Loaded" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ViewXY="{Binding SpectrumFftChartView}" />
+                            </Grid>
+                        </Grid>
+                        <Grid Grid.Row="2" Margin="0,4,0,0" Background="White">
+                            <lc:LightningChart Loaded="LightningChart_Loaded" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ViewXY="{Binding SpectrumFftThicknessChartView}" />
+                        </Grid>
+                        <StackPanel Grid.Row="3" Margin="4" Orientation="Horizontal">
+                            <Button Width="100" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Content="{Binding SpectrumFftCollectButtonText}" Command="{Binding SensorCtrlCommand}" CommandParameter="StartSpectrumFFT" />
+                            <Button Width="100" Style="{StaticResource GeneralButtonStyle}" Content="连续保存" />
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-                <Grid Grid.Row="2">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="20,0,5,0"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center">
-                            <Run Text="单点数据:" Foreground="Black" />
-                        </TextBlock>
-                    </StackPanel>
-                </Grid>
-
-                <ContentControl Grid.Row="3" Content="{Binding OutlineChartGrid}" />
-            </Grid>
+                <TabItem Header="编码器-厚度信号" Width="130" FontSize="14" Style="{DynamicResource SingleTabItemStyle}">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFE5E5E5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="38" />
+                            <RowDefinition />
+                            <RowDefinition Height="42" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Background="#FFD9D9D9">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="4" Orientation="Horizontal">
+                                <TextBlock Foreground="Black" VerticalAlignment="Center" Text="横轴" />
+                                <ComboBox Margin="8,0,0,0" Width="95" SelectedIndex="{Binding SelectedEncoderXAxisIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ComboBoxExtend}">
+                                    <ComboBoxItem Content="测量点数" />
+                                    <ComboBoxItem Content="编码器1" />
+                                    <ComboBoxItem Content="编码器2" />
+                                    <ComboBoxItem Content="编码器3" />
+                                </ComboBox>
+                            </StackPanel>
+                            <TextBlock Foreground="Black" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastEncoder1,StringFormat=编码器1： {0:F3} mm}" />
+                            <TextBlock Foreground="Black" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastEncoder2,StringFormat=编码器2： {0:F3} mm}" />
+                            <TextBlock Foreground="Black" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Text="{Binding ModelParam.JueXinSensor.LastThickness,StringFormat=厚度： {0:F3} μm}" />
+                        </Grid>
+                        <Grid Grid.Row="1" Background="White">
+                            <lc:LightningChart Loaded="LightningChart_Loaded" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ViewXY="{Binding EncoderThicknessChartView}" />
+                        </Grid>
+                        <StackPanel Grid.Row="2" Margin="4" Orientation="Horizontal">
+                            <Button Width="100" Margin="0,0,6,0" Style="{StaticResource GeneralButtonStyle}" Content="{Binding ThickEncoderCollectButtonText}" Command="{Binding SensorCtrlCommand}" CommandParameter="StartThickEncoder" />
+                            <Button Width="110" Style="{StaticResource GeneralButtonStyle}" Content="厚度连续保存" />
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </Grid>
         <StackPanel Grid.Row="1"
                     HorizontalAlignment="Right"

@@ -28,7 +28,6 @@ namespace Custom.XYHD
         {
             containerRegistry.RegisterAssembly(Assembly.GetExecutingAssembly());
             containerRegistry.RegisterSingleton<XYHDDefectOverviewAdapterService>();
-
             containerRegistry.RegisterDialogAndMenu<DetectionPublishConfigView>(null, new MenuInfo
             {
                 ModuleType = ModuleType.Custom,

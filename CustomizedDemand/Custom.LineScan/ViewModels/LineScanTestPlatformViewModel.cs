@@ -1,6 +1,7 @@
 using Custom.LineScan.Models;
+using Custom.LineScan.Services;
+using Custom.LineScan.Views;
 using IKapBoardDotNet;
-using ReeYin_V.Hardware.ControlCard.ZMotion.CustomUI.Views;
 using IKapCDotNet;
 using Prism.Commands;
 using Prism.Dialogs;
@@ -12,6 +13,9 @@ using ReeYin_V.Core.Services.Project;
 using ReeYin_V.Share;
 using ReeYin.Hardware.LightController.CST;
 using ReeYin.Hardware.LightController.CST.CustomUI.Views;
+using ReeYin.Hardware.LightController.Models;
+using ReeYin.Hardware.LightController.Rsee;
+using ReeYin.Hardware.LightController.Rsee.CustomUI.Views;
 using ReeYin_V.Core.Enums;
 using ReeYin_V.UI;
 using ReeYin_V.UI.Style.Dialogs;
@@ -37,12 +41,9 @@ namespace Custom.LineScan.ViewModels
     public class LineScanTestPlatformViewModel : DialogViewModelBase, IViewModuleParam
     {
         #region Static Fields - 硬件句柄（界面关闭后保持）
-        // 正运动控制卡句柄（静态，界面关闭后保持连接）
-        private static IntPtr s_zmotionHandle = IntPtr.Zero;
-
         // 埃科相机句柄（静态，界面关闭后保持连接）
-        private static ITKDEVICE s_hDev = new ITKDEVICE();
-        private static ITKSTREAM s_hStream = new ITKSTREAM();
+        private static ITKDEVICE s_hDev;
+        private static ITKSTREAM s_hStream;
         private static IntPtr s_pBoard = new IntPtr(-1);
         private static IntPtr s_pUserBuffer = IntPtr.Zero;
         private static int s_nWidth = 0;
@@ -52,7 +53,7 @@ namespace Custom.LineScan.ViewModels
         private static bool s_cameraConnected = false; // 相机连接状态标志
 
         // 光源控制器（静态，界面关闭后保持连接）
-        private static CSTLightController s_lightController;
+        private static LightControllerBase s_lightController;
 
         // 运动状态轮询相关（静态）
         private static CancellationTokenSource s_motionPollCts;
@@ -80,17 +81,10 @@ namespace Custom.LineScan.ViewModels
                 s_motionPollCts?.Cancel();
                 s_motionPollingRunning = false;
                 
-                // 关闭运动控制卡
-                if (s_zmotionHandle != IntPtr.Zero)
-                {
-                    ZAux_Close(s_zmotionHandle);
-                    s_zmotionHandle = IntPtr.Zero;
-                }
-                
                 // 停止相机采集并释放资源
                 if (s_cameraConnected)
                 {
-                    if (s_bStreamCreated)
+                    if (s_bStreamCreated && s_hStream != null)
                     {
                         IKapC.ItkStreamStop(s_hStream);
                         IKapC.ItkDevFreeStream(s_hStream);
@@ -109,8 +103,12 @@ namespace Custom.LineScan.ViewModels
                         s_pBoard = new IntPtr(-1);
                     }
                     
-                    IKapC.ItkDevClose(s_hDev);
-                    s_hDev = new ITKDEVICE();
+                    if (s_hDev != null)
+                    {
+                        IKapC.ItkDevClose(s_hDev);
+                    }
+
+                    ResetIKapHandles();
                     s_cameraConnected = false;
                 }
                 
@@ -126,6 +124,9 @@ namespace Custom.LineScan.ViewModels
         #endregion
 
         #region Fields
+        [NonSerialized]
+        private readonly IZMotionPlatformService _platformService;
+
         // 相机采集相关（实例级别）
         private uint m_nFrameCount = 5;
         private bool m_bGrabbing = false;
@@ -202,8 +203,9 @@ namespace Custom.LineScan.ViewModels
         #endregion
 
         #region Constructor
-        public LineScanTestPlatformViewModel()
+        public LineScanTestPlatformViewModel(IZMotionPlatformService platformService)
         {
+            _platformService = platformService ?? throw new ArgumentNullException(nameof(platformService));
             InitTimer();
         }
         #endregion
@@ -262,25 +264,23 @@ namespace Custom.LineScan.ViewModels
         /// <summary>
         /// 后台轮询循环 - 高频读取运动状态（使用静态变量，不依赖实例）
         /// </summary>
-        private static void MotionPollingLoop(CancellationToken token)
+        private void MotionPollingLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    if (s_zmotionHandle != IntPtr.Zero)
+                    if (_platformService.IsConnected)
                     {
                         // 读取位置（使用静态轴号）
-                        float curpos = 0;
-                        int ret = ZAux_Direct_GetDpos(s_zmotionHandle, s_axisNumber, ref curpos);
+                        int ret = _platformService.GetAxisPosition(s_axisNumber, out var curpos);
                         if (ret == 0)
                         {
                             s_latestPosition = curpos;
                         }
 
                         // 读取运动状态
-                        int idleStatus = 0;
-                        ret = ZAux_Direct_GetIfIdle(s_zmotionHandle, s_axisNumber, ref idleStatus);
+                        ret = _platformService.GetAxisIdle(s_axisNumber, out var idleStatus);
                         s_latestIsMoving = (ret == 0 && idleStatus == 0);
                     }
                 }
@@ -320,9 +320,9 @@ namespace Custom.LineScan.ViewModels
             else
                 ModelParam = new LineScanTestPlatformModel();
 
-            // 根据静态句柄恢复连接状态
-            bool zmotionConnected = s_zmotionHandle != IntPtr.Zero;
-            bool cameraConnected = s_cameraConnected;
+            // 平台服务是模块单例，重新打开页面时可以恢复连接状态。
+            bool zmotionConnected = _platformService.IsConnected;
+            bool cameraConnected = s_cameraConnected && s_hDev != null;
             bool lightConnected = s_lightController?.IsConnected ?? false;
             
             ModelParam.ZMotionConnected = zmotionConnected;
@@ -367,12 +367,9 @@ namespace Custom.LineScan.ViewModels
             try
             {
                 ModelParam.AddLog("正在连接正运动控制卡...");
-                
-                IntPtr handle = IntPtr.Zero;
-                int ret = await Task.Run(() => ZAux_OpenEth(ModelParam.ZMotionIpAddress, out handle));
-                s_zmotionHandle = handle;
-                
-                if (ret == 0 && s_zmotionHandle != IntPtr.Zero)
+
+                int ret = await Task.Run(() => _platformService.ConnectEthernet(ModelParam.ZMotionIpAddress));
+                if (ret == 0 && _platformService.IsConnected)
                 {
                     ModelParam.ZMotionConnected = true;
                     ModelParam.AddLog("正运动控制卡连接成功！");
@@ -393,16 +390,14 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (s_zmotionHandle != IntPtr.Zero)
+                if (_platformService.IsConnected)
                 {
                     StopMotionPolling(); // 停止后台轮询
-                    var handle = s_zmotionHandle;
-                    s_zmotionHandle = IntPtr.Zero;
-                    
-                    await Task.Run(() => ZAux_Close(handle));
-                    
+                    int ret = await Task.Run(() => _platformService.Disconnect());
                     ModelParam.ZMotionConnected = false;
-                    ModelParam.AddLog("正运动控制卡已断开连接");
+                    ModelParam.AddLog(ret == 0
+                        ? "正运动控制卡已断开连接"
+                        : $"正运动控制卡断开失败，错误码：{ret}");
                 }
             }
             catch (Exception ex)
@@ -418,15 +413,21 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     ModelParam.AddLog("请先连接运动控制卡");
                     return;
                 }
 
-                var settingsWindow = new MotionCardSettingsView(s_zmotionHandle);
+                var settingsWindow = new MotionCardSettingsView(_platformService);
                 settingsWindow.Owner = Application.Current.MainWindow;
                 settingsWindow.ShowDialog();
+
+                ModelParam.ZMotionConnected = _platformService.IsConnected;
+                if (ModelParam.ZMotionConnected)
+                    StartMotionPolling();
+                else
+                    StopMotionPolling();
             }
             catch (Exception ex)
             {
@@ -444,31 +445,21 @@ namespace Custom.LineScan.ViewModels
                     return;
                 }
 
-                int ret = 0;
-                
-                // 方式1: 使用Modbus寄存器方式（适用于二次开发的控制器）
-                // 先设置速度 - 地址0
-                float[] speedData = new float[1];
-                speedData[0] = ModelParam.MoveSpeed;
-                ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 0, 1, speedData);
+                int ret = _platformService.WriteFloat(ZMotionPlatformProtocol.PositionSpeed, ModelParam.MoveSpeed);
                 if (ret != 0)
                 {
                     ModelParam.AddLog($"设置速度失败，错误码：{ret}");
+                    return;
                 }
-                
-                // 设置目标位置 - 地址8
-                float[] posData = new float[1];
-                posData[0] = ModelParam.TargetPosition;
-                ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 8, 1, posData);
+
+                ret = _platformService.WriteFloat(ZMotionPlatformProtocol.PositionTarget, ModelParam.TargetPosition);
                 if (ret != 0)
                 {
                     ModelParam.AddLog($"设置位置失败，错误码：{ret}");
+                    return;
                 }
-                
-                // 发送定位运动命令 - 地址50，值为2表示定位运动
-                UInt16[] cmdData = new UInt16[1];
-                cmdData[0] = 2;
-                ret = ZAux_Modbus_Set4x(s_zmotionHandle, 50, 1, cmdData);
+
+                ret = _platformService.SendCommand((ushort)ZMotionPlatformCommand.Position);
                 
                 if (ret == 0)
                 {
@@ -498,30 +489,21 @@ namespace Custom.LineScan.ViewModels
                     return;
                 }
 
-                int ret = 0;
-                
-                // 设置前进速度 - 地址0
-                float[] speedData = new float[1];
-                speedData[0] = ModelParam.ForwardSpeed;
-                ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 0, 1, speedData);
+                int ret = _platformService.WriteFloat(ZMotionPlatformProtocol.PositionSpeed, ModelParam.ForwardSpeed);
                 if (ret != 0)
                 {
                     ModelParam.AddLog($"设置前进速度失败，错误码：{ret}");
+                    return;
                 }
-                
-                // 设置工作距离（目标位置）- 地址8
-                float[] posData = new float[1];
-                posData[0] = ModelParam.WorkDistance;
-                ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 8, 1, posData);
+
+                ret = _platformService.WriteFloat(ZMotionPlatformProtocol.PositionTarget, ModelParam.WorkDistance);
                 if (ret != 0)
                 {
                     ModelParam.AddLog($"设置工作距离失败，错误码：{ret}");
+                    return;
                 }
-                
-                // 发送定位运动命令 - 地址50，值为2表示定位运动
-                UInt16[] cmdData = new UInt16[1];
-                cmdData[0] = 2;
-                ret = ZAux_Modbus_Set4x(s_zmotionHandle, 50, 1, cmdData);
+
+                ret = _platformService.SendCommand((ushort)ZMotionPlatformCommand.Position);
                 
                 if (ret == 0)
                 {
@@ -543,19 +525,15 @@ namespace Custom.LineScan.ViewModels
         /// </summary>
         private void StartReciprocatingMotion()
         {
-            if (s_zmotionHandle == IntPtr.Zero)
+            if (!_platformService.IsConnected)
             {
                 ModelParam.AddLog("正运动控制卡未连接");
                 return;
             }
             try
             {
-                // 发送开始往复命令 - 地址50，值为3（和设置界面一致）
-                UInt16[] data = new UInt16[1];
-                data[0] = 3;
-                ZAux_Modbus_Set4x(s_zmotionHandle, 50, 1, data);
-                
-                ModelParam.AddLog("开始往复运动命令已发送");
+                int ret = _platformService.SendCommand((ushort)ZMotionPlatformCommand.StartReciprocating);
+                ModelParam.AddLog(ret == 0 ? "开始往复运动命令已发送" : $"开始往复运动失败，错误码：{ret}");
             }
             catch (Exception ex)
             {
@@ -568,19 +546,15 @@ namespace Custom.LineScan.ViewModels
         /// </summary>
         private void StopReciprocatingMotion()
         {
-            if (s_zmotionHandle == IntPtr.Zero)
+            if (!_platformService.IsConnected)
             {
                 ModelParam.AddLog("正运动控制卡未连接");
                 return;
             }
             try
             {
-                // 发送暂停往复命令 - 地址50，值为4
-                UInt16[] data = new UInt16[1];
-                data[0] = 4;
-                ZAux_Modbus_Set4x(s_zmotionHandle, 50, 1, data);
-                
-                ModelParam.AddLog("停止往复运动命令已发送");
+                int ret = _platformService.SendCommand((ushort)ZMotionPlatformCommand.PauseReciprocating);
+                ModelParam.AddLog(ret == 0 ? "停止往复运动命令已发送" : $"停止往复运动失败，错误码：{ret}");
             }
             catch (Exception ex)
             {
@@ -592,16 +566,11 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (s_zmotionHandle != IntPtr.Zero)
+                if (_platformService.IsConnected)
                 {
-                    // 方式1: 使用直接停止命令
-                    int ret = ZAux_Direct_Single_Cancel(s_zmotionHandle, ModelParam.AxisNumber, 2);
-                    
-                    // 方式2: 同时清除点动信号
-                    byte[] pdata = new byte[1];
-                    pdata[0] = 0;
-                    ZAux_Modbus_Set0x(s_zmotionHandle, 0, 1, pdata);
-                    ZAux_Modbus_Set0x(s_zmotionHandle, 1, 1, pdata);
+                    int ret = _platformService.CancelAxis(ModelParam.AxisNumber, 2);
+                    _platformService.WriteCoil(ZMotionPlatformProtocol.JogNegative, false);
+                    _platformService.WriteCoil(ZMotionPlatformProtocol.JogPositive, false);
                     
                     if (ret == 0)
                     {
@@ -625,9 +594,7 @@ namespace Custom.LineScan.ViewModels
                     return;
                 }
 
-                UInt16[] pdata = new UInt16[1];
-                pdata[0] = 1; // 1表示回零命令
-                int ret = ZAux_Modbus_Set4x(s_zmotionHandle, 50, 1, pdata);
+                int ret = _platformService.SendCommand((ushort)ZMotionPlatformCommand.Home);
                 
                 if (ret == 0)
                 {
@@ -652,17 +619,15 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     return;
                 }
 
-                byte[] pdata = new byte[1];
-                pdata[0] = 1; // 按下赋值1
-
-                // 根据Modbus地址表：点动左移是地址0，点动右移是地址1
-                UInt16 addr = positive ? (UInt16)1 : (UInt16)0;
-                int ret = ZAux_Modbus_Set0x(s_zmotionHandle, addr, 1, pdata);
+                ushort address = positive
+                    ? ZMotionPlatformProtocol.JogPositive
+                    : ZMotionPlatformProtocol.JogNegative;
+                int ret = _platformService.WriteCoil(address, true);
                 
                 if (ret == 0)
                 {
@@ -682,17 +647,13 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     return;
                 }
 
-                byte[] pdata = new byte[1];
-                pdata[0] = 0; // 松开赋值0
-
-                // 同时清除两个方向的点动信号
-                ZAux_Modbus_Set0x(s_zmotionHandle, 0, 1, pdata);
-                ZAux_Modbus_Set0x(s_zmotionHandle, 1, 1, pdata);
+                _platformService.WriteCoil(ZMotionPlatformProtocol.JogNegative, false);
+                _platformService.WriteCoil(ZMotionPlatformProtocol.JogPositive, false);
                 
                 ModelParam.AddLog("点动停止");
             }
@@ -709,27 +670,22 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     ModelParam.AddLog("正运动控制卡未连接");
                     return;
                 }
 
-                float[] pdata = new float[1];
-                int ret;
-
-                // 读取往复速度 - 地址26
-                ret = ZAux_Modbus_Get4x_Float(s_zmotionHandle, 26, 1, pdata);
+                int ret = _platformService.ReadFloat(ZMotionPlatformProtocol.ReciprocateSpeed, out var speed);
                 if (ret == 0)
                 {
-                    ModelParam.ForwardSpeed = pdata[0];
+                    ModelParam.ForwardSpeed = speed;
                 }
 
-                // 读取工作距离 - 地址30
-                ret = ZAux_Modbus_Get4x_Float(s_zmotionHandle, 30, 1, pdata);
+                ret = _platformService.ReadFloat(ZMotionPlatformProtocol.ReciprocatePositivePosition, out var distance);
                 if (ret == 0)
                 {
-                    ModelParam.WorkDistance = pdata[0];
+                    ModelParam.WorkDistance = distance;
                 }
 
                 ModelParam.AddLog($"运动参数已读取 - 往复速度:{ModelParam.ForwardSpeed}, 工作距离:{ModelParam.WorkDistance}");
@@ -747,26 +703,19 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     ModelParam.AddLog("正运动控制卡未连接");
                     return;
                 }
 
-                float[] pdata = new float[1];
-                int ret;
-
-                // 设置往复速度 - 地址26
-                pdata[0] = ModelParam.ForwardSpeed;
-                ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 26, 1, pdata);
+                int ret = _platformService.WriteFloat(ZMotionPlatformProtocol.ReciprocateSpeed, ModelParam.ForwardSpeed);
                 if (ret != 0)
                 {
                     ModelParam.AddLog($"设置往复速度失败，错误码：{ret}");
                 }
 
-                // 设置工作距离 - 地址30
-                pdata[0] = ModelParam.WorkDistance;
-                ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 30, 1, pdata);
+                ret = _platformService.WriteFloat(ZMotionPlatformProtocol.ReciprocatePositivePosition, ModelParam.WorkDistance);
                 if (ret != 0)
                 {
                     ModelParam.AddLog($"设置工作距离失败，错误码：{ret}");
@@ -787,18 +736,17 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     ModelParam.AddLog("正运动控制卡未连接");
                     return;
                 }
 
-                float[] pdata = new float[1];
-                int ret = ZAux_Modbus_Get4x_Float(s_zmotionHandle, 10, 1, pdata);
+                int ret = _platformService.ReadFloat(ZMotionPlatformProtocol.HomeFastSpeed, out var homeSpeed);
                 if (ret == 0)
                 {
-                    ModelParam.HomeSpeed = pdata[0];
-                    ModelParam.AddLog($"回原速度：{pdata[0]}");
+                    ModelParam.HomeSpeed = homeSpeed;
+                    ModelParam.AddLog($"回原速度：{homeSpeed}");
                 }
                 else
                 {
@@ -818,15 +766,13 @@ namespace Custom.LineScan.ViewModels
         {
             try
             {
-                if (!ModelParam.ZMotionConnected || s_zmotionHandle == IntPtr.Zero)
+                if (!ModelParam.ZMotionConnected || !_platformService.IsConnected)
                 {
                     ModelParam.AddLog("正运动控制卡未连接");
                     return;
                 }
 
-                float[] pdata = new float[1];
-                pdata[0] = ModelParam.HomeSpeed;
-                int ret = ZAux_Modbus_Set4x_Float(s_zmotionHandle, 10, 1, pdata);
+                int ret = _platformService.WriteFloat(ZMotionPlatformProtocol.HomeFastSpeed, ModelParam.HomeSpeed);
                 if (ret == 0)
                 {
                     ModelParam.AddLog($"回原速度已设置为：{ModelParam.HomeSpeed}");
@@ -846,6 +792,63 @@ namespace Custom.LineScan.ViewModels
         #region 埃科相机方法
         // IKap SDK是否已初始化
         private static bool _ikapInitialized = false;
+        private static readonly string[] s_requiredIKapDlls =
+        {
+            "IKapC.dll",
+            "IKapBoard.dll",
+            "IKapCDotNet2.dll",
+            "IKapBoardDotNet2.dll"
+        };
+
+        private bool EnsureIKapHandles()
+        {
+            if (s_hDev != null && s_hStream != null)
+            {
+                return true;
+            }
+
+            try
+            {
+                s_hDev ??= new ITKDEVICE();
+                s_hStream ??= new ITKSTREAM();
+                return true;
+            }
+            catch (Exception ex) when (ex is DllNotFoundException || ex is TypeInitializationException)
+            {
+                LogIKapRuntimeException(ex);
+                ResetIKapHandles();
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ModelParam.AddLog($"IKap SDK句柄创建失败：{ex.GetType().Name} - {ex.Message}");
+                ResetIKapHandles();
+                return false;
+            }
+        }
+
+        private void LogIKapRuntimeException(Exception ex)
+        {
+            Exception root = ex.GetBaseException();
+            ModelParam.AddLog($"IKap SDK运行库加载失败：{root.GetType().Name} - {root.Message}");
+            ModelParam.AddLog("请确认 ReeYin.exe 同级目录存在 IKap 运行库，并在目标电脑安装 IKap 驱动和 VC++ x64 运行库。");
+
+            string baseDirectory = AppContext.BaseDirectory;
+            foreach (string dllName in s_requiredIKapDlls)
+            {
+                string dllPath = Path.Combine(baseDirectory, dllName);
+                if (!File.Exists(dllPath))
+                {
+                    ModelParam.AddLog($"缺少 IKap 运行库文件：{dllPath}");
+                }
+            }
+        }
+
+        private static void ResetIKapHandles()
+        {
+            s_hDev = null;
+            s_hStream = null;
+        }
         
         /// <summary>
         /// 初始化IKap SDK环境
@@ -872,6 +875,7 @@ namespace Custom.LineScan.ViewModels
             }
             catch (TypeInitializationException ex)
             {
+                LogIKapRuntimeException(ex);
                 // 获取更详细的内部异常信息
                 string innerMsg = ex.InnerException?.Message ?? "无内部异常";
                 string innerType = ex.InnerException?.GetType().Name ?? "未知";
@@ -880,6 +884,7 @@ namespace Custom.LineScan.ViewModels
             }
             catch (DllNotFoundException ex)
             {
+                LogIKapRuntimeException(ex);
                 ModelParam.AddLog($"IKap SDK缺少DLL：{ex.Message}");
                 return false;
             }
@@ -952,6 +957,9 @@ namespace Custom.LineScan.ViewModels
                 {
                     // 首先初始化SDK环境
                     if (!InitIKapEnvironment())
+                        return false;
+
+                    if (!EnsureIKapHandles())
                         return false;
                     
                     // 获取设备数量
@@ -1073,8 +1081,12 @@ namespace Custom.LineScan.ViewModels
                         s_pBoard = new IntPtr(-1);
                     }
 
-                    IKapC.ItkDevClose(s_hDev);
-                    s_hDev = new ITKDEVICE();
+                    if (s_hDev != null)
+                    {
+                        IKapC.ItkDevClose(s_hDev);
+                    }
+
+                    ResetIKapHandles();
                 });
 
                 s_cameraConnected = false;
@@ -2777,8 +2789,8 @@ namespace Custom.LineScan.ViewModels
                 case "光源设置":
                     OpenLightControllerSettings();
                     break;
-                case "应用光源亮度":
-                    ApplyLightBrightness();
+                case "应用光源脉宽":
+                    ApplyLightPulseWidth();
                     break;
                 case "光源全开":
                     SetAllLightChannels(true);
@@ -2829,13 +2841,12 @@ namespace Custom.LineScan.ViewModels
         private void RefreshDeviceStatus()
         {
             // 刷新运动控制卡状态
-            if (s_zmotionHandle != IntPtr.Zero)
+            if (_platformService.IsConnected)
             {
                 // 句柄有效，尝试读取状态验证连接
                 try
                 {
-                    float curpos = 0;
-                    int ret = ZAux_Direct_GetDpos(s_zmotionHandle, ModelParam.AxisNumber, ref curpos);
+                    int ret = _platformService.GetAxisPosition(ModelParam.AxisNumber, out var curpos);
                     ModelParam.ZMotionConnected = (ret == 0);
                     if (ModelParam.ZMotionConnected && !_timer.IsEnabled)
                     {
@@ -2903,44 +2914,6 @@ namespace Custom.LineScan.ViewModels
         });
         #endregion
 
-        #region 正运动DLL导入
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_OpenEth", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_OpenEth(string ipaddr, out IntPtr phandle);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Close", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Close(IntPtr handle);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Direct_GetDpos", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Direct_GetDpos(IntPtr handle, int iaxis, ref float pfValue);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Direct_GetIfIdle", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Direct_GetIfIdle(IntPtr handle, int iaxis, ref int piValue);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Direct_SetSpeed", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Direct_SetSpeed(IntPtr handle, int iaxis, float fValue);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Direct_Single_Move", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Direct_Single_Move(IntPtr handle, int iaxis, float fValue);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Direct_Single_Cancel", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Direct_Single_Cancel(IntPtr handle, int iaxis, int imode);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Modbus_Set4x", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Modbus_Set4x(IntPtr handle, UInt16 addr, UInt16 num, UInt16[] pdata);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Modbus_Set4x_Float", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Modbus_Set4x_Float(IntPtr handle, UInt16 addr, UInt16 num, float[] pdata);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Modbus_Set0x", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Modbus_Set0x(IntPtr handle, UInt16 addr, UInt16 num, byte[] pdata);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Modbus_Get4x_Float", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Modbus_Get4x_Float(IntPtr handle, UInt16 addr, UInt16 num, float[] pdata);
-
-        [DllImport("zauxdll.dll", EntryPoint = "ZAux_Direct_GetVpSpeed", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        private static extern Int32 ZAux_Direct_GetVpSpeed(IntPtr handle, int iaxis, ref float pfValue);
-        #endregion
-
         #region 光源控制器方法
         /// <summary>
         /// 连接光源控制器
@@ -2955,10 +2928,11 @@ namespace Custom.LineScan.ViewModels
                 {
                     if (s_lightController == null)
                     {
-                        s_lightController = new CSTLightController();
+                        s_lightController = CreateLightController();
                     }
 
                     s_lightController.IP = ModelParam.LightControllerIp;
+                    s_lightController.Port = 8234;
                     s_lightController.ConnectionType = 0; // 网口连接
 
                     return s_lightController.Init();
@@ -3014,19 +2988,39 @@ namespace Custom.LineScan.ViewModels
                     return;
                 }
 
-                var dialogService = ContainerLocator.Container.Resolve<IDialogService>();
-                dialogService.ShowDialog(nameof(CSTLightControllerView), new DialogParameters
+                if (s_lightController is CSTLightController)
                 {
-                    { "Param", s_lightController }
-                }, result =>
-                {
-                    if (result.Result == ButtonResult.OK)
+                    var dialogService = ContainerLocator.Container.Resolve<IDialogService>();
+                    dialogService.ShowDialog(nameof(CSTLightControllerView), new DialogParameters
                     {
-                        // 刷新状态
-                        ModelParam.LightControllerConnected = s_lightController.IsConnected;
-                        ModelParam.AddLog("光源控制器设置已更新");
-                    }
-                });
+                        { "Param", s_lightController }
+                    }, result =>
+                    {
+                        if (result.Result == ButtonResult.OK)
+                        {
+                            // 刷新状态
+                            ModelParam.LightControllerConnected = s_lightController.IsConnected;
+                            ModelParam.AddLog("光源控制器设置已更新");
+                        }
+                    });
+                    return;
+                }
+
+                if (s_lightController is RseeLightController)
+                {
+                    var dialogService = ContainerLocator.Container.Resolve<IDialogService>();
+                    dialogService.ShowDialog(nameof(RseeLightControllerView), new DialogParameters
+                    {
+                        { "Param", s_lightController }
+                    }, result =>
+                    {
+                        if (result.Result == ButtonResult.OK)
+                        {
+                            ModelParam.LightControllerConnected = s_lightController.IsConnected;
+                            ModelParam.AddLog("锐视光源控制器设置已更新");
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -3034,10 +3028,15 @@ namespace Custom.LineScan.ViewModels
             }
         }
 
+        private static LightControllerBase CreateLightController()
+        {
+            return new RseeLightController();
+        }
+
         /// <summary>
-        /// 应用光源亮度
+        /// 应用光源脉宽
         /// </summary>
-        private void ApplyLightBrightness()
+        private void ApplyLightPulseWidth()
         {
             try
             {
@@ -3055,16 +3054,16 @@ namespace Custom.LineScan.ViewModels
 
                 if (s_lightController.SetMultiBrightness(channelValues))
                 {
-                    ModelParam.AddLog($"光源亮度已设置为：{ModelParam.LightBrightness}");
+                    ModelParam.AddLog($"光源脉宽已设置为约：{ModelParam.LightPulseWidthUs}us");
                 }
                 else
                 {
-                    ModelParam.AddLog("设置光源亮度失败");
+                    ModelParam.AddLog("设置光源脉宽失败");
                 }
             }
             catch (Exception ex)
             {
-                ModelParam.AddLog($"设置光源亮度异常：{ex.Message}");
+                ModelParam.AddLog($"设置光源脉宽异常：{ex.Message}");
             }
         }
 

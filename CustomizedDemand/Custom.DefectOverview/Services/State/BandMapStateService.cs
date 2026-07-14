@@ -35,9 +35,9 @@ namespace Custom.DefectOverview.Services
             double? stripWidthMillimeters = null,
             int? slitCount = null);
 
-        void SelectDefect(string defectKey);
+        void UpdateCameraSnapshots(IReadOnlyList<BandMapCameraSnapshotItem> snapshots);
 
-        void SetLegendFilter(string legendKey, bool isEnabled);
+        void SelectDefect(string defectKey);
 
         void SetViewportStart(double startMeters);
 
@@ -217,8 +217,6 @@ namespace Custom.DefectOverview.Services
         private readonly Queue<string> _processedFrameKeyOrder = new();
         private readonly HashSet<string> _processedFrameKeys = new(StringComparer.Ordinal);
         private readonly Dictionary<string, LegendStyleAssignment> _legendStyles = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, int> _legendCounts = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, bool> _legendFilters = new(StringComparer.OrdinalIgnoreCase);
 
         private int _batchNumber = 1;
         private DateTime _batchStartedLocalTime = DateTime.Now;
@@ -254,6 +252,7 @@ namespace Custom.DefectOverview.Services
         private bool _isViewportPinnedToLatest = true;
         private bool _isWallPinnedToLatestPage = true;
         private DateTime _lastAppendSnapshotUtc = DateTime.MinValue;
+        private IReadOnlyList<BandMapCameraSnapshotItem> _cameraSnapshots = Array.Empty<BandMapCameraSnapshotItem>();
 
         public event Action<BandMapStateSnapshot> SnapshotChanged;
 
@@ -436,6 +435,8 @@ namespace Custom.DefectOverview.Services
 
                 AppendPathHistoryLocked(frame.Left, true, hasDualPathFrame, _frameSequence, _lastFrameIdText);
                 AppendPathHistoryLocked(frame.Right, false, hasDualPathFrame, _frameSequence, _lastFrameIdText);
+                Custom.DefectOverview.DefectOverviewConsole.WriteFrameTrace(
+                    $"[FrameTrace][BandMap] cycle={frame.CycleId}, frame={_lastFrameIdText}, seq={_frameSequence}, meter={(_frameSequence * Math.Max(1.0, _frameSpanMillimeters) / 1000.0).ToString("F3", CultureInfo.InvariantCulture)}, left={_path1DefectCount}, right={_path2DefectCount}, history={_history.Count}");
                 if (Custom.DefectOverview.DefectOverviewConsole.IsVerboseEnabled)
                 {
                     Custom.DefectOverview.DefectOverviewConsole.WriteLine(
@@ -562,34 +563,7 @@ namespace Custom.DefectOverview.Services
             if (count <= 0)
                 return;
 
-            for (int i = index; i < index + count && i < _history.Count; i++)
-            {
-                DecrementLegendCount(_history[i]?.LegendKey);
-            }
-
             _history.RemoveRange(index, count);
-        }
-
-        private void IncrementLegendCount(string legendKey)
-        {
-            legendKey ??= string.Empty;
-            _legendCounts.TryGetValue(legendKey, out int count);
-            _legendCounts[legendKey] = count + 1;
-        }
-
-        private void DecrementLegendCount(string legendKey)
-        {
-            legendKey ??= string.Empty;
-            if (!_legendCounts.TryGetValue(legendKey, out int count))
-                return;
-
-            if (count <= 1)
-            {
-                _legendCounts.Remove(legendKey);
-                return;
-            }
-
-            _legendCounts[legendKey] = count - 1;
         }
 
         private void RaiseSnapshotChanged(BandMapStateSnapshot snapshot, string source, Stopwatch stopwatch)
@@ -694,6 +668,22 @@ namespace Custom.DefectOverview.Services
             SnapshotChanged?.Invoke(snapshot);
         }
 
+        public void UpdateCameraSnapshots(IReadOnlyList<BandMapCameraSnapshotItem> snapshots)
+        {
+            IReadOnlyList<BandMapCameraSnapshotItem> safeSnapshots = snapshots == null
+                ? Array.Empty<BandMapCameraSnapshotItem>()
+                : snapshots
+                    .Where(item => item != null)
+                    .OrderBy(item => item.SortIndex <= 0 ? int.MaxValue : item.SortIndex)
+                    .Take(6)
+                    .ToList();
+
+            lock (_sync)
+            {
+                _cameraSnapshots = safeSnapshots;
+            }
+        }
+
         public void SelectDefect(string defectKey)
         {
             BandMapStateSnapshot snapshot;
@@ -703,21 +693,6 @@ namespace Custom.DefectOverview.Services
                 if (!string.IsNullOrWhiteSpace(_selectedDefectKey))
                     _isWallPinnedToLatestPage = false;
                 _selectionVersion++;
-                snapshot = BuildSnapshotLocked();
-            }
-
-            SnapshotChanged?.Invoke(snapshot);
-        }
-
-        public void SetLegendFilter(string legendKey, bool isEnabled)
-        {
-            if (string.IsNullOrWhiteSpace(legendKey))
-                return;
-
-            BandMapStateSnapshot snapshot;
-            lock (_sync)
-            {
-                _legendFilters[legendKey] = isEnabled;
                 snapshot = BuildSnapshotLocked();
             }
 
@@ -866,6 +841,7 @@ namespace Custom.DefectOverview.Services
             {
                 _archivedRolls.Clear();
                 ResetRuntimeLocked();
+                _cameraSnapshots = Array.Empty<BandMapCameraSnapshotItem>();
                 SaveBatchStateLocked();
                 snapshot = BuildSnapshotLocked();
             }

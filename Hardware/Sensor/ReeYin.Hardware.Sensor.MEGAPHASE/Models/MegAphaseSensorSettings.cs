@@ -1041,6 +1041,279 @@ namespace ReeYin.Hardware.Sensor.MEGAPHASE.Models
             get { return _userRTMatrix.T2; }
             set { SetUserRTMatrixValue(nameof(UserRTMatrixT2), value, v => _userRTMatrix.T2 = v); }
         }
+
+        private bool _softwarePreprocessEnabled;
+        /// <summary>
+        /// 软件预处理总开关
+        /// </summary>
+        public bool SoftwarePreprocessEnabled
+        {
+            get { return _softwarePreprocessEnabled; }
+            set
+            {
+                if (_softwarePreprocessEnabled == value)
+                    return;
+                _softwarePreprocessEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private SoftwarePreprocessModeType _removeBurrsMode = SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off;
+        /// <summary>
+        /// 去飞点模式
+        /// </summary>
+        public SoftwarePreprocessModeType RemoveBurrsMode
+        {
+            get { return _removeBurrsMode; }
+            set
+            {
+                if (_removeBurrsMode == value)
+                    return;
+                _removeBurrsMode = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _removeBurrsWinSize = 5;
+        /// <summary>
+        /// 去飞点窗口1
+        /// </summary>
+        public byte RemoveBurrsWinSize
+        {
+            get { return _removeBurrsWinSize; }
+            set
+            {
+                if (_removeBurrsWinSize == value)
+                    return;
+                _removeBurrsWinSize = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _removeBurrsWinSize2 = 2;
+        /// <summary>
+        /// 去飞点窗口2
+        /// </summary>
+        public byte RemoveBurrsWinSize2
+        {
+            get { return _removeBurrsWinSize2; }
+            set
+            {
+                if (_removeBurrsWinSize2 == value)
+                    return;
+                _removeBurrsWinSize2 = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _removeBurrsSlopeLevel = 50;
+        /// <summary>
+        /// 去飞点斜率等级
+        /// </summary>
+        public byte RemoveBurrsSlopeLevel
+        {
+            get { return _removeBurrsSlopeLevel; }
+            set
+            {
+                if (_removeBurrsSlopeLevel == value)
+                    return;
+                _removeBurrsSlopeLevel = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _removeBurrsNeighborCloseLevel = 50;
+        /// <summary>
+        /// 去飞点邻近度等级
+        /// </summary>
+        public byte RemoveBurrsNeighborCloseLevel
+        {
+            get { return _removeBurrsNeighborCloseLevel; }
+            set
+            {
+                if (_removeBurrsNeighborCloseLevel == value)
+                    return;
+                _removeBurrsNeighborCloseLevel = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _removeBurrsNeighborNumLevel = 50;
+        /// <summary>
+        /// 去飞点邻点数等级
+        /// </summary>
+        public byte RemoveBurrsNeighborNumLevel
+        {
+            get { return _removeBurrsNeighborNumLevel; }
+            set
+            {
+                if (_removeBurrsNeighborNumLevel == value)
+                    return;
+                _removeBurrsNeighborNumLevel = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _removeBurrsEdgeSuppressLevel = 50;
+        /// <summary>
+        /// 去飞点边缘抑制等级
+        /// </summary>
+        public byte RemoveBurrsEdgeSuppressLevel
+        {
+            get { return _removeBurrsEdgeSuppressLevel; }
+            set
+            {
+                if (_removeBurrsEdgeSuppressLevel == value)
+                    return;
+                _removeBurrsEdgeSuppressLevel = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private SoftwarePreprocessModeType _mendMode = SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off;
+        /// <summary>
+        /// 修补模式
+        /// </summary>
+        public SoftwarePreprocessModeType MendMode
+        {
+            get { return _mendMode; }
+            set
+            {
+                if (_mendMode == value)
+                    return;
+                _mendMode = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _mendWinSize = 5;
+        /// <summary>
+        /// 修补窗口1
+        /// </summary>
+        public byte MendWinSize
+        {
+            get { return _mendWinSize; }
+            set
+            {
+                if (_mendWinSize == value)
+                    return;
+                _mendWinSize = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _mendWinSize2 = 3;
+        /// <summary>
+        /// 修补窗口2
+        /// </summary>
+        public byte MendWinSize2
+        {
+            get { return _mendWinSize2; }
+            set
+            {
+                if (_mendWinSize2 == value)
+                    return;
+                _mendWinSize2 = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _mendMethod = 1;
+        /// <summary>
+        /// 修补方法
+        /// </summary>
+        public byte MendMethod
+        {
+            get { return _mendMethod; }
+            set
+            {
+                if (_mendMethod == value)
+                    return;
+                _mendMethod = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private SoftwarePreprocessModeType _filtrateMode = SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off;
+        /// <summary>
+        /// 平滑模式
+        /// </summary>
+        public SoftwarePreprocessModeType FiltrateMode
+        {
+            get { return _filtrateMode; }
+            set
+            {
+                if (_filtrateMode == value)
+                    return;
+                _filtrateMode = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _filtrateWinSize = 5;
+        /// <summary>
+        /// 平滑窗口
+        /// </summary>
+        public byte FiltrateWinSize
+        {
+            get { return _filtrateWinSize; }
+            set
+            {
+                if (_filtrateWinSize == value)
+                    return;
+                _filtrateWinSize = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _filtrateNeighborCloseLevel = 50;
+        /// <summary>
+        /// 平滑邻近度等级
+        /// </summary>
+        public byte FiltrateNeighborCloseLevel
+        {
+            get { return _filtrateNeighborCloseLevel; }
+            set
+            {
+                if (_filtrateNeighborCloseLevel == value)
+                    return;
+                _filtrateNeighborCloseLevel = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private byte _filtrateNeighborNumLevel = 50;
+        /// <summary>
+        /// 平滑邻点数等级
+        /// </summary>
+        public byte FiltrateNeighborNumLevel
+        {
+            get { return _filtrateNeighborNumLevel; }
+            set
+            {
+                if (_filtrateNeighborNumLevel == value)
+                    return;
+                _filtrateNeighborNumLevel = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _filtrateMendPointOnly;
+        /// <summary>
+        /// 只平滑修补点
+        /// </summary>
+        public bool FiltrateMendPointOnly
+        {
+            get { return _filtrateMendPointOnly; }
+            set
+            {
+                if (_filtrateMendPointOnly == value)
+                    return;
+                _filtrateMendPointOnly = value;
+                RaisePropertyChanged();
+            }
+        }
+
         #endregion
         #region Methods
         private bool GetProjectionEnabled(int index)

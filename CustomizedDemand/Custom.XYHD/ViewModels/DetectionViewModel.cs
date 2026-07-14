@@ -1,6 +1,3 @@
-using Custom.DefectOverview.Models;
-using Custom.DefectOverview.Services;
-using Custom.DefectOverview.Views;
 using Custom.XYHD.Models;
 using Custom.XYHD.Services;
 using HalconDotNet;
@@ -49,14 +46,6 @@ namespace Custom.XYHD.ViewModels
         // 用于自动识别两个 DL 路径
         private int _path1Serial = -1;
         private int _path2Serial = -1;
-        [NonSerialized]
-        private IBandMapStateService _bandMapStateService;
-        [NonSerialized]
-        private bool _bandMapStateSubscribed;
-        [NonSerialized]
-        private BandMapStateSnapshot _bandMapSnapshot = new();
-        [NonSerialized]
-        private long _lastBandMapSelectionVersion;
 
         private DetectionModel _model;
 
@@ -140,8 +129,7 @@ namespace Custom.XYHD.ViewModels
                 RaisePropertyChanged(nameof(LeftPreviewOrientationText));
                 RaisePropertyChanged(nameof(RightPreviewOrientationText));
                 ClearPendingFrames();
-                ResolveBandMapStateService()?.Reset();
-                Model.AddLog($"现场方向已更新: {FieldOrientationSummary}，已清空当前地图缓存", "INFO");
+                Model.AddLog($"现场方向已更新: {FieldOrientationSummary}，已清空当前帧缓存", "INFO");
             }
 
             if (e == null
@@ -172,11 +160,6 @@ namespace Custom.XYHD.ViewModels
         public DelegateCommand<string> GeneralCommand { get; }
         public DelegateCommand ChangeBatchCommand { get; }
         public DelegateCommand SaveDefectsCommand { get; }
-        public DelegateCommand<BandMapWallItem> SelectSharedDefectWallItemCommand { get; }
-        public DelegateCommand<BandMapRecentDefectItem> SelectSharedRecentDefectCommand { get; }
-        public DelegateCommand PreviousSharedDefectWallPageCommand { get; }
-        public DelegateCommand NextSharedDefectWallPageCommand { get; }
-        public DelegateCommand OpenSharedDefectDetailCommand { get; }
 
         public DetectionViewModel()
         {
@@ -185,11 +168,6 @@ namespace Custom.XYHD.ViewModels
             GeneralCommand = new DelegateCommand<string>(OnGeneralCommand);
             ChangeBatchCommand = new DelegateCommand(OnChangeBatch);
             SaveDefectsCommand = new DelegateCommand(OnSaveDefects);
-            SelectSharedDefectWallItemCommand = new DelegateCommand<BandMapWallItem>(OnSelectSharedDefectWallItem);
-            SelectSharedRecentDefectCommand = new DelegateCommand<BandMapRecentDefectItem>(OnSelectSharedRecentDefect);
-            PreviousSharedDefectWallPageCommand = new DelegateCommand(OnPreviousSharedDefectWallPage);
-            NextSharedDefectWallPageCommand = new DelegateCommand(OnNextSharedDefectWallPage);
-            OpenSharedDefectDetailCommand = new DelegateCommand(OnOpenSharedDefectDetail);
             EnsureFrameWatchdog();
             InitBatchManager();
         }
@@ -234,7 +212,6 @@ namespace Custom.XYHD.ViewModels
             Path2DefectDetails.Clear();
             LeftDisplayImage = null;
             RightDisplayImage = null;
-            ResolveBandMapStateService()?.Reset();
         }
 
         private void OnLoad()
@@ -269,7 +246,6 @@ namespace Custom.XYHD.ViewModels
             ClearFrameIdTextCache();
             ResetPathImagePreviewThrottle();
             SubscribeEvents();
-            SubscribeBandMapState();
             StatusText = "同步模式";
             Model.AddLog("运行模式: 同步模式（按帧执行 XYHD 节点）", "INFO");
             Model.AddLog("界面初始化完成，等待 XYHD 数据", "INFO");
@@ -280,7 +256,6 @@ namespace Custom.XYHD.ViewModels
             base.OnDialogClosed();
             StopFrameWatchdog();
             UnsubscribeEvents();
-            UnsubscribeBandMapState();
             if (_model != null)
                 _model.IsDebug = false;
             if (_model != null)
@@ -313,7 +288,6 @@ namespace Custom.XYHD.ViewModels
 
                     StopFrameWatchdog();
                     UnsubscribeEvents();
-                    UnsubscribeBandMapState();
                     CloseDialogWhenReady(ButtonResult.No);
                     break;
                 case "确认":
@@ -331,7 +305,6 @@ namespace Custom.XYHD.ViewModels
 
                     StopFrameWatchdog();
                     UnsubscribeEvents();
-                    UnsubscribeBandMapState();
                     CloseDialogWhenReady(ButtonResult.OK, new DialogParameters
                     {
                         { "Param", Model }

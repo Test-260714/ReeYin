@@ -396,6 +396,93 @@
                                         <RadioButton GroupName="DataOutMode" Margin="8,4" Content="简化ZMap" IsChecked="{Binding ModelParam.MegAphaseSensor.Settings.DataOutModeFixZMapSimpleSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     </WrapPanel>
                                     <Border Background="#BF9000" Padding="6,3" Margin="0,0,0,8">
+                                        <TextBlock Text="● 软件预处理" FontWeight="SemiBold" Foreground="White" />
+                                    </Border>
+                                    <StackPanel Margin="24,0,0,10">
+                                        <CheckBox Margin="8,0,8,8" Content="启用软件预处理" IsChecked="{Binding ModelParam.MegAphaseSensor.Settings.SoftwarePreprocessEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <StackPanel IsEnabled="{Binding ModelParam.MegAphaseSensor.Settings.SoftwarePreprocessEnabled}">
+                                            <Grid Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="70" />
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="110" />
+                                                    <ColumnDefinition Width="36" />
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="110" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" Grid.RowSpan="4" Grid.Column="0" Margin="8,10,8,8" Text="去飞点" FontWeight="SemiBold" VerticalAlignment="Top" />
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Margin="4,10,4,8" Text="模式：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <ComboBox Grid.Row="0" Grid.Column="2" Width="100" Height="30" Margin="4,6" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" ItemsSource="{Binding SoftwarePreprocessModeItems}" DisplayMemberPath="DisplayName" SelectedValuePath="Value" SelectedValue="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="0" Grid.Column="4" Margin="4,10,4,8" Text="窗口1：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="0" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="1" Maximum="31" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsWinSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="4,10,4,8" Text="窗口2：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="1" Grid.Column="2" Width="100" Height="30" Margin="4,6" Minimum="1" Maximum="10" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsWinSize2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="4" Margin="4,10,4,8" Text="斜率：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="1" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="100" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsSlopeLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="4,10,4,8" Text="邻近度：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="2" Grid.Column="2" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="100" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsNeighborCloseLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="2" Grid.Column="4" Margin="4,10,4,8" Text="邻点数：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="2" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="100" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsNeighborNumLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="3" Grid.Column="1" Margin="4,10,4,8" Text="边缘抑制：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="3" Grid.Column="2" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="100" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.RemoveBurrsEdgeSuppressLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Grid>
+                                            <Grid Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="70" />
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="110" />
+                                                    <ColumnDefinition Width="36" />
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="110" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="8,10,8,8" Text="修补" FontWeight="SemiBold" VerticalAlignment="Top" />
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Margin="4,10,4,8" Text="模式：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <ComboBox Grid.Row="0" Grid.Column="2" Width="100" Height="30" Margin="4,6" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" ItemsSource="{Binding SoftwarePreprocessModeItems}" DisplayMemberPath="DisplayName" SelectedValuePath="Value" SelectedValue="{Binding ModelParam.MegAphaseSensor.Settings.MendMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="0" Grid.Column="4" Margin="4,10,4,8" Text="窗口1：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="0" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="1" Maximum="50" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.MendWinSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="4,10,4,8" Text="窗口2：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="1" Grid.Column="2" Width="100" Height="30" Margin="4,6" Minimum="1" Maximum="10" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.MendWinSize2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="4" Margin="4,10,4,8" Text="方法：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="1" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="1" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.MendMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="70" />
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="110" />
+                                                    <ColumnDefinition Width="36" />
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="110" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Margin="8,10,8,8" Text="平滑" FontWeight="SemiBold" VerticalAlignment="Top" />
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Margin="4,10,4,8" Text="模式：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <ComboBox Grid.Row="0" Grid.Column="2" Width="100" Height="30" Margin="4,6" Style="{StaticResource ComboBoxExtend}" BorderThickness="0 0 0 1" ItemsSource="{Binding SoftwarePreprocessModeItems}" DisplayMemberPath="DisplayName" SelectedValuePath="Value" SelectedValue="{Binding ModelParam.MegAphaseSensor.Settings.FiltrateMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="0" Grid.Column="4" Margin="4,10,4,8" Text="窗口：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="0" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="1" Maximum="31" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.FiltrateWinSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="4,10,4,8" Text="邻近度：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="1" Grid.Column="2" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="100" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.FiltrateNeighborCloseLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="4" Margin="4,10,4,8" Text="邻点数：" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                <hc:NumericUpDown Grid.Row="1" Grid.Column="5" Width="100" Height="30" Margin="4,6" Minimum="0" Maximum="100" DecimalPlaces="0" Style="{StaticResource NumericUpDownExtend}" BorderThickness="0 0 0 1" Value="{Binding ModelParam.MegAphaseSensor.Settings.FiltrateNeighborNumLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <CheckBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Margin="4,10,0,8" Content="只平滑修补点" IsChecked="{Binding ModelParam.MegAphaseSensor.Settings.FiltrateMendPointOnly, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Border Background="#BF9000" Padding="6,3" Margin="0,0,0,8">
                                         <TextBlock Text="● 点比例参数" FontWeight="SemiBold" Foreground="White" />
                                     </Border>
                                     <WrapPanel Margin="24,0,0,10" Orientation="Horizontal">

@@ -298,7 +298,7 @@ namespace Custom.LineScan.Models
         #endregion
 
         #region 光源控制器参数
-        private string _lightControllerIp = "192.168.1.208";
+        private string _lightControllerIp = "192.168.1.252";
         /// <summary>
         /// 光源控制器IP地址
         /// </summary>
@@ -325,8 +325,15 @@ namespace Custom.LineScan.Models
         public int LightBrightness
         {
             get { return _lightBrightness; }
-            set { _lightBrightness = value; RaisePropertyChanged(); }
+            set
+            {
+                _lightBrightness = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(LightPulseWidthUs));
+            }
         }
+
+        public int LightPulseWidthUs => (int)Math.Round(Math.Clamp(_lightBrightness, 0, 255) * 999d / 255d, MidpointRounding.AwayFromZero);
 
         private int _lightChannelCount = 4;
         /// <summary>

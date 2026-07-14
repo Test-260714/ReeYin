@@ -57,6 +57,24 @@ namespace Custom.EVEMFDJC.Models
         }
 
         [JsonIgnore]
+        private bool _isSaveResultImage;
+        [Category("2.存图参数"), DisplayName("是否启用结果图存图")]
+        public bool IsSaveResultImage
+        {
+            get { return _isSaveResultImage; }
+            set { _isSaveResultImage = value; RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        private string _resultImageSavePath = string.Empty;
+        [Browsable(false)]
+        public string ResultImageSavePath
+        {
+            get { return _resultImageSavePath; }
+            set { _resultImageSavePath = value; RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
         private int _saveDays;
         public int SaveDays
         {

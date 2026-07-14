@@ -80,13 +80,13 @@ namespace Custom.XYHD.Models
                     $"LeftResults={DescribeInputBindingForLog(LeftInputResults, LeftInputResultsName)}, " +
                     $"RightImage={DescribeInputBindingForLog(RightInputImage, RightInputImageName)}, " +
                     $"RightResults={DescribeInputBindingForLog(RightInputResults, RightInputResultsName)}, " +
-                //    $"ModuleInput={DescribeTransmitParamsForLog(moduleInputParam?.TransmitParams?.Values?.OfType<TransmitParam>())}",
+                //$"ModuleInput={DescribeTransmitParamsForLog(moduleInputParam?.TransmitParams?.Values?.OfType<TransmitParam>())}",
                     "INFO");
 
                 TryRebindInputLinks();
                 SyncInputNamesFromLinks();
                 AddLog(
-            //        $"输入重绑定完成: RunId={runId}, InputParams={DescribeTransmitParamsForLog(InputParams)}, " +
+            //$"输入重绑定完成: RunId={runId}, InputParams={DescribeTransmitParamsForLog(InputParams)}, " +
                     $"CacheKeys={DescribeNodeOutputCacheKeysForLog()}",
                     "DEBUG");
 
@@ -158,7 +158,7 @@ namespace Custom.XYHD.Models
                     outputPackets.Add(CreateOutputPacketWithoutImages(packet));
                     AddLog(
                         $"准备发布事件: RunId={runId}, Event=XYHD_Detection, Path={path.pathName}, " +
-             //           $"Frame={frameId}, SourceSerial={path.sourceSerial}, PacketImage={DescribeValueForLog(packet.PathImage)}",
+                  // $"Frame={frameId}, SourceSerial={path.sourceSerial}, PacketImage={DescribeValueForLog(packet.PathImage)}",
                         "DEBUG");
                     PrismProvider.EventAggregator.GetEvent<OutputResultEvent>()
                         .Publish(("XYHD_Detection", packet));

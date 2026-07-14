@@ -12,6 +12,18 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Application\ReeYin_V.Share\ReeYin_V.Share.csproj" />
     <ProjectReference Include="..\ReeYin.Hardware.Sensor\ReeYin.Hardware.Sensor.csproj" />
+    <Reference Include="Arction.DirectX">
+      <HintPath>..\..\..\packages\LightingChartOld\Arction.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingDefinitions">
+      <HintPath>..\..\..\packages\LightingChartOld\Arction.RenderingDefinitions.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.Charting.LightningChart">
+      <HintPath>..\..\..\packages\LightingChartOld\Arction.Wpf.Charting.LightningChart.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.ChartingMVVM.LightningChart">
+      <HintPath>..\..\..\packages\LightingChartOld\Arction.Wpf.ChartingMVVM.LightningChart.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="CopyJueXinNativeDllToTargetDir" AfterTargets="Build">

@@ -233,6 +233,10 @@
                                         <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="触发次数" Width="320" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="160" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left"
                                                Value="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.CapturedFrames,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                         </hc:NumericUpDown>
+
+                                        <hc:NumericUpDown hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="数据采集等待时间[ms]" Width="320" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.TitleWidth="160" BorderThickness="0 0 0 1" Foreground="Black" Margin="5" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Minimum="0"
+                                               Value="{Binding ModelParam.JingCeSensor.CmosTriggerConfig.CollectionWaitTimeMs,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                        </hc:NumericUpDown>
                                     </StackPanel>
                                 </WxGroupBox:WxGroupBox>
 

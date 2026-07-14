@@ -63,6 +63,15 @@ namespace ReeYin.Hardware.Sensor.MEGAPHASE.ViewModels
             new DisplayOption<TriggerSourceType>(TriggerSourceType.HardTriggerI1, "硬触发I1"),
         ];
 
+        public IReadOnlyList<DisplayOption<SoftwarePreprocessModeType>> SoftwarePreprocessModeItems { get; } =
+        [
+            new DisplayOption<SoftwarePreprocessModeType>(SoftwarePreprocessModeType.SoftwarePreprocessModeType_Off, "关闭"),
+            new DisplayOption<SoftwarePreprocessModeType>(SoftwarePreprocessModeType.SoftwarePreprocessModeType_Weak, "弱"),
+            new DisplayOption<SoftwarePreprocessModeType>(SoftwarePreprocessModeType.SoftwarePreprocessModeType_Normal, "标准"),
+            new DisplayOption<SoftwarePreprocessModeType>(SoftwarePreprocessModeType.SoftwarePreprocessModeType_Strong, "强"),
+            new DisplayOption<SoftwarePreprocessModeType>(SoftwarePreprocessModeType.SoftwarePreprocessModeType_Custom, "自定义"),
+        ];
+
         /// <summary>
         /// 灰度数据
         /// </summary>

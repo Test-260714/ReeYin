@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Custom.DefectOverview.ViewModels
@@ -30,8 +31,12 @@ namespace Custom.DefectOverview.ViewModels
         private const int SnapshotApplySlowLogMs = 80;
         private const int SnapshotCoalescedLogThreshold = 3;
         private const int BrjAutoSyncIntervalSeconds = 5;
-        private const int BrjSyncTimeoutMs = 3000;
+        private const int BrjSyncTimeoutMs = 120000;
         private const string LineLineDistanceGlobalName = "Distance[线线距离]";
+        private static readonly string[] CameraChannelDisplayNames =
+        {
+            "01-L", "01-R", "02-L", "02-R", "03-L", "03-R"
+        };
         private const string LineLineDistanceParamName = "Distance";
         private const string LineLineDistanceDescription = "线线距离";
         private const string DistanceLlResourcePathMarker = "ALGO.DistanceLL.DistanceLLModel.Distance";
@@ -79,6 +84,7 @@ namespace Custom.DefectOverview.ViewModels
         private string _currentStatusText = "未运行";
         private string _reportSuggestedFileName = "DefectOverview_Report.csv";
         private IReadOnlyList<BandMapReportRow> _reportRows = Array.Empty<BandMapReportRow>();
+        private int _totalDefectCount;
         private double _frameSpanMillimeters = 120;
         private double _windowMeters = 12;
         private double _viewportStartMeters;
@@ -104,6 +110,7 @@ namespace Custom.DefectOverview.ViewModels
         private BandMapPointDisplayMode _pointDisplayMode = BandMapPointDisplayMode.Precise;
         private double? _realtimeWidthMillimeters;
         private double? _lineLineDistanceMillimeters;
+        private bool _isCameraSnapshotMode;
 
         public BandMapViewModel(IBandMapStateService stateService)
         {
@@ -125,22 +132,35 @@ namespace Custom.DefectOverview.ViewModels
             _brjAutoSyncTimer.Tick += OnBrjAutoSyncTick;
             SelectPointCommand = new DelegateCommand<BandMapPointItem>(OnSelectPoint);
             SelectRecentDefectCommand = new DelegateCommand<BandMapRecentDefectItem>(OnSelectRecentDefect);
-            ToggleLegendCommand = new DelegateCommand<BandMapLegendItem>(OnToggleLegend);
             SyncBrjReportCommand = new DelegateCommand(async () => await SyncBrjReportAsync(manual: true, force: true));
+            ShowBandMapCommand = new DelegateCommand(() => IsCameraSnapshotMode = false);
+            ShowCameraSnapshotCommand = new DelegateCommand(() =>
+            {
+                IsCameraSnapshotMode = true;
+                RefreshCameraSnapshots();
+            });
+            RefreshCameraSnapshotsCommand = new DelegateCommand(RefreshCameraSnapshots);
+            InitializeCameraSnapshots();
+            InitializeCameraChannelStatuses();
             ApplySnapshot(_stateService.GetSnapshot());
         }
 
-        public ObservableCollection<BandMapLegendItem> LegendItems { get; } = new BulkObservableCollection<BandMapLegendItem>();
         public ObservableCollection<BandMapGuideLineItem> GuideLines { get; } = new BulkObservableCollection<BandMapGuideLineItem>();
         public ObservableCollection<BandMapPointItem> DefectPoints { get; } = new BulkObservableCollection<BandMapPointItem>();
         public ObservableCollection<BandMapAxisTickItem> XAxisTicks { get; } = new BulkObservableCollection<BandMapAxisTickItem>();
         public ObservableCollection<BandMapAxisTickItem> YAxisTicks { get; } = new BulkObservableCollection<BandMapAxisTickItem>();
         public ObservableCollection<BandMapRecentDefectItem> RecentDefects { get; } = new BulkObservableCollection<BandMapRecentDefectItem>();
+        public ObservableCollection<CameraSnapshotPreviewItem> CameraSnapshots { get; } = new ObservableCollection<CameraSnapshotPreviewItem>();
+        public ObservableCollection<CameraChannelStatusItem> CameraChannelStatuses { get; } = new ObservableCollection<CameraChannelStatusItem>();
 
         public string StreamState
         {
             get => _streamState;
-            set => SetProperty(ref _streamState, value);
+            set
+            {
+                if (SetProperty(ref _streamState, value))
+                    RaiseCameraStatusProperties();
+            }
         }
 
         public string StreamStatusText
@@ -287,7 +307,14 @@ namespace Custom.DefectOverview.ViewModels
         public string BatchNumberText
         {
             get => _batchNumberText;
-            set => SetProperty(ref _batchNumberText, value);
+            set
+            {
+                if (!SetProperty(ref _batchNumberText, value))
+                    return;
+
+                RaisePropertyChanged(nameof(BatchNumberDisplayText));
+                RaiseHeaderComputedProperties();
+            }
         }
 
         public int RecentNgFrameCount
@@ -359,7 +386,11 @@ namespace Custom.DefectOverview.ViewModels
         public string CurrentStatusCode
         {
             get => _currentStatusCode;
-            set => SetProperty(ref _currentStatusCode, value);
+            set
+            {
+                if (SetProperty(ref _currentStatusCode, value))
+                    RaiseCameraStatusProperties();
+            }
         }
 
         public string CurrentStatusText
@@ -367,6 +398,15 @@ namespace Custom.DefectOverview.ViewModels
             get => _currentStatusText;
             set => SetProperty(ref _currentStatusText, value);
         }
+
+        public string CameraStatusCode => ResolveCameraStatusCode();
+
+        public string CameraStatusText => CameraStatusCode switch
+        {
+            "OK" => "OK",
+            "NG" => "NG",
+            _ => "连接异常"
+        };
 
         public bool IsDetectionRunning
         {
@@ -379,6 +419,7 @@ namespace Custom.DefectOverview.ViewModels
                 RaisePropertyChanged(nameof(DataPrimaryText));
                 RaisePropertyChanged(nameof(DataSummaryText));
                 RaisePropertyChanged(nameof(CurrentStatusHintText));
+                RaiseCameraStatusProperties();
             }
         }
 
@@ -392,6 +433,12 @@ namespace Custom.DefectOverview.ViewModels
         {
             get => _reportRows;
             set => SetProperty(ref _reportRows, value ?? Array.Empty<BandMapReportRow>());
+        }
+
+        public int TotalDefectCount
+        {
+            get => _totalDefectCount;
+            private set => SetProperty(ref _totalDefectCount, Math.Max(0, value));
         }
 
         public double FrameSpanMillimeters
@@ -476,14 +523,14 @@ namespace Custom.DefectOverview.ViewModels
 
         public string RealtimeWidthDisplayText => EffectiveRealtimeWidthMillimeters.HasValue
             ? Math.Max(0.0, EffectiveRealtimeWidthMillimeters.Value).ToString("F1", CultureInfo.InvariantCulture)
-            : "--";
+            : "0";
 
         public string LineDistanceSummaryText => LineLineDistanceMillimeters.HasValue
             ? $"线线距离 {Math.Max(0.0, LineLineDistanceMillimeters.Value):F1} mm"
-            : "线线距离 -- mm";
+            : "线线距离 0 mm";
 
         public string CurrentSpeedDisplayText => _lastFrameUtc == DateTime.MinValue
-            ? "--"
+            ? "0"
             : Math.Max(0, CurrentSpeedMetersPerMinute).ToString("F1");
 
         public string CurrentSpeedHintText => _lastFrameUtc == DateTime.MinValue
@@ -525,7 +572,7 @@ namespace Custom.DefectOverview.ViewModels
 
         public string RollTraceSummaryText => $"卷 {BatchNumberText} · 总帧 {TotalFrames}";
 
-        public bool HasLegendItems => LegendItems.Count > 0;
+        public string BatchNumberDisplayText => FormatBatchNumberForHeader(BatchNumberText);
 
         public bool IsBrjAutoSyncEnabled
         {
@@ -661,14 +708,30 @@ namespace Custom.DefectOverview.ViewModels
             set => SetProperty(ref _selectedMapPointPopupOffsetY, value);
         }
 
+        public bool IsCameraSnapshotMode
+        {
+            get => _isCameraSnapshotMode;
+            set
+            {
+                if (!SetProperty(ref _isCameraSnapshotMode, value))
+                    return;
+
+                RaisePropertyChanged(nameof(IsBandMapMode));
+            }
+        }
+
+        public bool IsBandMapMode => !IsCameraSnapshotMode;
+
         public DelegateCommand LoadCommand => new DelegateCommand(OnLoad);
         public DelegateCommand UnLoadedCommand => new DelegateCommand(OnUnload);
         public DelegateCommand StartDetectionCommand => new DelegateCommand(OnStartDetection);
         public DelegateCommand EndDetectionCommand => new DelegateCommand(OnEndDetection);
         public DelegateCommand ResetCommand => new DelegateCommand(() => _stateService.Reset());
         public DelegateCommand ChangeBatchCommand => new DelegateCommand(OnChangeBatch);
+        public DelegateCommand ShowBandMapCommand { get; }
+        public DelegateCommand ShowCameraSnapshotCommand { get; }
+        public DelegateCommand RefreshCameraSnapshotsCommand { get; }
         public DelegateCommand SyncBrjReportCommand { get; }
-        public DelegateCommand<BandMapLegendItem> ToggleLegendCommand { get; }
         public DelegateCommand<BandMapPointItem> SelectPointCommand { get; }
         public DelegateCommand<BandMapRecentDefectItem> SelectRecentDefectCommand { get; }
 
@@ -859,6 +922,7 @@ namespace Custom.DefectOverview.ViewModels
                     : nextStatusText;
                 ReportSuggestedFileName = snapshot.ReportSuggestedFileName ?? "DefectOverview_Report.csv";
                 ReportRows = snapshot.ReportRows ?? Array.Empty<BandMapReportRow>();
+                TotalDefectCount = snapshot.TotalDefectCount;
                 FrameSpanMillimeters = snapshot.FrameSpanMillimeters;
                 WindowMeters = snapshot.WindowMeters;
                 ViewportMaxStartMeters = snapshot.ViewportMaxStartMeters;
@@ -874,6 +938,7 @@ namespace Custom.DefectOverview.ViewModels
                 Path2Result = snapshot.Path2Result ?? "-";
                 Path1DefectCount = snapshot.Path1DefectCount;
                 Path2DefectCount = snapshot.Path2DefectCount;
+                UpdateCameraChannelStatuses(snapshot.CameraSnapshots);
                 IsSlittingEnabled = snapshot.IsSlittingEnabled;
                 KnifeSpacingMillimeters = snapshot.KnifeSpacingMillimeters;
                 FirstCutOffsetMillimeters = snapshot.FirstCutOffsetMillimeters;
@@ -882,7 +947,6 @@ namespace Custom.DefectOverview.ViewModels
                 SlittingSummaryText = snapshot.SlittingSummaryText ?? "切刀分切未启用";
                 RangeSummary = snapshot.RangeSummary ?? "当前累计 0.00 m | 显示窗口 12.0 m";
                 _lastFrameUtc = snapshot.LastFrameUtc;
-                ReplaceCollection(LegendItems, snapshot.LegendItems);
                 ReplaceCollection(GuideLines, snapshot.GuideLines);
                 ReplaceCollection(DefectPoints, snapshot.DefectPoints);
                 ReplaceCollection(XAxisTicks, snapshot.XAxisTicks);
@@ -890,7 +954,6 @@ namespace Custom.DefectOverview.ViewModels
                 ReplaceCollection(RecentDefects, snapshot.RecentDefects);
                 UpdateBrjDirtyState(snapshot);
                 RefreshSelectedMapPointPopup(snapshot);
-                RaisePropertyChanged(nameof(HasLegendItems));
                 RaiseViewportScrollProperties();
                 RaiseHeaderComputedProperties();
             }
@@ -1102,7 +1165,7 @@ namespace Custom.DefectOverview.ViewModels
 
         private int GetCurrentCachedDefectCount()
         {
-            return LegendItems.Sum(item => Math.Max(0, item?.DefectCount ?? 0));
+            return TotalDefectCount;
         }
 
         private async Task<bool> SyncBrjReportAsync(bool manual, bool isRollCompleted = false, bool force = false)
@@ -1295,14 +1358,6 @@ namespace Custom.DefectOverview.ViewModels
             _stateService.SelectDefect(item.DefectKey);
         }
 
-        private void OnToggleLegend(BandMapLegendItem item)
-        {
-            if (string.IsNullOrWhiteSpace(item?.LegendKey))
-                return;
-
-            _stateService.SetLegendFilter(item.LegendKey, !item.IsChecked);
-        }
-
         private async void OnChangeBatch()
         {
             bool hasData = TotalFrames > 0 || (ReportRows?.Count ?? 0) > 0 || NgFrames > 0;
@@ -1413,6 +1468,153 @@ namespace Custom.DefectOverview.ViewModels
             _stateService.UpdateViewportSize(width, height);
         }
 
+        private void InitializeCameraSnapshots()
+        {
+            CameraSnapshots.Clear();
+            for (int i = 1; i <= 6; i++)
+            {
+                CameraSnapshots.Add(new CameraSnapshotPreviewItem(
+                    $"Camera-{i:D2}",
+                    $"相机 {i:00}",
+                    "暂无图像",
+                    "Pending",
+                    "暂无缓存"));
+            }
+        }
+
+        private void InitializeCameraChannelStatuses()
+        {
+            CameraChannelStatuses.Clear();
+            foreach (string displayName in CameraChannelDisplayNames)
+            {
+                CameraChannelStatuses.Add(new CameraChannelStatusItem(displayName));
+            }
+        }
+
+        private void RefreshCameraSnapshots()
+        {
+            BandMapStateSnapshot snapshot = _stateService.GetSnapshot();
+            string emptyText = $"刷新 {DateTime.Now:HH:mm:ss}，暂无缓存";
+            ApplyCameraSnapshots(snapshot.CameraSnapshots, emptyText);
+        }
+
+        private void ApplyCameraSnapshots(IReadOnlyList<BandMapCameraSnapshotItem> snapshots, string emptyText)
+        {
+            EnsureCameraSnapshotSlots();
+
+            var orderedSnapshots = snapshots?
+                .Where(item => item != null)
+                .OrderBy(item => item.SortIndex <= 0 ? int.MaxValue : item.SortIndex)
+                .Take(CameraSnapshots.Count)
+                .ToList() ?? new List<BandMapCameraSnapshotItem>();
+
+            bool[] appliedSlots = new bool[CameraSnapshots.Count];
+            foreach (BandMapCameraSnapshotItem cameraSnapshot in orderedSnapshots)
+            {
+                int slotIndex = ResolveCameraSnapshotSlotIndex(cameraSnapshot, appliedSlots);
+                if (slotIndex < 0)
+                    continue;
+
+                CameraSnapshots[slotIndex].ApplySnapshot(cameraSnapshot);
+                appliedSlots[slotIndex] = true;
+            }
+
+            for (int i = 0; i < CameraSnapshots.Count; i++)
+            {
+                if (!appliedSlots[i])
+                    CameraSnapshots[i].MarkUnavailable(emptyText);
+            }
+
+            UpdateCameraChannelStatuses(orderedSnapshots);
+        }
+
+        private void UpdateCameraChannelStatuses(IReadOnlyList<BandMapCameraSnapshotItem> snapshots)
+        {
+            EnsureCameraChannelStatusSlots();
+
+            var orderedSnapshots = snapshots?
+                .Where(item => item != null)
+                .OrderBy(item => item.SortIndex <= 0 ? int.MaxValue : item.SortIndex)
+                .Take(CameraChannelStatuses.Count)
+                .ToList() ?? new List<BandMapCameraSnapshotItem>();
+
+            bool[] appliedSlots = new bool[CameraChannelStatuses.Count];
+            foreach (BandMapCameraSnapshotItem snapshot in orderedSnapshots)
+            {
+                int slotIndex = ResolveCameraSnapshotSlotIndex(snapshot, appliedSlots);
+                if (slotIndex < 0)
+                    continue;
+
+                CameraChannelStatuses[slotIndex].ApplyStatus(ResolveCameraChannelStatusCode(snapshot));
+                appliedSlots[slotIndex] = true;
+            }
+
+            for (int i = 0; i < CameraChannelStatuses.Count; i++)
+            {
+                if (!appliedSlots[i])
+                    CameraChannelStatuses[i].ApplyStatus("ConnectionError");
+            }
+        }
+
+        private void EnsureCameraChannelStatusSlots()
+        {
+            while (CameraChannelStatuses.Count < CameraChannelDisplayNames.Length)
+            {
+                CameraChannelStatuses.Add(new CameraChannelStatusItem(CameraChannelDisplayNames[CameraChannelStatuses.Count]));
+            }
+
+            while (CameraChannelStatuses.Count > CameraChannelDisplayNames.Length)
+                CameraChannelStatuses.RemoveAt(CameraChannelStatuses.Count - 1);
+        }
+
+        private static string ResolveCameraChannelStatusCode(BandMapCameraSnapshotItem snapshot)
+        {
+            string statusState = snapshot?.StatusState?.Trim();
+            if (string.Equals(statusState, "NG", StringComparison.OrdinalIgnoreCase))
+                return "NG";
+
+            if (string.Equals(statusState, "OK", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusState, "Live", StringComparison.OrdinalIgnoreCase))
+                return "OK";
+
+            return "ConnectionError";
+        }
+
+        private void EnsureCameraSnapshotSlots()
+        {
+            while (CameraSnapshots.Count < 6)
+            {
+                int nextIndex = CameraSnapshots.Count + 1;
+                CameraSnapshots.Add(new CameraSnapshotPreviewItem(
+                    $"Camera-{nextIndex:D2}",
+                    $"相机 {nextIndex:00}",
+                    "暂无图像",
+                    "Pending",
+                    "暂无缓存"));
+            }
+
+            while (CameraSnapshots.Count > 6)
+                CameraSnapshots.RemoveAt(CameraSnapshots.Count - 1);
+        }
+
+        private static int ResolveCameraSnapshotSlotIndex(BandMapCameraSnapshotItem snapshot, IReadOnlyList<bool> appliedSlots)
+        {
+            if (snapshot != null && snapshot.SortIndex >= 1 && snapshot.SortIndex <= 6)
+            {
+                int preferredIndex = snapshot.SortIndex - 1;
+                if (!appliedSlots[preferredIndex])
+                    return preferredIndex;
+            }
+
+            for (int i = 0; i < appliedSlots.Count; i++)
+            {
+                if (!appliedSlots[i])
+                    return i;
+            }
+
+            return -1;
+        }
+
         public void ShowSelectedMapPointPopup(BandMapPointItem point, double offsetX, double offsetY)
         {
             ShowSelectedMapPointPopup(point, point == null ? Array.Empty<BandMapPointItem>() : new[] { point }, offsetX, offsetY);
@@ -1466,6 +1668,30 @@ namespace Custom.DefectOverview.ViewModels
             RaisePropertyChanged(nameof(LineDistanceSummaryText));
             RaisePropertyChanged(nameof(RouteSummaryText));
             RaisePropertyChanged(nameof(RollTraceSummaryText));
+            RaiseCameraStatusProperties();
+        }
+
+        private void RaiseCameraStatusProperties()
+        {
+            RaisePropertyChanged(nameof(CameraStatusCode));
+            RaisePropertyChanged(nameof(CameraStatusText));
+        }
+
+        private string ResolveCameraStatusCode()
+        {
+            if (string.Equals(StreamState, "Stale", StringComparison.OrdinalIgnoreCase)
+                || (IsDetectionRunning && _lastFrameUtc == DateTime.MinValue))
+            {
+                return "ConnectionError";
+            }
+
+            if (string.Equals(CurrentStatusCode, "NG", StringComparison.OrdinalIgnoreCase))
+                return "NG";
+
+            if (string.Equals(CurrentStatusCode, "OK", StringComparison.OrdinalIgnoreCase))
+                return "OK";
+
+            return "ConnectionError";
         }
 
         private static string FormatRate(int value, int total)
@@ -1474,6 +1700,18 @@ namespace Custom.DefectOverview.ViewModels
                 return "--";
 
             return $"{Math.Max(0, value) * 100.0 / total:F1}%";
+        }
+
+        private static string FormatBatchNumberForHeader(string batchNumber)
+        {
+            if (string.IsNullOrWhiteSpace(batchNumber))
+                return "卷号：-";
+
+            string text = batchNumber.Trim();
+            if (text.StartsWith("卷号", StringComparison.Ordinal))
+                return text;
+
+            return $"卷号：{text}";
         }
 
         private string ResolveStreamStateHint()
@@ -1611,6 +1849,130 @@ namespace Custom.DefectOverview.ViewModels
 
             foreach (var item in source)
                 target.Add(item);
+        }
+    }
+
+    public sealed class CameraChannelStatusItem : BindableBase
+    {
+        private string _statusCode = "ConnectionError";
+
+        public CameraChannelStatusItem(string displayName)
+        {
+            DisplayName = displayName ?? string.Empty;
+            DisplayText = $"{DisplayName} 状态";
+        }
+
+        public string DisplayName { get; }
+
+        public string DisplayText { get; }
+
+        public string StatusCode
+        {
+            get => _statusCode;
+            private set => SetProperty(ref _statusCode, value ?? "ConnectionError");
+        }
+
+        public void ApplyStatus(string statusCode)
+        {
+            StatusCode = string.Equals(statusCode, "OK", StringComparison.OrdinalIgnoreCase)
+                ? "OK"
+                : string.Equals(statusCode, "NG", StringComparison.OrdinalIgnoreCase)
+                    ? "NG"
+                    : "ConnectionError";
+        }
+    }
+
+    public sealed class CameraSnapshotPreviewItem : BindableBase
+    {
+        private string _cameraName;
+        private string _statusText;
+        private string _statusState;
+        private string _lastRefreshText;
+        private ImageSource _snapshotImage;
+        private bool _hasSnapshotImage;
+
+        public CameraSnapshotPreviewItem(string cameraKey, string cameraName, string statusText, string statusState, string lastRefreshText)
+        {
+            CameraKey = cameraKey;
+            _cameraName = cameraName;
+            _statusText = statusText;
+            _statusState = statusState;
+            _lastRefreshText = lastRefreshText;
+        }
+
+        public string CameraKey { get; }
+
+        public string CameraName
+        {
+            get => _cameraName;
+            private set => SetProperty(ref _cameraName, value);
+        }
+
+        public string StatusText
+        {
+            get => _statusText;
+            private set => SetProperty(ref _statusText, value);
+        }
+
+        public string StatusState
+        {
+            get => _statusState;
+            private set => SetProperty(ref _statusState, value);
+        }
+
+        public string LastRefreshText
+        {
+            get => _lastRefreshText;
+            private set => SetProperty(ref _lastRefreshText, value);
+        }
+
+        public ImageSource SnapshotImage
+        {
+            get => _snapshotImage;
+            private set
+            {
+                if (!SetProperty(ref _snapshotImage, value))
+                    return;
+
+                HasSnapshotImage = value != null;
+            }
+        }
+
+        public bool HasSnapshotImage
+        {
+            get => _hasSnapshotImage;
+            private set => SetProperty(ref _hasSnapshotImage, value);
+        }
+
+        public void ApplySnapshot(BandMapCameraSnapshotItem snapshot)
+        {
+            if (snapshot == null)
+            {
+                MarkUnavailable("暂无缓存");
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(snapshot.CameraName))
+                CameraName = snapshot.CameraName;
+
+            SnapshotImage = snapshot.SnapshotImage;
+            StatusText = !string.IsNullOrWhiteSpace(snapshot.StatusText)
+                ? snapshot.StatusText
+                : SnapshotImage == null ? "暂无图像" : "已缓存";
+            StatusState = !string.IsNullOrWhiteSpace(snapshot.StatusState)
+                ? snapshot.StatusState
+                : SnapshotImage == null ? "Offline" : "Live";
+            LastRefreshText = !string.IsNullOrWhiteSpace(snapshot.LastRefreshText)
+                ? snapshot.LastRefreshText
+                : "暂无缓存";
+        }
+
+        public void MarkUnavailable(string refreshText)
+        {
+            SnapshotImage = null;
+            StatusText = "暂无图像";
+            StatusState = "Offline";
+            LastRefreshText = refreshText;
         }
     }
 

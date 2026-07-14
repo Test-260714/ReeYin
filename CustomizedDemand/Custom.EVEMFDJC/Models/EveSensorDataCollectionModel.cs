@@ -1,8 +1,9 @@
-﻿﻿using Custom.EVEMFDJC.ViewModels;
+﻿﻿﻿using Custom.EVEMFDJC.ViewModels;
 using HalconDotNet;
 using ImageTool.Halcon.Model;
 using Newtonsoft.Json;
 using OpenCvSharp;
+using ReeYin.Hardware.Sensor.ChroCodile;
 using ReeYin.Hardware.Sensor.Models;
 using ReeYin_V.Core.Config;
 using ReeYin_V.Core.Enums;
@@ -12,20 +13,24 @@ using ReeYin_V.Core.Interfaces;
 using ReeYin_V.Core.IOC;
 using ReeYin_V.Core.Services.DataCollectRelated;
 using ReeYin_V.Core.Services.DynamicView;
+using ReeYin_V.Hardware.PLC.Models;
 using ReeYin_V.Logger;
 using ReeYin_V.Share;
+using ReeYin_V.UI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
-using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using static Custom.EVEMFDJC.Models.EVEMFDJC0_Algorithm;
-using ReeYin.Hardware.Sensor.ChroCodile;
+using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
 
 namespace Custom.EVEMFDJC.Models
 {
@@ -75,6 +80,12 @@ namespace Custom.EVEMFDJC.Models
 
         [JsonIgnore]
         private int _triggerCount;
+
+        [JsonIgnore]
+        private string _lastScannerCode = string.Empty;
+
+        [JsonIgnore]
+        private readonly SemaphoreSlim _scannerLock = new SemaphoreSlim(1, 1);
         #endregion
 
         #region Properties
@@ -349,6 +360,75 @@ namespace Custom.EVEMFDJC.Models
             set { _exposureTime = value; RaisePropertyChanged(); }
         }
 
+        private string _scannerIp = "192.168.1.100";
+        /// <summary>
+        /// 扫码枪 IP 地址。
+        /// </summary>
+        public string ScannerIp
+        {
+            get { return _scannerIp; }
+            set { _scannerIp = value; RaisePropertyChanged(); }
+        }
+
+        private int _scannerTriggerPort = 4000;
+        /// <summary>
+        /// 扫码枪 TCP 触发端口。
+        /// </summary>
+        public int ScannerTriggerPort
+        {
+            get { return _scannerTriggerPort; }
+            set { _scannerTriggerPort = value; RaisePropertyChanged(); }
+        }
+
+        private string _scannerTriggerHex = "737461";
+        /// <summary>
+        /// 扫码枪触发字符，按 HEX 配置，例如 737461。
+        /// </summary>
+        public string ScannerTriggerHex
+        {
+            get { return _scannerTriggerHex; }
+            set { _scannerTriggerHex = value; RaisePropertyChanged(); }
+        }
+
+        private int _scannerTimeoutMs = 3000;
+        /// <summary>
+        /// 扫码枪连接和读取超时时间，单位毫秒。
+        /// </summary>
+        public int ScannerTimeoutMs
+        {
+            get { return _scannerTimeoutMs; }
+            set { _scannerTimeoutMs = value; RaisePropertyChanged(); }
+        }
+
+        private bool _scannerWritePlcOnSuccess;
+        /// <summary>
+        /// 扫码枪读取成功后是否写 PLC。
+        /// </summary>
+        public bool ScannerWritePlcOnSuccess
+        {
+            get { return _scannerWritePlcOnSuccess; }
+            set { _scannerWritePlcOnSuccess = value; RaisePropertyChanged(); }
+        }
+
+        private string _scannerSuccessPlcAddress = string.Empty;
+        /// <summary>
+        /// 扫码枪读取成功后写入的 PLC 地址。
+        /// </summary>
+        public string ScannerSuccessPlcAddress
+        {
+            get { return _scannerSuccessPlcAddress; }
+            set { _scannerSuccessPlcAddress = value; RaisePropertyChanged(); }
+        }
+
+        private string _scannerLastCode = string.Empty;
+        /// <summary>
+        /// 扫码枪最近一次手动读取结果。
+        /// </summary>
+        public string ScannerLastCode
+        {
+            get { return _scannerLastCode; }
+            set { _scannerLastCode = value; RaisePropertyChanged(); }
+        }
 
         private EveAlarmLogModel _eveAlarmLogModel = new EveAlarmLogModel();
         /// <summary>
@@ -492,6 +572,177 @@ namespace Custom.EVEMFDJC.Models
         #endregion
 
         #region Methods
+
+        private static byte[] HexToBytes(string hex)
+        {
+            if (string.IsNullOrWhiteSpace(hex))
+                return Array.Empty<byte>();
+
+            hex = hex.Replace(" ", string.Empty).Replace("-", string.Empty);
+            if (hex.Length % 2 != 0)
+                throw new FormatException($"扫码枪触发字符 HEX 长度不正确：{hex}");
+
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                bytes[i] = byte.Parse(hex.Substring(i * 2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            }
+
+            return bytes;
+        }
+
+        private static string CleanScannerResult(string result)
+        {
+            if (string.IsNullOrEmpty(result))
+                return string.Empty;
+
+            return result.Trim('\0', '\r', '\n', '\u0002', '\u0003', ' ', '\t');
+        }
+
+        private static bool HasScannerTerminator(byte[] buffer, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (buffer[i] == 0x0D || buffer[i] == 0x0A || buffer[i] == 0x03)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void WriteScannerSuccessPlc(string plcAddress, EnumParaInfoModelParaType paraType, object paraValue)
+        {
+            if (!ScannerWritePlcOnSuccess)
+                return;
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(plcAddress))
+                {
+                    Console.WriteLine("扫码成功写PLC失败：PLC地址为空");
+                    return;
+                }
+
+                var models = PrismProvider.HardwareModuleManager.Modules[ConfigKey.PLCConfig] as PLCSetModel;
+                var plc = models?.Models?.FirstOrDefault();
+                if (plc == null)
+                {
+                    Console.WriteLine("扫码成功写PLC失败：未找到PLC");
+                    return;
+                }
+
+                var param = new PLCParaInfoModel
+                {
+                    PLCAddress = plcAddress,
+                    ParaType = paraType,
+                    ParaValue = paraValue
+                };
+
+                if (plc.WritePLCPara(param))
+                {
+                    Console.WriteLine($"地址{plcAddress}写入{param.ParaValue}成功！");
+                }
+                else
+                {
+                    Console.WriteLine($"地址{plcAddress}写入{param.ParaValue}失败！");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"扫码成功写PLC失败：{ex.Message},调用堆栈:{ex.StackTrace}");
+            }
+        }
+
+        public void ManualScanCode()
+        {
+            if (!_scannerLock.Wait(0))
+            {
+                Console.WriteLine("扫码枪正在扫码，忽略重复触发");
+                return;
+            }
+
+            try
+            {
+                ScannerLastCode = string.Empty;
+                Console.WriteLine("扫码枪开始手动扫码");
+                string barcodeResult = ReadScannerCodeAsync().GetAwaiter().GetResult();
+
+                if (string.IsNullOrWhiteSpace(barcodeResult))
+                {
+                    Console.WriteLine("扫码枪未读取到条码");
+                }
+                else
+                {
+                    _lastScannerCode = barcodeResult;
+                    ScannerLastCode = barcodeResult;
+                    Console.WriteLine($"扫码枪读取结果：{barcodeResult}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"扫码枪手动扫码失败：{ex.Message},调用堆栈:{ex.StackTrace}");
+            }
+            finally
+            {
+                _scannerLock.Release();
+            }
+        }
+
+        private async Task<string> ReadScannerCodeAsync()
+        {
+            if (string.IsNullOrWhiteSpace(ScannerIp))
+                throw new InvalidOperationException("扫码枪 IP 不能为空");
+
+            if (ScannerTriggerPort <= 0 || ScannerTriggerPort > 65535)
+                throw new InvalidOperationException($"扫码枪端口不正确：{ScannerTriggerPort}");
+
+            int timeoutMs = ScannerTimeoutMs > 0 ? ScannerTimeoutMs : 3000;
+            byte[] triggerBytes = HexToBytes(ScannerTriggerHex);
+            if (triggerBytes.Length == 0)
+                throw new InvalidOperationException("扫码枪触发字符不能为空");
+
+            using TcpClient client = new TcpClient();
+            using CancellationTokenSource timeoutCts = new CancellationTokenSource(timeoutMs);
+
+            await client.ConnectAsync(ScannerIp, ScannerTriggerPort, timeoutCts.Token);
+
+            NetworkStream stream = client.GetStream();
+            await stream.WriteAsync(triggerBytes, timeoutCts.Token);
+            await stream.FlushAsync(timeoutCts.Token);
+
+            using MemoryStream resultStream = new MemoryStream();
+            byte[] buffer = new byte[256];
+            while (true)
+            {
+                using CancellationTokenSource readCts = resultStream.Length == 0
+                    ? new CancellationTokenSource(timeoutMs)
+                    : new CancellationTokenSource(300);
+
+                int count;
+                try
+                {
+                    count = await stream.ReadAsync(buffer, readCts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (resultStream.Length > 0)
+                        break;
+
+                    throw;
+                }
+
+                if (count <= 0)
+                    break;
+
+                resultStream.Write(buffer, 0, count);
+                if (HasScannerTerminator(buffer, count))
+                    break;
+            }
+
+            byte[] resultBytes = resultStream.ToArray();
+            Console.WriteLine($"扫码枪原始返回HEX：{BitConverter.ToString(resultBytes).Replace("-", " ")}");
+            return CleanScannerResult(Encoding.UTF8.GetString(resultBytes));
+        }
 
         /// <summary>
         /// 模块执行
@@ -788,6 +1039,8 @@ namespace Custom.EVEMFDJC.Models
             snapshot.GrayImage = CloneMat(source.GrayImage);
             snapshot.HeightImage?.Dispose();
             snapshot.HeightImage = CloneMat(source.HeightImage);
+            snapshot.GrayImageOri?.Dispose();
+            snapshot.GrayImageOri = CloneMat(source.GrayImageOri);
             snapshot.MinDepth = source.MinDepth;
             snapshot.MaxDepth = source.MaxDepth;
             snapshot.Warp = CloneWarpResult(source.Warp);
@@ -929,6 +1182,67 @@ namespace Custom.EVEMFDJC.Models
         }
 
         /// <summary>
+        /// 触发扫码枪扫码并读取条码内容。
+        /// </summary>
+        [EventSubscription(typeof(UpdateMessageEvent), "触发扫码枪扫码")]
+        public void TrrigerScanCode(string order)
+        {
+            if (order != "TrrigerScanCode") return;
+
+            if (!_scannerLock.Wait(0))
+            {
+                Console.WriteLine("扫码枪正在扫码，忽略重复触发");
+                return;
+            }
+
+            MessageBoxResult messageBoxResult = MessageBoxResult.None;
+
+            try
+            {
+                _lastScannerCode = string.Empty;
+                Console.WriteLine("扫码枪开始扫码");
+                string barcodeResult = ReadScannerCodeAsync().GetAwaiter().GetResult();
+
+                if (string.IsNullOrWhiteSpace(barcodeResult))
+                {
+                    Console.WriteLine("扫码枪未读取到条码");
+                    PrismProvider.Dispatcher.Invoke(() =>
+                    {
+                        messageBoxResult = MessageView.Ins.MessageBoxShow("扫码枪扫码失败，没有获取到条码数据，是否需要复位。", eMsgType.Info, MessageBoxButton.YesNo);
+                    });
+                    if (messageBoxResult == MessageBoxResult.Yes)
+                    {
+                        Console.WriteLine("复位plc");
+                        WriteScannerSuccessPlc("M106", EnumParaInfoModelParaType.Bool, true);
+                    }
+                }
+                else
+                {
+                    _lastScannerCode = barcodeResult;
+                    Console.WriteLine($"扫码枪读取结果：{barcodeResult}");
+                    WriteScannerSuccessPlc(ScannerSuccessPlcAddress, EnumParaInfoModelParaType.Bool, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                PrismProvider.Dispatcher.Invoke(() =>
+                {
+                    messageBoxResult = MessageView.Ins.MessageBoxShow("扫码枪扫码失败，没有获取到条码数据，是否需要复位。", eMsgType.Info, MessageBoxButton.YesNo);
+                });
+                if (messageBoxResult == MessageBoxResult.Yes)
+                {
+                    Console.WriteLine("复位plc");
+                    WriteScannerSuccessPlc("M106", EnumParaInfoModelParaType.Bool, true);
+                }
+                Console.WriteLine($"扫码枪扫码失败：{ex.Message},调用堆栈:{ex.StackTrace}");
+            }
+            finally
+            {
+                _scannerLock.Release();
+            }
+        }
+
+        /// <summary>
         /// 停止采集
         /// </summary>
         /// <param name="order"></param>
@@ -1002,6 +1316,12 @@ namespace Custom.EVEMFDJC.Models
                 Logs.LogInfo($"进入MFDCustomAlgo.CvDrawResult");
                 MFDCustomAlgo.CvDrawResult(measureResult, true);
                 Logs.LogInfo($"结束MFDCustomAlgo.CvDrawResult");
+                if (OtherConfig.IsSaveResultImage)
+                {
+                    Console.WriteLine("开始保存结果图...");
+                    SaveResultImage(CreateMeasureResultSnapshot(measureResult));
+                    Console.WriteLine("结果图保存结束...");
+                }
                 Logs.LogInfo($"进入processedData.SetMemoryPara");
                 processedData.SetMemoryPara("MFDJC0_MeasureResult", CreateMeasureResultSnapshot(measureResult));
                 Logs.LogInfo($"结束processedData.SetMemoryPara");
@@ -1045,6 +1365,89 @@ namespace Custom.EVEMFDJC.Models
             }
 
             return Tuple.Create(grayDataList, heightDataList);
+        }
+
+        private static string SanitizeFileName(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return string.Empty;
+
+            string safeName = fileName.Trim();
+            foreach (char invalidChar in Path.GetInvalidFileNameChars())
+            {
+                safeName = safeName.Replace(invalidChar, '_');
+            }
+
+            return safeName;
+        }
+
+        private static string GetCurrentRecipeFolderName()
+        {
+            const string defaultRecipeFolderName = "未启用配方";
+
+            try
+            {
+                var models = PrismProvider.HardwareModuleManager.Modules[ConfigKey.PLCConfig] as PLCSetModel;
+                var enabledRecipes = models?.RecipeManager?.Recipes?.Where(recipe => recipe.IsUsing).ToList();
+                if (enabledRecipes == null || enabledRecipes.Count == 0)
+                    return defaultRecipeFolderName;
+
+                if (enabledRecipes.Count > 1)
+                    Console.WriteLine("检测到多个启用PLC配方，结果图保存路径使用第一个启用配方备注");
+
+                string recipeName = SanitizeFileName(enabledRecipes[0].Describe);
+                return string.IsNullOrWhiteSpace(recipeName) ? "未命名配方" : recipeName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"获取启用PLC配方备注失败：{ex.Message}");
+                return defaultRecipeFolderName;
+            }
+        }
+
+        /// <summary>
+        /// 保存算法结果图。
+        /// </summary>
+        public void SaveResultImage(MFDJC0_MeasureResult measureResult)
+        {
+            try
+            {
+                if (measureResult == null)
+                    return;
+
+                if (string.IsNullOrWhiteSpace(OtherConfig.ResultImageSavePath))
+                {
+                    Console.WriteLine("结果图保存路径为空");
+                    return;
+                }
+
+                DateTime tmpTime = DateTime.Now;
+                string scannerCode = SanitizeFileName(_lastScannerCode);
+                if (string.IsNullOrWhiteSpace(scannerCode))
+                    scannerCode = $"NoBarcode_{tmpTime:yyyyMMddHHmmssfff}";
+
+                bool isNg = measureResult.Defects != null && measureResult.Defects.Count > 0;
+                string resultFolder = isNg ? "NG" : "OK";
+                string rootPath = Path.Combine(OtherConfig.ResultImageSavePath, GetCurrentRecipeFolderName(), resultFolder, scannerCode);
+                Directory.CreateDirectory(rootPath);
+
+                string heightImagePath = Path.Combine(rootPath, $"{scannerCode}_HeightImage.tiff");
+                string grayImageOriPath = Path.Combine(rootPath, $"{scannerCode}_GrayImageOri.tiff");
+
+                if (measureResult.HeightImage != null && measureResult.HeightImage.Data != IntPtr.Zero)
+                    Cv2.ImWrite(heightImagePath, measureResult.HeightImage);
+                else
+                    Console.WriteLine("结果图 HeightImage 为空，未保存");
+
+                if (measureResult.GrayImageOri != null && measureResult.GrayImageOri.Data != IntPtr.Zero)
+                    Cv2.ImWrite(grayImageOriPath, measureResult.GrayImageOri);
+                else
+                    Console.WriteLine("结果图 GrayImageOri 为空，未保存");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"保存结果图失败：{ex.Message},调用堆栈:{ex.StackTrace}");
+            }
         }
 
         /// <summary>

@@ -107,6 +107,8 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
 
         private CameraState _initialCameraState; // 初始镜头状态
         private bool _cameraStateInitialized = false; // 是否已保存初始状态
+        private double _baseDimensionWidth = 300.0;
+        private double _baseDimensionDepth = 200.0;
 
         // 圆形绘制相关
         private bool _isDrawingCircle = false; // 是否正在绘制圆形
@@ -118,6 +120,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         private bool _enableDataCursor = false; // 是否启用数据游标（默认关闭以提高性能）
         private int _maxDataPointsForCursor = 512 * 512; // 数据游标启用的最大数据点数阈值
 
+        /// <summary>
+        /// 复制非托管内存数据。
+        /// </summary>
         [DllImport("kernel32.dll", EntryPoint = "RtlMoveMemory")]
         private static extern void MoveMemory(IntPtr dest, IntPtr src, uint count);
         private IDataProcessorService _dataProcessorService;
@@ -126,10 +131,6 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         {
             InitializeComponent();
             SetUpHeightChart();
-            //_dataProcessorService = App.ServiceProvider.GetRequiredKeyedService<IDataProcessorService>(STIdentityManager.DataProcessorService_ServiceKey);
-
-            //ViewModel = new MFDJC0_GrayAndHeightChartViewModel();
-            //DataContext = ViewModel;
 
             // 绑定事件
             cb_QualityMode.SelectionChanged += OnQualityModeChanged;
@@ -180,10 +181,10 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             UpdateDataCursorButtonStatus();
         }
 
-        /// <summary>
-        /// 加载配置并生成UI
-        /// </summary>
         // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// 加载配置并生成 UI。
+        /// </summary>
         private void LoadConfigurationAndGenerateUI()
         {
             try
@@ -197,10 +198,10 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
-        /// <summary>
-        /// 动态生成配置UI
-        /// </summary>
         // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// 根据配置动态生成参数 UI。
+        /// </summary>
         private void GenerateDynamicUI()
         {
             if (_featureConfig?.DefectList == null) return;
@@ -452,6 +453,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
 
 
 
+        /// <summary>
+        /// 初始化高度图的 3D 图表配置。
+        /// </summary>
         private void SetUpHeightChart()
         {
             LightningChart.BeginUpdate();
@@ -461,10 +465,12 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
 
             // 暂时设置默认尺寸，实际尺寸会在数据加载时动态调整
             LightningChart.View3D.Dimensions.Width = 300.0;
+            nud_3DWidthScale.Value = 1.0;
             LightningChart.View3D.Dimensions.Height = 30.0;
             nud_3DHeight.Value = 30.0;
                 //ConfigCenter.FrameConfig.GetPara("MFDJC0_HeightChartSetting_DimensionsHeight", 30.0);
             LightningChart.View3D.Dimensions.Depth = 200.0;
+            nud_3DLengthScale.Value = 1.0;
             LightningChart.View3D.LegendBox.ShowCheckboxes = false;
             LightningChart.View3D.LegendBox.Visible = true;
             LightningChart.View3D.Camera.MinimumViewDistance = 10;
@@ -804,6 +810,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             return SmartSampleFloatArray(originalData, targetSize, true);
         }
 
+        /// <summary>
+        /// 对二维数组执行快速降采样。
+        /// </summary>
         private double[,] AggressiveSample(double[,] originalData)
         {
             // 建议采样到 512x512 或 256x256
@@ -832,6 +841,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             return sampledData;
         }
 
+        /// <summary>
+        /// 刷新 LightningChart 的基础显示参数。
+        /// </summary>
         private void RefreshLightningChart()
         {
             LightningChart.View3D.Dimensions.Height = 10.0; /*ConfigCenter.FrameConfig.GetPara<double>("MFDJC0_HeightChartSetting_DimensionsHeight", 10.0);*/
@@ -840,6 +852,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         #endregion
 
 
+        /// <summary>
+        /// 测试处理数据的更新流程。
+        /// </summary>
         public void Test(ProcessedData pd)
         {
             Logs.LogInfo($"进入UpdateMeasureDataAsync(pd)");
@@ -1058,6 +1073,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }, DispatcherPriority.Normal, token);
         }
 
+        /// <summary>
+        /// 将 OpenCV Mat 转换为二维浮点数组。
+        /// </summary>
         public static float[][] MatToFloat2DArray(Mat mat)
         {
             if (mat.Type() != MatType.CV_32FC1)
@@ -1085,6 +1103,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
 
 
 
+        /// <summary>
+        /// 将 Mat 图像转换并刷新到位图显示。
+        /// </summary>
         private void ConvertMatToBitmapFrame(Mat mat)
         {
             // 确保 Mat 是有效的
@@ -1139,6 +1160,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }, DispatcherPriority.Send);
         }
 
+        /// <summary>
+        /// 把像素数据复制到 WriteableBitmap。
+        /// </summary>
         private unsafe void CopyMemory(WriteableBitmap bitmap, byte[] pixelData, int width, int height)
         {
             bitmap.Lock();
@@ -1307,7 +1331,7 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         }
 
         /// <summary>
-        /// Dispatches height data to the selected 3D renderer.
+        /// 将高度数据分发到当前选择的 3D 渲染器。
         /// </summary>
         private void FillHeightData(LightningChart chart, float[][] heightDatas)
         {
@@ -1325,6 +1349,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
+        /// <summary>
+        /// 获取当前渲染模式下的采样大小。
+        /// </summary>
         private int GetSampleSizeForCurrentRenderMode()
         {
             int sampleSize = GetSampleSizeForQuality(_currentQualityMode);
@@ -1408,6 +1435,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
+        /// <summary>
+        /// 使用高度数据填充点云渲染。
+        /// </summary>
         private void FillPointCloudOptimized(LightningChart chart, ref PointLineSeries3D? pointCloudSeries, float[][] heightDatas)
         {
             if (heightDatas.Length == 0 || heightDatas[0].Length == 0) return;
@@ -1459,6 +1489,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
+        /// <summary>
+        /// 根据高度数据构建点云点集。
+        /// </summary>
         private SeriesPointCompactColored3D[] BuildPointCloudPoints(LightningChart chart, float[][] heightDatas)
         {
             var (minVal, maxVal) = GetPointColorRange(heightDatas);
@@ -1518,6 +1551,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             return Math.Abs(range.maxVal - range.minVal) < 1e-6 ? (-1.0f, 1.0f) : range;
         }
 
+        /// <summary>
+        /// 按高度值计算点云颜色。
+        /// </summary>
         private Color GetPointColor(float value, float minVal, float maxVal)
         {
             var ratio = Math.Abs(maxVal - minVal) < 1e-6 ? 0.5 : (value - minVal) / (maxVal - minVal);
@@ -1548,6 +1584,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
                 });
         }
 
+        /// <summary>
+        /// 按比例在调色板颜色间插值。
+        /// </summary>
         private static Color InterpolatePalette(double ratio, Color[] colors)
         {
             if (colors.Length == 0) return Colors.White;
@@ -1565,11 +1604,17 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
                 (byte)(start.B + (end.B - start.B) * localRatio));
         }
 
+        /// <summary>
+        /// 将 WPF 颜色转换为 LightningChart 颜色值。
+        /// </summary>
         private static int ToLightningChartColor(Color color)
         {
             return unchecked((int)((uint)color.A << 24 | (uint)color.R << 16 | (uint)color.G << 8 | color.B));
         }
 
+        /// <summary>
+        /// 清空图表数据和瑕疵信息。
+        /// </summary>
         public void ClearData()
         {
             ClearDefectInfo();
@@ -1580,18 +1625,24 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
+        /// <summary>
+        /// 设置图表名称。
+        /// </summary>
         public void SetChartName(string chartName)
         {
             //ViewModel.ChartName = chartName;
         }
 
+        /// <summary>
+        /// 显示图表设置视图。
+        /// </summary>
         public void ShowSettingView()
         {
 
         }
 
         /// <summary>
-        /// Handles quality mode changes.
+        /// 处理质量模式切换。
         /// </summary>
         private void OnQualityModeChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1608,7 +1659,7 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         }
 
         /// <summary>
-        /// Handles color palette changes.
+        /// 处理颜色调色板切换。
         /// </summary>
         private void OnColorPaletteChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1624,6 +1675,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
+        /// <summary>
+        /// 处理渲染模式切换。
+        /// </summary>
         private void OnRenderModeChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cb_RenderMode.SelectedItem is ComboBoxItem selectedItem &&
@@ -1639,7 +1693,7 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         }
 
         /// <summary>
-        /// Refreshes colors for the active renderer.
+        /// 刷新当前渲染器的颜色。
         /// </summary>
         private void RefreshPalette()
         {
@@ -1691,7 +1745,7 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         }
 
         /// <summary>
-        /// Re-renders with the current quality setting.
+        /// 使用当前质量设置重新渲染。
         /// </summary>
         public void RefreshWithCurrentQuality()
         {
@@ -1700,8 +1754,6 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
                 FillHeightData(LightningChart, _lastRenderedHeightData);
             }
         }
-
-        // 添加镜头控制事件处理
 
         /// <summary>
         /// 视距滑块值改变事件处理
@@ -1761,6 +1813,57 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
         private void Nud_3DHeight_LostFocus(object sender, RoutedEventArgs e)
         {
             Update3DHeight();
+        }
+
+        /// <summary>
+        /// 应用 3D 宽度和长度缩放。
+        /// </summary>
+        private void Apply3DWidthAndDepthScale(LightningChart chart)
+        {
+            if (chart?.View3D == null || nud_3DWidthScale == null || nud_3DLengthScale == null) return;
+
+            chart.View3D.Dimensions.Width = _baseDimensionWidth * Math.Max(0.1, nud_3DWidthScale.Value);
+            chart.View3D.Dimensions.Depth = _baseDimensionDepth * Math.Max(0.1, nud_3DLengthScale.Value);
+        }
+
+        /// <summary>
+        /// 更新 3D 宽度和长度缩放。
+        /// </summary>
+        private void Update3DWidthAndDepthScale()
+        {
+            if (LightningChart?.View3D == null || nud_3DWidthScale == null || nud_3DLengthScale == null) return;
+
+            LightningChart.BeginUpdate();
+            try
+            {
+                Apply3DWidthAndDepthScale(LightningChart);
+            }
+            finally
+            {
+                LightningChart.EndUpdate();
+            }
+        }
+
+        /// <summary>
+        /// 处理 3D 缩放输入框回车事件。
+        /// </summary>
+        private void Nud_3DScale_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Update3DWidthAndDepthScale();
+
+                var request = new TraversalRequest(FocusNavigationDirection.Next);
+                (sender as UIElement)?.MoveFocus(request);
+            }
+        }
+
+        /// <summary>
+        /// 处理 3D 缩放输入框失焦事件。
+        /// </summary>
+        private void Nud_3DScale_LostFocus(object sender, RoutedEventArgs e)
+        {
+            Update3DWidthAndDepthScale();
         }
 
         /// <summary>
@@ -1894,23 +1997,18 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
 
             try
             {
-                int rows;
-                int cols;
-
                 if (_currentRenderMode == RenderMode.PointCloud)
                 {
                     if (_lastDataRows <= 0 || _lastDataCols <= 0) return;
-                    rows = _lastDataRows;
-                    cols = _lastDataCols;
                 }
                 else
                 {
                     if (_surfaceGround?.Data == null) return;
-                    rows = _surfaceGround.Data.GetLength(0);
-                    cols = _surfaceGround.Data.GetLength(1);
                 }
 
-                double suggestedDistance = Math.Max(rows, cols) * 0.8 + 100;
+                double suggestedDistance = Math.Max(LightningChart.View3D.Dimensions.Width,
+                                                    LightningChart.View3D.Dimensions.Depth) * 1.2 +
+                                           Math.Max(40, LightningChart.View3D.Dimensions.Height);
                 suggestedDistance = Math.Max(slider_ViewDistance.Minimum,
                                            Math.Min(slider_ViewDistance.Maximum, suggestedDistance));
 
@@ -1949,14 +2047,15 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             double height = nud_3DHeight != null ? nud_3DHeight.Value : 30.0;
 
             // 应用新的尺寸
-            chart.View3D.Dimensions.Width = width;
+            _baseDimensionWidth = width;
+            _baseDimensionDepth = depth;
+            Apply3DWidthAndDepthScale(chart);
             chart.View3D.Dimensions.Height = height;
-            chart.View3D.Dimensions.Depth = depth;
 
             // 设置坐标轴范围以匹配数据尺寸
             SetAxisRangesToData(chart, dataRows, dataCols);
 
-            System.Diagnostics.Debug.WriteLine($"调整3D视图尺寸: Width={width:F1}, Height={height:F1}, Depth={depth:F1}");
+            System.Diagnostics.Debug.WriteLine($"调整3D视图尺寸: Width={chart.View3D.Dimensions.Width:F1}, Height={chart.View3D.Dimensions.Height:F1}, Depth={chart.View3D.Dimensions.Depth:F1}");
             System.Diagnostics.Debug.WriteLine($"数据尺寸: {dataRows}×{dataCols}, 长宽比: {dataAspectRatio:F2}");
         }
 
@@ -2038,11 +2137,17 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
 
 
 
+        /// <summary>
+        /// 处理恢复原始缩放按钮点击。
+        /// </summary>
         private void btn_OriginalScale_Click(object sender, RoutedEventArgs e)
         {
             drawViewer.Home();
         }
 
+        /// <summary>
+        /// 处理保存图像按钮点击。
+        /// </summary>
         private void btn_SaveImage_Click(object sender, RoutedEventArgs e)
         {
             var backgroundImage = drawViewer.BackgroundImage;
@@ -2493,6 +2598,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             }
         }
 
+        /// <summary>
+        /// 更新检测结果显示。
+        /// </summary>
         private void UpdateInspectionResultDisplay(int defectCount, bool isNg)
         {
             SetInspectionResult(
@@ -2503,6 +2611,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
                 isNg ? Brushes.Red : Brushes.LightGreen);
         }
 
+        /// <summary>
+        /// 设置检测结果文本和样式。
+        /// </summary>
         private void SetInspectionResult(string result, string detail, Brush foreground, Brush background, Brush borderBrush)
         {
             tb_InspectionResult.Text = result;
@@ -2513,6 +2624,9 @@ namespace Custom.EVEMFDJC.GrayAndHeightChart
             InspectionResultBorder.BorderBrush = borderBrush;
         }
 
+        /// <summary>
+        /// 处理绘图工具结束事件。
+        /// </summary>
         private void OnDrawToolEnded(object sender, DrawToolEventArgs e)
         {
             if (e.DrawingToolType == DrawToolType.Ellipse)

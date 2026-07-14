@@ -276,8 +276,8 @@
                     </Border>
                     <Border Style="{StaticResource StatusTileStyle}">
                         <StackPanel>
-                            <TextBlock Text="累计米数" Style="{StaticResource InfoLabelTextStyle}"/>
-                            <TextBlock Text="{Binding SharedCumulativeMeters, StringFormat='{}{0:F2} m'}" Margin="0,4,0,0" Style="{StaticResource StatusTileValueTextStyle}"/>
+                            <TextBlock Text="累计帧数" Style="{StaticResource InfoLabelTextStyle}"/>
+                            <TextBlock Text="{Binding FrameCount, StringFormat='{}{0} 帧'}" Margin="0,4,0,0" Style="{StaticResource StatusTileValueTextStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatusTileStyle}">
@@ -353,7 +353,6 @@
                                             <TextBlock Text="{Binding LastFrameNgPieceCount, StringFormat='本帧NG {0}'}" Style="{StaticResource PreviewSubTextStyle}"/>
                                             <TextBlock Text="{Binding Model.TotalCount, StringFormat='累计总片 {0}'}" Style="{StaticResource PreviewSubTextStyle}"/>
                                             <TextBlock Text="{Binding Model.NGCount, StringFormat='累计NG {0}'}" Style="{StaticResource PreviewSubTextStyle}"/>
-                                            <TextBlock Text="{Binding SharedRangeSummary}" Style="{StaticResource PreviewSubTextStyle}"/>
                                         </StackPanel>
                                         <Border Grid.Column="2" Tag="{Binding LastResult}" Style="{StaticResource ResultBadgeBorderStyle}" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding LastResult}" Style="{StaticResource ResultBadgeTextStyle}"/>

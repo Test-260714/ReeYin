@@ -669,16 +669,16 @@
                             </UniformGrid>
                         </StackPanel>
 
-                        <!-- 亮度控制 -->
+                        <!-- 脉宽控制 -->
                         <StackPanel Grid.Row="1">
-                            <TextBlock Text="亮度控制" FontSize="13" FontWeight="SemiBold" Foreground="#333" Margin="0,0,0,8"/>
+                            <TextBlock Text="脉宽控制" FontSize="13" FontWeight="SemiBold" Foreground="#333" Margin="0,0,0,8"/>
                             <Grid Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="50"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="全局亮度" VerticalAlignment="Center" Foreground="#666" FontSize="12"/>
+                                <TextBlock Text="脉宽映射" VerticalAlignment="Center" Foreground="#666" FontSize="12"/>
                                 <Slider Grid.Column="1" Minimum="0" Maximum="255" 
                                         Value="{Binding ModelParam.LightBrightness}" 
                                         VerticalAlignment="Center" Margin="0,0,8,0"
@@ -688,9 +688,9 @@
                                          IsEnabled="{Binding ModelParam.LightControllerConnected}"/>
                             </Grid>
                             <UniformGrid Columns="3" Margin="0,0,0,12">
-                                <Button Content="应用亮度" Height="28" Margin="0,0,3,0" FontSize="12"
+                                <Button Content="应用脉宽" Height="28" Margin="0,0,3,0" FontSize="12"
                                         Style="{DynamicResource GeneralButtonStyle}"
-                                        Command="{Binding GeneralCommand}" CommandParameter="应用光源亮度"
+                                        Command="{Binding GeneralCommand}" CommandParameter="应用光源脉宽"
                                         IsEnabled="{Binding ModelParam.LightControllerConnected}"/>
                                 <Button Content="全开" Height="28" Margin="3,0" FontSize="12"
                                         Style="{DynamicResource GeneralButtonStyle}"
@@ -715,9 +715,9 @@
                                     <TextBlock Text="{Binding ModelParam.LightChannelCount}" FontWeight="Bold" Foreground="#1976D2" FontSize="14"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock Text="当前亮度：" Foreground="#666" FontSize="12"/>
-                                    <TextBlock Text="{Binding ModelParam.LightBrightness}" FontWeight="Bold" Foreground="#FF9800" FontSize="14"/>
-                                    <TextBlock Text=" / 255" Foreground="#999" FontSize="11"/>
+                                    <TextBlock Text="当前脉宽：" Foreground="#666" FontSize="12"/>
+                                    <TextBlock Text="{Binding ModelParam.LightPulseWidthUs}" FontWeight="Bold" Foreground="#FF9800" FontSize="14"/>
+                                    <TextBlock Text=" us" Foreground="#999" FontSize="11"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -726,7 +726,7 @@
                         <Border Grid.Row="3" Background="#FFF3E0" CornerRadius="4" Padding="12,10" VerticalAlignment="Top">
                             <StackPanel>
                                 <TextBlock Text="基础型控制器" FontWeight="SemiBold" Foreground="#E65100" Margin="0,0,0,4"/>
-                                <TextBlock Text="当前控制器仅支持亮度控制功能。如需触发模式和频闪功能，请点击【设置】按钮打开完整设置界面。" 
+                                <TextBlock Text="锐视控制器通过脉宽控制光源。触发模式和内触发周期请点击【设置】打开完整设置界面。" 
                                            Foreground="#666666" FontSize="11" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>

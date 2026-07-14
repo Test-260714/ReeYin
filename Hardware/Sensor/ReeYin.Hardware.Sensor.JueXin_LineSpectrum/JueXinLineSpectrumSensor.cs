@@ -491,7 +491,6 @@ namespace ReeYin.Hardware.Sensor.JueXin_LineSpectrum
             get { return _triggerDebounceTimeUs; }
             set
             {
-                if (Math.Abs(_triggerDebounceTimeUs - value) < double.Epsilon) return;
                 if (!TrySetSdkTriggerConfig(TriggerSource, TriggerMode, TriggerLevel, TriggerCount, value))
                 {
                     RaisePropertyChanged();

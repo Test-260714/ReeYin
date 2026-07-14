@@ -172,5 +172,18 @@ namespace Custom.DefectOverview.Models
 		}
 		return _postProcessService;
 	}
+
+	private IBandMapStateService ResolveBandMapStateService()
+	{
+		if (_bandMapStateService == null)
+		{
+			_bandMapStateService = PrismProvider.Container.Resolve(typeof(IBandMapStateService)) as IBandMapStateService;
+		}
+		if (_bandMapStateService == null)
+		{
+			throw new InvalidOperationException("IBandMapStateService is not registered.");
+		}
+		return _bandMapStateService;
+	}
     }
 }

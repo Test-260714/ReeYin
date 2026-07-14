@@ -1,23 +1,14 @@
-using Dm;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PrecitecClass;
 using ReeYin.Hardware.Sensor.Models;
-using ReeYin_V.Core;
 using ReeYin_V.Core.Enums;
-using ReeYin_V.Core.Interfaces;
 using ReeYin_V.Core.Services.DataCollectRelated;
-using ReeYin_V.Core.Services.Project;
 using ReeYin_V.Logger;
 using ReeYin_V.UI;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Windows;
 using static PrecitecClass.PrecitecControllerClassSync;
 using static ReeYin.Hardware.Sensor.ChroCodile.Defines.General;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ReeYin.Hardware.Sensor.ChroCodile
 {
@@ -31,11 +22,18 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
         public PrecitecControllerClassSync _controller = new PrecitecControllerClassSync();
 
         [JsonIgnore]
-        private readonly List<PrecitecControllerClassSync.DataSamples> _resultCache = new List<PrecitecControllerClassSync.DataSamples>();
+        private readonly List<DataSamples> _resultCache = new List<DataSamples>();
 
         [JsonIgnore]
         private readonly object _resultCacheLock = new object();
 
+        [JsonIgnore]
+        private int _expectedDataSamplesCount;
+
+        [JsonIgnore]
+        private readonly ManualResetEventSlim _collectCompletedEvent = new ManualResetEventSlim(false);
+
+        private const int COLLECT_WAIT_TIMEOUT_MS = 2000;
         #endregion
 
         #region Properties
@@ -53,7 +51,7 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
         #region Constructor
         public ChroCodileSensor()
         {
-            IP = "192.168.170.3";
+            IP = "192.168.170.3";      
         }
         #endregion
 
@@ -70,30 +68,33 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
                 IsConnected = false;
                 return false;
             }
-            _controller.DataSampling += ChroCodileEventCallbackHandle;
-
             string outsigs = CurrentConfig.OutputSignal.Replace(',', ' ');
 
             SetParameters("输出信号", outsigs, true);
 
-            _controller.startMeasure();
-
-            _controller.del_Status += (status)  //连接状态委托
-            =>
+            if (_controller.DataSampling == null)
             {
-                try
-                {
-                    if (status == ConnectStatus.Disconnected)
-                    {
-                        _controller.CloseConnection();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logs.LogError($"普雷茨特传感器:{ex.Message}");
-                }
-            };
+                _controller.DataSampling += ChroCodileEventCallbackHandle;
+            }
 
+            if(_controller.del_Status == null)
+            {
+                _controller.del_Status += (status)  //连接状态委托
+                =>
+                {
+                    try
+                    {
+                        if (status == ConnectStatus.Disconnected)
+                        {
+                            _controller.CloseConnection();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logs.LogError($"普雷茨特传感器:{ex.Message}");
+                    }
+                };
+            }
             IsConnected = true;
 
             return true;
@@ -104,7 +105,21 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
         /// </summary>
         public override void StartCollect()
         {
-            _resultCache.Clear();
+            Console.WriteLine("开始触发采集");
+
+            _collectCompletedEvent.Reset();
+            _expectedDataSamplesCount = 0;
+
+            lock (_resultCacheLock)
+            {
+                Console.WriteLine("清空_resultCache集合");
+                _resultCache.Clear();
+                if (_resultCache.Count == 0)
+                {
+                    Console.WriteLine("清空_resultCache集合成功，当前集合数量为0");
+                }
+            }
+
             int width = 0, height = 0;
             if (CurrentConfig.IsIOTrigger)
             {
@@ -116,11 +131,15 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
                     return;
                 }
 
+                SetExpectedDataSamplesCount(width);
+                Console.WriteLine("开始测量");
+                _controller.startMeasure();
                 _controller.ExecStringCommand("ETR 3 0");
                 _controller.ExecStringCommand("TRE");
             }
             else if (CurrentConfig.IsEncoderTrigger)
             {
+                Console.WriteLine("通过编码器触发");
                 int startpos = CurrentConfig.StartPosition;
                 int stoppos = CurrentConfig.EndPosition;
                 float interval = CurrentConfig.Interval;
@@ -168,17 +187,30 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
                     return;
                 }
 
+                SetExpectedDataSamplesCount(width);
+                Console.WriteLine("开始测量");
+                _controller.startMeasure();
+
                 if (CurrentConfig.SetStartPulse)
                 {
+                    Console.WriteLine($"ChroCodile编码器触发命令: ENC {(int)CurrentConfig.ShaftNumber} {CurrentConfig.StartPulseValue}");
                     _controller.ExecStringCommand($"ENC {(int)CurrentConfig.ShaftNumber} {CurrentConfig.StartPulseValue}");
                 }
 
+                Console.WriteLine($"ChroCodile编码器触发参数: startpos={startpos}, stoppos={stoppos}, interval={interval}, lines={lines}, width={width}, height={height}, roundTrip={(CurrentConfig.IsRoundTripTrigger ? 1 : 0)}, shaft={(int)CurrentConfig.ShaftNumber}");
+                Console.WriteLine($"ChroCodile编码器触发命令: ETR 1 {stoppos}");
                 _controller.ExecStringCommand($"ETR 1 {stoppos}");
+                Console.WriteLine($"ChroCodile编码器触发命令: ETR 2 {interval}");
                 _controller.ExecStringCommand($"ETR 2 {interval}");
+                Console.WriteLine("ChroCodile编码器触发命令: ETR 3 1");
                 _controller.ExecStringCommand($"ETR 3 1");
+                Console.WriteLine($"ChroCodile编码器触发命令: ETR 4 {(CurrentConfig.IsRoundTripTrigger ? 1 : 0)}");
                 _controller.ExecStringCommand($"ETR 4 {(CurrentConfig.IsRoundTripTrigger ? 1 : 0)}");
+                Console.WriteLine($"ChroCodile编码器触发命令: ETR 5 {(int)CurrentConfig.ShaftNumber}");
                 _controller.ExecStringCommand($"ETR 5 {(int)CurrentConfig.ShaftNumber}");
+                Console.WriteLine($"ChroCodile编码器触发命令: ETR 0 {startpos}");
                 _controller.ExecStringCommand($"ETR 0 {startpos}");
+                Console.WriteLine("ChroCodile编码器触发命令: TRE");
                 _controller.ExecStringCommand("TRE");
             }
         }
@@ -204,7 +236,19 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
         /// </summary>
         public override List<MeasureData> ReceiveSensorData()
         {
-            List<PrecitecControllerClassSync.DataSamples> snapshot;
+            List<DataSamples> snapshot;
+
+            if (_expectedDataSamplesCount > 0)
+            {
+                bool completed = _collectCompletedEvent.Wait(COLLECT_WAIT_TIMEOUT_MS);
+                if (!completed)
+                {
+                    lock (_resultCacheLock)
+                    {
+                        Console.WriteLine($"ChroCodile采集等待超时: expected={_expectedDataSamplesCount}, actual={_resultCache.Count}");
+                    }
+                }
+            }
 
             lock (_resultCacheLock)
             {
@@ -212,14 +256,23 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
                 if (_resultCache.Count == 0)
                 {
                     Console.WriteLine("普雷茨特传感器回调方法中没有拿到数据");
+                    _expectedDataSamplesCount = 0;
+                    _collectCompletedEvent.Reset();
                     return new List<MeasureData>();
+                }
+                else
+                {
+                    Console.WriteLine($"普雷茨特传感器回调方法中拿到数据，DataSamples数量为{_resultCache.Count}");
                 }
                 snapshot = _resultCache.Select(s => s.Clone()).ToList();    
 
                 _resultCache.Clear();
-
-                return ConvertSnapshotToMeasureData(snapshot);
+                _expectedDataSamplesCount = 0;
+                _collectCompletedEvent.Reset();
             }
+
+            List<MeasureData> measureData = ConvertSnapshotToMeasureData(snapshot);
+            return measureData;
         }
         #endregion
 
@@ -228,16 +281,21 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
         /// 回调函数
         /// </summary>
         /// <param name="DataSamples"></param>
-        public void ChroCodileEventCallbackHandle(List<PrecitecControllerClassSync.DataSamples> DataSamples)
+        public void ChroCodileEventCallbackHandle(List<DataSamples> DataSamples)
         {
             lock (_resultCacheLock)
             {
                 if (DataSamples == null || DataSamples.Count == 0)
                 {
-                    Logs.LogInfo("普雷茨特传感器中回调函数ChroCodileEventCallbackHandle拿到的集合数据为空");
+                    Console.WriteLine("普雷茨特传感器中回调函数ChroCodileEventCallbackHandle拿到的集合数据为空");
                     return;
                 }
                 _resultCache.AddRange(DataSamples);
+                if (_expectedDataSamplesCount > 0 && _resultCache.Count >= _expectedDataSamplesCount && !_collectCompletedEvent.IsSet)
+                {
+                    Console.WriteLine($"ChroCodile采集数据已达到目标: expected={_expectedDataSamplesCount}, actual={_resultCache.Count}");
+                    _collectCompletedEvent.Set();
+                }
             }
         }
 
@@ -325,6 +383,117 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
             return rsp;
         }
 
+        private void SetExpectedDataSamplesCount(int width)
+        {
+            int outputSignalCount = GetOutputSignalCount();
+            _expectedDataSamplesCount = width > 0 && outputSignalCount > 0 ? width * outputSignalCount : 0;
+            Console.WriteLine($"ChroCodile采集目标DataSamples数量: width={width}, outputSignalCount={outputSignalCount}, expected={_expectedDataSamplesCount}");
+        }
+
+        private int GetOutputSignalCount()
+        {
+            if (string.IsNullOrWhiteSpace(CurrentConfig.OutputSignal))
+                return 0;
+
+            return CurrentConfig.OutputSignal
+                .Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .Length;
+        }
+
+
+        private List<PrecitecControllerClassSync.DataSamples> GetValidSamples(List<PrecitecControllerClassSync.DataSamples> snapshot)
+        {
+            return snapshot
+                .Where(s => s.data != null && s.data.Length > 0)
+                .ToList();
+        }
+
+        private List<float[]> GetHeightRows(List<PrecitecControllerClassSync.DataSamples> validSamples)
+        {
+            return validSamples
+                .Where(s => s.id == 256 || s.id == 16640)
+                .Select(s => s.data.Select(x => x == 0 ? 888888.0f : -(float)x / 10.0f).ToArray())
+                .ToList();
+        }
+
+        private List<float[]> GetGrayRows(List<PrecitecControllerClassSync.DataSamples> validSamples)
+        {
+            var graySamples = validSamples
+                .Where(s => s.id == 257 || s.id == 16641)
+                .ToList();
+
+            if (graySamples.Count == 0)
+                return new List<float[]>();
+
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+            //ExportRawGrayRowsToCsv(graySamples, timestamp);
+
+            double rawMin = graySamples.Min(s => s.data.Min());
+            Console.WriteLine($"ChroCodile灰度数据最小值: {rawMin}");
+            double min = rawMin < 0 ? 0 : rawMin;
+            Console.WriteLine($"ChroCodile灰度数据映射最小值: {min}");
+            double max = graySamples.Max(s => s.data.Max());
+            Console.WriteLine($"ChroCodile灰度数据最大值: {max}");
+
+            var mappedGrayRows = graySamples
+                .Select(s => s.data.Select(x => MapGrayToByteRange(x, min, max)).ToArray())
+                .ToList();
+
+            //ExportMappedGrayRowsToCsv(mappedGrayRows, timestamp);
+
+            return mappedGrayRows;
+        }
+
+        private static float MapGrayToByteRange(double value, double min, double max)
+        {
+            if (max <= min)
+                return 0f;
+
+            double mapped = (value - min) * 255.0 / (max - min);
+
+            if (mapped < 0)
+                return 177f;
+
+            if (mapped > 255)
+                return 255f;
+
+            return (float)mapped;
+        }
+
+        private void ExportRawGrayRowsToCsv(List<PrecitecControllerClassSync.DataSamples> graySamples, string timestamp)
+        {
+            string directory = @"D:\ReeYin";
+            System.IO.Directory.CreateDirectory(directory);
+
+            string fileName = $"ChroCodile_GrayRaw_{timestamp}.csv";
+            string path = System.IO.Path.Combine(directory, fileName);
+
+            using (var writer = new System.IO.StreamWriter(path, false, new System.Text.UTF8Encoding(true)))
+            {
+                foreach (var sample in graySamples)
+                {
+                    writer.WriteLine(string.Join(",", sample.data.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture))));
+                }
+            }
+        }
+
+        private void ExportMappedGrayRowsToCsv(List<float[]> grayRows, string timestamp)
+        {
+            string directory = @"D:\ReeYin";
+            System.IO.Directory.CreateDirectory(directory);
+
+            string fileName = $"ChroCodile_GrayMapped_{timestamp}.csv";
+            string path = System.IO.Path.Combine(directory, fileName);
+
+            using (var writer = new System.IO.StreamWriter(path, false, new System.Text.UTF8Encoding(true)))
+            {
+                foreach (float[] row in grayRows)
+                {
+                    writer.WriteLine(string.Join(",", row.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture))));
+                }
+            }
+        }
+
         /// <summary>
         /// 将传感器拿到的DataSamples对象转换为通用的MeasureData对象
         /// </summary>
@@ -334,23 +503,15 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
             if (snapshot == null || snapshot.Count == 0)
                 return result;
 
-            var validSamples = snapshot
-                .Where(s => s.data != null && s.data.Length > 0)
-                .ToList();
+            var validSamples = GetValidSamples(snapshot);
             if (validSamples.Count == 0)
                 return result;
 
 
-            var heightRows = validSamples
-                    .Where(s => s.id == 256 || s.id == 16640)
-                    .Select(s => s.data.Select(x => x == 0 ? -24200.0f : -(float)x).ToArray())
-                    .ToList();
+            var heightRows = GetHeightRows(validSamples);
 
 
-            var grayRows = validSamples
-                    .Where(s => s.id == 257 || s.id == 16641)
-                    .Select(s => s.data.Select(x => (float)x).ToArray())
-                    .ToList();
+            var grayRows = GetGrayRows(validSamples);
  
 
             if (heightRows.Count == 0 && grayRows.Count == 0)
@@ -550,7 +711,7 @@ namespace ReeYin.Hardware.Sensor.ChroCodile
         }
 
         /// <summary>往返触发</summary>
-        private bool _isRoundTripTrigger = true;
+        private bool _isRoundTripTrigger;
         public bool IsRoundTripTrigger
         {
             get => _isRoundTripTrigger;

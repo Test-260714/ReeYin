@@ -11,6 +11,14 @@ namespace ReeYin_V.Hardware.Camera.Dalsa
 {
     public partial class DalsaCamera : CameraBase
     {
+        private static readonly string[] ExposureFeatureCandidates =
+        {
+            "ExposureTime",
+            "ExposureTimeAbs",
+            "ExposureTimeRaw",
+            "ExposureDuration"
+        };
+
         #region Overriden Methods
         public override List<CameraInfoModel> SearchCameras()
         {
@@ -218,7 +226,7 @@ namespace ReeYin_V.Hardware.Camera.Dalsa
                 TrySetFeatureValue("Height", Height);
 
             if (Config.ExposeTime > 0)
-                TrySetFeatureValue("ExposureTime", Convert.ToDouble(Config.ExposeTime, CultureInfo.InvariantCulture));
+                TrySetExposureTime(Convert.ToDouble(Config.ExposeTime, CultureInfo.InvariantCulture));
 
             if (Config.Gain > 0)
                 TrySetFeatureValue("Gain", Convert.ToDouble(Config.Gain, CultureInfo.InvariantCulture));
@@ -239,7 +247,7 @@ namespace ReeYin_V.Hardware.Camera.Dalsa
                         TrySetFeatureValue("Gain", Convert.ToDouble(Config.Gain, CultureInfo.InvariantCulture));
                         break;
                     case ChangType.曝光:
-                        TrySetFeatureValue("ExposureTime", Convert.ToDouble(Config.ExposeTime, CultureInfo.InvariantCulture));
+                        TrySetExposureTime(Convert.ToDouble(Config.ExposeTime, CultureInfo.InvariantCulture));
                         break;
                     case ChangType.宽度:
                         TrySetFeatureValue("Width", Width);
@@ -264,6 +272,9 @@ namespace ReeYin_V.Hardware.Camera.Dalsa
             {
                 if (string.IsNullOrWhiteSpace(key))
                     return false;
+
+                if (IsExposureFeatureKey(key))
+                    return TrySetExposureTime(Convert.ToDouble(value, CultureInfo.InvariantCulture));
 
                 string normalizedType = type?.Trim() ?? string.Empty;
                 switch (normalizedType)
@@ -299,6 +310,9 @@ namespace ReeYin_V.Hardware.Camera.Dalsa
             {
                 if (_acqDevice == null || !_acqDevice.Initialized || string.IsNullOrWhiteSpace(key))
                     return false;
+
+                if (IsExposureFeatureKey(key))
+                    return TryGetExposureTime(ref value);
 
                 if (!_acqDevice.IsFeatureAvailable(key))
                     return false;
@@ -398,6 +412,226 @@ namespace ReeYin_V.Hardware.Camera.Dalsa
                 return Convert.ToSingle(value, CultureInfo.InvariantCulture);
 
             return 0f;
+        }
+
+        private bool TrySetExposureTime(double requestedValue)
+        {
+            if (_acqDevice == null || !_acqDevice.Initialized || requestedValue <= 0)
+                return false;
+
+            bool wasGrabbing = _xfer != null && _xfer.Initialized && _xfer.Grabbing;
+
+            try
+            {
+                if (wasGrabbing)
+                {
+                    _xfer.Freeze();
+                    _xfer.Wait(1000);
+                }
+
+                // Some Dalsa/GenICam cameras reject manual exposure writes while auto exposure is active.
+                TrySetOptionalFeatureValue("ExposureAuto", "Off");
+                TrySetOptionalFeatureValue("ExposureMode", "Timed");
+
+                var failureDetails = new List<string>();
+
+                foreach (string featureName in ExposureFeatureCandidates)
+                {
+                    if (!_acqDevice.IsFeatureAvailable(featureName))
+                    {
+                        failureDetails.Add($"{featureName}: not available");
+                        continue;
+                    }
+
+                    foreach (double value in EnumerateExposureWriteValues(requestedValue))
+                    {
+                        if (!TrySetNumericFeatureValue(featureName, value, out string failureDetail))
+                        {
+                            failureDetails.Add($"{featureName}={value.ToString(CultureInfo.InvariantCulture)}: {failureDetail}");
+                            continue;
+                        }
+
+                        if (TryGetNumericFeatureValue(featureName, out double readBack))
+                            Config.ExposeTime = Convert.ToSingle(readBack, CultureInfo.InvariantCulture);
+
+                        return true;
+                    }
+                }
+
+                Trace.TraceWarning("Dalsa exposure set failed. Requested={0}, Candidates={1}, Details={2}",
+                    requestedValue.ToString(CultureInfo.InvariantCulture),
+                    string.Join(",", ExposureFeatureCandidates),
+                    string.Join("; ", failureDetails));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Dalsa TrySetExposureTime failed: {0}", ex.Message);
+                return false;
+            }
+            finally
+            {
+                if (wasGrabbing)
+                {
+                    try
+                    {
+                        _xfer?.Grab();
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.TraceError("Dalsa exposure set restart grab failed: {0}", ex.Message);
+                    }
+                }
+            }
+        }
+
+        private bool TryGetExposureTime(ref object value)
+        {
+            if (_acqDevice == null || !_acqDevice.Initialized)
+                return false;
+
+            foreach (string featureName in ExposureFeatureCandidates)
+            {
+                if (!_acqDevice.IsFeatureAvailable(featureName))
+                    continue;
+
+                if (TryGetNumericFeatureValue(featureName, out double exposure))
+                {
+                    value = exposure;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsExposureFeatureKey(string key)
+        {
+            foreach (string candidate in ExposureFeatureCandidates)
+            {
+                if (string.Equals(key, candidate, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static IEnumerable<double> EnumerateExposureWriteValues(double requestedValue)
+        {
+            yield return requestedValue;
+
+            // UI values such as 3 are often entered as ms, while GenICam ExposureTime is usually us.
+            if (requestedValue > 0 && requestedValue < 100)
+                yield return requestedValue * 1000d;
+        }
+
+        private bool TrySetNumericFeatureValue(string featureName, double value, out string failureDetail)
+        {
+            var failures = new List<string>();
+
+            try
+            {
+                if (_acqDevice.SetFeatureValue(featureName, value))
+                {
+                    failureDetail = string.Empty;
+                    return true;
+                }
+
+                failures.Add("double returned false");
+            }
+            catch (Exception ex)
+            {
+                failures.Add($"double {ex.GetType().Name}: {ex.Message}");
+                // Try integer overloads below; some "Raw" features are not floating point.
+            }
+
+            long rounded = Convert.ToInt64(Math.Round(value, MidpointRounding.AwayFromZero), CultureInfo.InvariantCulture);
+
+            try
+            {
+                if (_acqDevice.SetFeatureValue(featureName, rounded))
+                {
+                    failureDetail = string.Empty;
+                    return true;
+                }
+
+                failures.Add("int64 returned false");
+            }
+            catch (Exception ex)
+            {
+                failures.Add($"int64 {ex.GetType().Name}: {ex.Message}");
+                // Try Int32 if Int64 is not accepted by this feature.
+            }
+
+            if (rounded < int.MinValue || rounded > int.MaxValue)
+            {
+                failureDetail = string.Join(", ", failures) + ", int32 out of range";
+                return false;
+            }
+
+            try
+            {
+                if (_acqDevice.SetFeatureValue(featureName, Convert.ToInt32(rounded, CultureInfo.InvariantCulture)))
+                {
+                    failureDetail = string.Empty;
+                    return true;
+                }
+
+                failures.Add("int32 returned false");
+            }
+            catch (Exception ex)
+            {
+                failures.Add($"int32 {ex.GetType().Name}: {ex.Message}");
+            }
+
+            failureDetail = string.Join(", ", failures);
+            return false;
+        }
+
+        private bool TryGetNumericFeatureValue(string featureName, out double value)
+        {
+            value = 0d;
+
+            try
+            {
+                if (_acqDevice.GetFeatureValue(featureName, out double doubleValue))
+                {
+                    value = doubleValue;
+                    return true;
+                }
+            }
+            catch
+            {
+                // Try other numeric overloads.
+            }
+
+            try
+            {
+                if (_acqDevice.GetFeatureValue(featureName, out long longValue))
+                {
+                    value = longValue;
+                    return true;
+                }
+            }
+            catch
+            {
+                // Try Int32 below.
+            }
+
+            try
+            {
+                if (_acqDevice.GetFeatureValue(featureName, out int intValue))
+                {
+                    value = intValue;
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return false;
         }
 
         #endregion

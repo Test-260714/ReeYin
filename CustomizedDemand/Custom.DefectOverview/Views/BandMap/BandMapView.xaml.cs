@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Custom.DefectOverview.Views
 {
@@ -14,6 +15,7 @@ namespace Custom.DefectOverview.Views
     {
         private const string BrjReportViewName = "BrjReportOutputView";
         private const string BrjReportSubjection = "FileTool.BRJReportOutput";
+        private const double MapCanvasCornerRadius = 6.0;
 
         private bool _isMiddlePanning;
         private Point _lastPanPoint;
@@ -68,12 +70,16 @@ namespace Custom.DefectOverview.Views
 
         private void OnMapCanvasHostLoaded(object sender, RoutedEventArgs e)
         {
-            SyncMapViewportSize(sender as FrameworkElement);
+            var element = sender as FrameworkElement;
+            SyncMapViewportSize(element);
+            UpdateMapCanvasClip(element);
         }
 
         private void OnMapCanvasHostSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            SyncMapViewportSize(sender as FrameworkElement);
+            var element = sender as FrameworkElement;
+            SyncMapViewportSize(element);
+            UpdateMapCanvasClip(element);
         }
 
         private void OnLightningMapPointSelected(object sender, BandMapPointSelectedEventArgs e)
@@ -199,6 +205,17 @@ namespace Custom.DefectOverview.Views
                 return;
 
             viewModel.UpdateViewportSize(element.ActualWidth, element.ActualHeight);
+        }
+
+        private static void UpdateMapCanvasClip(FrameworkElement element)
+        {
+            if (element == null || element.ActualWidth <= 1 || element.ActualHeight <= 1)
+                return;
+
+            element.Clip = new RectangleGeometry(
+                new Rect(0, 0, element.ActualWidth, element.ActualHeight),
+                MapCanvasCornerRadius,
+                MapCanvasCornerRadius);
         }
 
         private static bool IsBrjReportDynamicViewRegistered()

@@ -68,15 +68,10 @@
                             <TextBlock Text="控制器类型:" VerticalAlignment="Center"/>
                             <ComboBox Width="160" ItemsSource="{Binding LightControllerTypes}" Height="25" BorderThickness="0 0 0 1" Margin="5 0"
                                       SelectedItem="{Binding ModelParam.SltVendorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            <Button Content="&#xe630;" Width="30" Height="26" FontSize="18" Style="{StaticResource GeneralButtonStyle}"
-                                    Background="White" FontFamily="{StaticResource Iconfont}" BorderBrush="White" 
-                                    ToolTip="添加" Command="{Binding DataOperateCommand}" CommandParameter="Add"/>
-                            <Button Content="&#xe74b;" Width="30" Height="26" FontSize="18" Style="{StaticResource GeneralButtonStyle}"
-                                    Background="White" FontFamily="{StaticResource Iconfont}" BorderBrush="White" Margin="5 0" 
-                                    ToolTip="删除" Command="{Binding DataOperateCommand}" CommandParameter="Del"/>
-                            <Button Content="&#xe621;" Width="30" Height="26" FontSize="18" Style="{StaticResource GeneralButtonStyle}"
-                                    Background="White" FontFamily="{StaticResource Iconfont}" BorderBrush="White"
-                                    ToolTip="修改" Command="{Binding DataOperateCommand}" CommandParameter="Modify"/>
+                            <Button Content="添加" Width="64" Height="28" Margin="8 0 0 0" FontSize="13" Style="{StaticResource GeneralButtonStyle}"
+                                    ToolTip="添加光源控制器" Command="{Binding DataOperateCommand}" CommandParameter="Add"/>
+                            <Button Content="删除" Width="64" Height="28" Margin="6 0 0 0" FontSize="13" Style="{StaticResource GeneralButtonStyle}"
+                                    ToolTip="删除选中的光源控制器" Command="{Binding DataOperateCommand}" CommandParameter="Del"/>
                         </StackPanel>
                     </StackPanel>
                 </WxGroupBox:WxGroupBox>
